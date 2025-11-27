@@ -4,6 +4,13 @@ O **SGEA** é um sistema desenvolvido em **Django** para gerenciar eventos acad�
 
 ---
 
+## 🎓 Sobre o Projeto
+
+Este projeto está sendo desenvolvido para o **Centro Universitário de Brasília – UniCEUB**, como **trabalho final da disciplina “Programação para Web”**.  
+O objetivo é aplicar conceitos de desenvolvimento backend com Django, integrações REST, autenticação, controle de acesso, validações avançadas e boas práticas de engenharia de software.
+
+---
+
 ## 📌 Funcionalidades Principais
 
 ### Usuários
