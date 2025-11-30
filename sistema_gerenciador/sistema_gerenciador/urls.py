@@ -23,10 +23,20 @@ from django.conf.urls.static import static
 from main import views
 
 urlpatterns = [
+
+    # --------------- URLS TEMPORÁRIAS ----------------------------
+
+    # TEMPORÁRIA
+    path('temporary/profile/', views.profile_view, name='temporary_user_profile'),
+
+    # TEMPORÁRIA
+    path('temporary/subscription', views.subscription_view, name='temporary_subscription_page'),
+
     path('admin/', admin.site.urls),
     path('api/', include("main.api.urls")),
 
     # --------------- URL DAS TELAS INICIAIS ----------------------
+
     path('', views.loginPage, name="landing_page"),
     path('login/', views.loginPage, name="login_page"),
     path('logout/', views.logout_view, name='logout'),
@@ -34,6 +44,7 @@ urlpatterns = [
     path('dashboard/', views.dashboardPage, name="dashboard_page"),
 
     # --------------- URL DAS TELAS DE EVENTO ---------------------
+
     path('events/', views.allEventsPage, name="all_events"),
     path('event/detail/<int:pk>', views.eventDetailPage, name="event"),
 
@@ -43,6 +54,7 @@ urlpatterns = [
     path('event/admin/delete_event/<int:pk>', views.adminDeleteUserPage, name="admin_delete_event"),
 
     # --------------- URL DAS TELAS DE PERFIL ---------------------
+
     path('profile/', views.showUserProfilePage, name="user_profile"),
 
     path('profile/admin/register_user', views.adminCreateUserPage, name="admin_create_user"),
@@ -50,6 +62,7 @@ urlpatterns = [
     path('profile/admin/delete_user/<int:pk>', views.adminDeleteUserPage, name="admin_delete_user"),
 
     # --------------- URL DAS TELAS DE INSCRIÇÃO ------------------
+
     path('subscription/', views.showUserSubscriptionPage, name="subscription_page"),
 
     path('subscription/admin', views.adminDeleteUserSubscriptionPage, name="admin_delete_user_subscription"),

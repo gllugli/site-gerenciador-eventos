@@ -427,23 +427,23 @@
                 <div class="sidebar-logo">CEUB</div>
 
                 <nav class="sidebar-menu">
-                    <a href="{% url 'dashboard' %}" class="menu-item">
+                    <a href="{% url 'dashboard_page' %}" class="menu-item">
                         <span class="icon">🏠</span>
                         <span>Início</span>
                     </a>
 
-                    <a href="{% url 'eventos' %}" class="menu-item">
+                    <a href="{% url 'all_events' %}" class="menu-item">
                         <span class="icon">📅</span>
                         <span>Eventos</span>
                     </a>
 
-                    <a href="{% url 'inscricoes' %}" class="menu-item">
+                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
                         <span class="icon">📝</span>
                         <span>Inscrições</span>
                     </a>
 
                     <!-- ESTA PÁGINA -->
-                    <a href="{% url 'perfil' %}" class="menu-item active">
+                    <a href="{% url 'temporary_user_profile' %}" class="menu-item active">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
                     </a>
