@@ -5,12 +5,19 @@ from ..serializers.evento_serializer import EventoSerializer
 
 
 class EventoListAPIView(generics.ListAPIView):
-    queryset = Evento.objects.all()  # Acessa todos os objetos do modelo Evento
-    serializer_class = EventoSerializer  # Escolhe qual serializer deve usar para isso
-    permission_classes = [permissions.IsAuthenticated]  # Garante que a pessoa esteja autenticada para realizar a ação
+    """
+    Recebe a requisição para mostrar todos os eventos cadastrados
+    """
+
+    queryset = Evento.objects.all()
+    serializer_class = EventoSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class EventoDetailAPIView(generics.RetrieveAPIView):
+    """
+    Recebe uma requisição para mostrar o evento desejado
+    """
     queryset = Evento.objects.all()
     serializer_class = EventoSerializer
     permission_classes = [permissions.IsAuthenticated]
