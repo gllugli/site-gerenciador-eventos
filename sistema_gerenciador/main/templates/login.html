@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login – Central de Eventos</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+        }
+
+        /* Barra superior */
+        .header {
+            background-color: #6a1b9a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 60px;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            border-bottom: 4px solid #e91e63;
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        /* div */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;         
+        }
+
+        .card {
+            background: white;
+            width: 370px;
+            padding: 55px;
+            border-radius: 22px;
+            box-shadow: 0 20px 116px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-bottom: 25px;
+            color: #4a1468;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 11px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 6px;
+            background: #e6e6e6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4a1468;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background-color: #380d4f;
+        }
+
+        .link {
+            font-size: 13px;
+            margin-top: 12px;
+            color: #4a1468;
+            cursor: pointer;
+        }
+
+        .messages {
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>Central de Eventos</div>
+        <div class="logo">
+            <img src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png" height="50px"/>
+        </div>
+    </div>
+
+    <!-- CARD LOGIN -->
+    <div class="container">
+        <div class="card">
+
+            <h2>Acessar conta</h2>
+
+            {% if messages %}
+                {% for msg in messages %}
+                    <p class="messages">{{ msg }}</p>
+                {% endfor %}
+            {% endif %}
+
+            {% if erro %}
+                <p class="messages">{{ erro }}</p>
+            {% endif %}
+
+            <form method="get" action="{% url 'dashboard' %}">
+
+            
+                <div class="input-group">
+                    <label>E-mail</label>
+                    <input type="text" name="username" placeholder="Digite seu e-mail" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Senha</label>
+                    <input type="password" name="password" placeholder="Digite sua senha" required>
+                </div>
+
+                <button class="btn" type="submit">Entrar</button>
+
+            </form>
+
+            <div class="link">Esqueceu a senha?</div>
+            <br>
+            <div class="link">
+                <a href="/register/"> Não tem conta? Cadastre-se </a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

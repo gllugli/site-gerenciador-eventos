@@ -1,0 +1,593 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscrições – Central de Eventos</title>
+
+    <style>
+        /* reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", Arial, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: #ffffff;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .shell {
+            width: 100%;
+            background: #ffffff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 190px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #7b1fa2, #4a148c);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-logo {
+            padding: 30px 20px;
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .sidebar-menu {
+            padding: 0 0 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 20px;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* ÍCONES PADRONIZADOS */
+        .menu-item span.icon {
+            font-size: 20px;
+        }
+
+        .menu-item.active {
+            background: #ff0085;
+        }
+
+        .menu-item:not(.active):hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 2px solid #ff0085;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        /* ========== MAIN ========== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* topo */
+        .topbar {
+            height: 60px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            font-size: 14px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-left h1 {
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .search-box {
+            width: 420px;
+            background: #f3f3f3;
+            border-radius: 999px;
+            padding: 7px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative; 
+        }
+
+        .circle-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            border: 2px solid #7b1fa2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-perfil {
+            border: none;
+            border-radius: 999px;
+            padding: 7px 16px;
+            font-size: 12px;
+            background: #ffc400;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* ========== DROPDOWN PERFIL ========== */
+        .user-dropdown {
+            position: absolute;
+            top: 42px;
+            right: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+            padding: 14px 16px;
+            min-width: 230px;
+            display: none;
+            z-index: 50;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #7b1fa2;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* ========== CONTEÚDO INSCRIÇÕES ========== */
+        .content-inscricoes {
+            flex: 1;
+            padding: 30px 35px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .carousel-card {
+            background: #e3e3e3;
+            border-radius: 8px;
+            padding: 60px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .my-subscriptions-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .my-subscriptions-card {
+            width: 55%;
+            background: #5c1b8d;
+            border-radius: 12px;
+            padding: 26px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+
+        .my-subscriptions-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .my-subscriptions-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .btn-ver {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 24px;
+            font-size: 14px;
+            background: #ffc400;
+            cursor: pointer;
+            font-weight: 700;
+            color: #3b1553;
+        }
+
+        /* ========== ABA GRANDE: MINHAS INSCRIÇÕES ========== */
+        .subs-list-card {
+            margin-top: -10px;
+            background: #f7f3fb;
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            display: none; /* começa escondido */
+        }
+
+        .subs-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .subs-list-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .subs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .subs-table thead {
+            background: #6a1b9a;
+            color: #fff;
+        }
+
+        .subs-table th,
+        .subs-table td {
+            padding: 8px 10px;
+        }
+
+        .subs-table tbody tr:nth-child(even) {
+            background: #eee1ff;
+        }
+
+        .subs-table-empty {
+            text-align: center;
+            padding: 14px 8px;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* ========== MODO ESCURO ========== */
+        body.dark-mode {
+            background: #121212;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .shell {
+            background: #181818;
+        }
+
+        body.dark-mode .sidebar {
+            background: linear-gradient(180deg, #311b92, #000000);
+        }
+
+        body.dark-mode .topbar {
+            background: #181818;
+            border-bottom-color: #333;
+        }
+
+        body.dark-mode .search-box {
+            background: #262626;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .search-box input {
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .carousel-card,
+        body.dark-mode .my-subscriptions-card {
+            background: #262626;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .circle-icon {
+            border-color: #ffc400;
+        }
+
+        body.dark-mode .btn-perfil,
+        body.dark-mode .btn-ver {
+            background: #ffb300;
+        }
+
+        body.dark-mode .user-dropdown {
+            background: #262626;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .user-email {
+            color: #ccc;
+        }
+
+        body.dark-mode .subs-list-card {
+            background: #262626;
+        }
+
+        body.dark-mode .subs-table thead {
+            background: #45227a;
+        }
+
+        body.dark-mode .subs-table tbody tr:nth-child(even) {
+            background: #333333;
+        }
+
+        body.dark-mode .subs-table,
+        body.dark-mode .subs-table th,
+        body.dark-mode .subs-table td {
+            color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- MENU LATERAL (PADRONIZADO) -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <nav class="sidebar-menu">
+
+                    <a href="{% url 'dashboard' %}" class="menu-item">
+                        <span class="icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+
+                    <a href="{% url 'eventos' %}" class="menu-item">
+                        <span class="icon">📅</span>
+                        <span>Eventos</span>
+                    </a>
+
+                    <!-- ESTA PÁGINA -->
+                    <a href="{% url 'inscricoes' %}" class="menu-item active">
+                        <span class="icon">📝</span>
+                        <span>Inscrições</span>
+                    </a>
+
+                    <a href="{% url 'perfil' %}" class="menu-item">
+                        <span class="icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+                </nav>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1>Inscrições</h1>
+
+                    <div class="search-box">
+                        🔍
+                        <input type="text" placeholder="Search">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon">🔔</div>
+                    <div class="circle-icon">👤</div>
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <!-- DROPDOWN PERFIL -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {% if user.first_name %}
+                                    {{ user.first_name|first|upper }}
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ user.first_name|default:user.username }}
+                                </div>
+                                <div class="user-email">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="content-inscricoes">
+                <div class="carousel-card">
+                    Carrossel Principais Eventos
+                </div>
+
+                <div class="my-subscriptions-wrapper">
+                    <div class="my-subscriptions-card">
+                        <div class="my-subscriptions-left">
+                            <div class="my-subscriptions-icon">U</div>
+                            <span>Minhas Inscrições:</span>
+                        </div>
+
+                        <button class="btn-ver" id="btnVerMinhasInscricoes">Ver</button>
+                    </div>
+                </div>
+
+                <!-- ABA GRANDE: MINHAS INSCRIÇÕES -->
+                <div class="subs-list-card" id="boxMinhasInscricoes">
+                    <div class="subs-list-header">
+                        <span class="subs-list-title">Minhas Inscrições</span>
+                    </div>
+
+                    <table class="subs-table">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linha de exemplo; depois o back-end preenche aqui -->
+                            <tr>
+                                <td>Evento Exemplo</td>
+                                <td>10/12/2025</td>
+                                <td>Inscrito</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="subs-table-empty">
+                                    Quando o back-end estiver pronto, esta tabela será preenchida com as inscrições reais do usuário.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // dropdown do perfil
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', function (event) {
+            if (
+                dropdown.style.display === 'block' &&
+                !dropdown.contains(event.target) &&
+                !btnPerfil.contains(event.target)
+            ) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // botão "Ver" Minhas Inscrições abre/fecha a aba
+    const btnVerMinhasInscricoes = document.getElementById('btnVerMinhasInscricoes');
+    const boxMinhasInscricoes = document.getElementById('boxMinhasInscricoes');
+
+    if (btnVerMinhasInscricoes && boxMinhasInscricoes) {
+        btnVerMinhasInscricoes.addEventListener('click', function () {
+            if (boxMinhasInscricoes.style.display === 'block') {
+                boxMinhasInscricoes.style.display = 'none';
+            } else {
+                boxMinhasInscricoes.style.display = 'block';
+                window.scrollTo({ top: boxMinhasInscricoes.offsetTop - 80, behavior: 'smooth' });
+            }
+        });
+    }
+</script>
+</body>
+</html>

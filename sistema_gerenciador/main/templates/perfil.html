@@ -1,0 +1,718 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil – Central de Eventos</title>
+
+    <style>
+        /* reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", Arial, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: #ffffff;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .shell {
+            width: 100%;
+            background: #ffffff;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 190px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #7b1fa2, #4a148c);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-logo {
+            padding: 30px 20px;
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .sidebar-menu {
+            padding: 0 0 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 20px;
+            cursor: pointer;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .menu-item span.icon {
+            font-size: 20px;
+        }
+
+        .menu-item.active {
+            background: #ff0085;
+        }
+
+        .menu-item:not(.active):hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 2px solid #ff0085;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        /* ========== MAIN ========== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* topo */
+        .topbar {
+            height: 60px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            font-size: 14px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar-left h1 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .circle-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            border: 2px solid #7b1fa2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-perfil {
+            border: none;
+            border-radius: 999px;
+            padding: 7px 16px;
+            font-size: 12px;
+            background: #ffc400;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* ========== CONTEÚDO PERFIL ========== */
+        .content-perfil {
+            flex: 1;
+            padding: 40px 35px 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .profile-title-badge {
+            background: #ff0085;
+            color: #fff;
+            padding: 10px 40px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .profile-card {
+            width: 55%;
+            background: #5c1b8d;
+            border-radius: 12px;
+            padding: 26px 36px 32px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .profile-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            background: #ccc;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name-role {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name-role .name {
+            font-weight: 600;
+        }
+
+        .profile-name-role .role {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .profile-header-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .btn-editar-dados,
+        .btn-alterar-senha {
+            border: none;
+            border-radius: 999px;
+            padding: 8px 20px;
+            font-size: 13px;
+            background: #ffc400;
+            cursor: pointer;
+            font-weight: 700;
+            color: #3b1553;
+            white-space: nowrap;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 30px;
+            row-gap: 18px;
+            margin-top: 10px;
+        }
+
+        .profile-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 13px;
+        }
+
+        .profile-label {
+            font-weight: 600;
+        }
+
+        .profile-value {
+            background: #e3e3e3;
+            color: #333;
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .profile-field-full {
+            grid-column: 1 / -1;
+        }
+
+        /* ========== MODAIS (EDITAR DADOS / ALTERAR SENHA) ========== */
+        .edit-profile-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;          /* começa escondido */
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .edit-profile-modal {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px 26px 20px;
+            width: 480px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.30);
+        }
+
+        .edit-profile-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #3b1553;
+        }
+
+        .edit-profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ep-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .ep-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .ep-input {
+            border-radius: 999px;
+            border: 1px solid #ccc;
+            padding: 7px 12px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .ep-input:focus {
+            border-color: #7b1fa2;
+        }
+
+        .ep-actions {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancelar {
+            border: none;
+            border-radius: 999px;
+            padding: 7px 16px;
+            font-size: 13px;
+            background: #e0e0e0;
+            cursor: pointer;
+        }
+
+        .btn-salvar {
+            border: none;
+            border-radius: 999px;
+            padding: 7px 18px;
+            font-size: 13px;
+            background: #ffc400;
+            cursor: pointer;
+            font-weight: 600;
+            color: #3b1553;
+        }
+
+        /* ========== MODO ESCURO ========== */
+        body.dark-mode {
+            background: #121212;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .shell {
+            background: #181818;
+        }
+
+        body.dark-mode .sidebar {
+            background: linear-gradient(180deg, #311b92, #000000);
+        }
+
+        body.dark-mode .topbar {
+            background: #181818;
+            border-bottom-color: #333;
+        }
+
+        body.dark-mode .profile-card {
+            background: #26215a;
+        }
+
+        body.dark-mode .profile-value {
+            background: #333;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .circle-icon {
+            border-color: #ffc400;
+        }
+
+        body.dark-mode .btn-perfil,
+        body.dark-mode .btn-editar-dados,
+        body.dark-mode .btn-alterar-senha {
+            background: #ffb300;
+        }
+
+        body.dark-mode .profile-title-badge {
+            background: #d0006e;
+        }
+
+        body.dark-mode .edit-profile-modal {
+            background: #262626;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .ep-label {
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .ep-input {
+            background: #333;
+            border-color: #555;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .btn-cancelar {
+            background: #555;
+            color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <nav class="sidebar-menu">
+                    <a href="{% url 'dashboard' %}" class="menu-item">
+                        <span class="icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+
+                    <a href="{% url 'eventos' %}" class="menu-item">
+                        <span class="icon">📅</span>
+                        <span>Eventos</span>
+                    </a>
+
+                    <a href="{% url 'inscricoes' %}" class="menu-item">
+                        <span class="icon">📝</span>
+                        <span>Inscrições</span>
+                    </a>
+
+                    <!-- ESTA PÁGINA -->
+                    <a href="{% url 'perfil' %}" class="menu-item active">
+                        <span class="icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+                </nav>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1>Perfil</h1>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon">🔔</div>
+                    <div class="circle-icon">👤</div>
+                    <button class="btn-perfil">Perfil | Usuário</button>
+                </div>
+            </header>
+
+            <section class="content-perfil">
+                <div class="profile-title-badge">
+                    Dados Pessoais
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-user-info">
+                            <div class="profile-avatar">
+                                <!-- depois você pode trocar por {{ user.foto.url }} -->
+                                <img src="https://via.placeholder.com/80x80" alt="Foto de perfil">
+                            </div>
+                            <div class="profile-name-role">
+                                <span class="name" id="viewNomeCabecalho">Pedro Augusto</span>
+                                <span class="role">Usuário</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-header-actions">
+                            <button class="btn-editar-dados" id="btnEditarDados" type="button">
+                                Editar Dados Pessoais
+                            </button>
+                            <button class="btn-alterar-senha" id="btnAlterarSenha" type="button">
+                                Alterar Senha
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="profile-grid">
+                        <div class="profile-field">
+                            <span class="profile-label">Nome Perfil</span>
+                            <div class="profile-value" id="viewNomePerfil">
+                                Pedro Augusto Lourenço Da Silva
+                            </div>
+                        </div>
+
+                        <div class="profile-field">
+                            <span class="profile-label">Telefone</span>
+                            <div class="profile-value" id="viewTelefone">
+                                61 99999-8888
+                            </div>
+                        </div>
+
+                        <div class="profile-field">
+                            <span class="profile-label">E-mail</span>
+                            <div class="profile-value" id="viewEmail">
+                                pedro@gmail.com
+                            </div>
+                        </div>
+
+                        <div class="profile-field">
+                            <span class="profile-label">Instituição</span>
+                            <div class="profile-value" id="viewInstituicao">
+                                Centro Universitário de Brasília(CEUB)
+                            </div>
+                        </div>
+
+                        <div class="profile-field profile-field-full">
+                            <span class="profile-label">Nível da Conta</span>
+                            <div class="profile-value" id="viewNivelConta">
+                                Usuário
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- MODAL EDITAR DADOS PESSOAIS -->
+<div class="edit-profile-backdrop" id="editProfileModal">
+    <div class="edit-profile-modal">
+        <div class="edit-profile-title">Editar Dados Pessoais</div>
+
+        <form method="post" class="edit-profile-form">
+            {% csrf_token %}
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_nome_perfil">Nome Perfil</label>
+                <input
+                    type="text"
+                    id="id_nome_perfil"
+                    name="nome_perfil"
+                    class="ep-input"
+                    value="Pedro Augusto Lindo do pirocao">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_telefone">Telefone</label>
+                <input
+                    type="text"
+                    id="id_telefone"
+                    name="telefone"
+                    class="ep-input"
+                    value="61 99999-8888">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label">E-mail (não pode ser alterado)</label>
+                <input
+                    type="email"
+                    class="ep-input"
+                    value="pedro.lindo@gmail.com"
+                    disabled>
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_instituicao">Instituição</label>
+                <input
+                    type="text"
+                    id="id_instituicao"
+                    name="instituicao"
+                    class="ep-input"
+                    value="Centro Universitário de Brasília(CEUB)">
+            </div>
+
+            <!-- Nível da conta não aparece aqui, fica só de leitura no card -->
+
+            <div class="ep-actions">
+                <button type="button" class="btn-cancelar" id="btnCancelarEdicao">Cancelar</button>
+                <button type="submit" class="btn-salvar">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL ALTERAR SENHA -->
+<div class="edit-profile-backdrop" id="changePasswordModal">
+    <div class="edit-profile-modal">
+        <div class="edit-profile-title">Alterar Senha</div>
+
+        <form method="post" class="edit-profile-form">
+            {% csrf_token %}
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_senha_atual">Senha atual</label>
+                <input
+                    type="password"
+                    id="id_senha_atual"
+                    name="senha_atual"
+                    class="ep-input"
+                    placeholder="Digite sua senha atual">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_nova_senha">Nova senha</label>
+                <input
+                    type="password"
+                    id="id_nova_senha"
+                    name="nova_senha"
+                    class="ep-input"
+                    placeholder="Digite a nova senha">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_confirmar_senha">Confirmar nova senha</label>
+                <input
+                    type="password"
+                    id="id_confirmar_senha"
+                    name="confirmar_senha"
+                    class="ep-input"
+                    placeholder="Repita a nova senha">
+            </div>
+
+            <div class="ep-actions">
+                <button type="button" class="btn-cancelar" id="btnCancelarSenha">Cancelar</button>
+                <button type="submit" class="btn-salvar">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+
+    // Carregar o tema salvo (se existir)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    // Clique na lua alterna o tema
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            body.classList.toggle('dark-mode');
+
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // -------- Modal Editar Dados --------
+    const btnEditarDados    = document.getElementById('btnEditarDados');
+    const modalEditar       = document.getElementById('editProfileModal');
+    const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+
+    if (btnEditarDados && modalEditar) {
+        btnEditarDados.addEventListener('click', function () {
+            modalEditar.style.display = 'flex';
+        });
+    }
+
+    if (btnCancelarEdicao && modalEditar) {
+        btnCancelarEdicao.addEventListener('click', function () {
+            modalEditar.style.display = 'none';
+        });
+    }
+
+    if (modalEditar) {
+        modalEditar.addEventListener('click', function (event) {
+            if (event.target === modalEditar) {
+                modalEditar.style.display = 'none';
+            }
+        });
+    }
+
+    // -------- Modal Alterar Senha --------
+    const btnAlterarSenha   = document.getElementById('btnAlterarSenha');
+    const modalSenha        = document.getElementById('changePasswordModal');
+    const btnCancelarSenha  = document.getElementById('btnCancelarSenha');
+
+    if (btnAlterarSenha && modalSenha) {
+        btnAlterarSenha.addEventListener('click', function () {
+            modalSenha.style.display = 'flex';
+        });
+    }
+
+    if (btnCancelarSenha && modalSenha) {
+        btnCancelarSenha.addEventListener('click', function () {
+            modalSenha.style.display = 'none';
+        });
+    }
+
+    if (modalSenha) {
+        modalSenha.addEventListener('click', function (event) {
+            if (event.target === modalSenha) {
+                modalSenha.style.display = 'none';
+            }
+        });
+    }
+</script>
+</body>
+</html>

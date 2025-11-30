@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro – Central de Eventos</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+        }
+
+        /* header */
+        .header {
+            background-color: #6a1b9a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 60px;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            border-bottom: 4px solid #e91e63;
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        /* card */
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 190px;
+        }
+
+        .card {
+            width: 650px;
+            background: white;
+            padding: 40px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        h2 {
+            color: #4a1468;
+            margin-bottom: 25px;
+        }
+
+        .row {
+            display: flex;
+            gap: 45px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            width: 100%;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 11px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 6px;
+            background: #e6e6e6;
+        }
+
+        .btn {
+            width: 60%;
+            padding: 13px;
+            background: #4a1468;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #380d4f;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4a1468;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div>Central de Eventos</div>
+        <div class="logo">
+            <img src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png" height="50px"/>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+
+            <h2>Cadastre-se</h2>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>Nome Completo*</label>
+                        <input type="text" name="nome" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>E-mail*</label>
+                        <input type="email" name="email" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>Telefone*</label>
+                        <input type="text" name="telefone" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Instituição*</label>
+                        <input type="text" name="instituicao" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label>Senha*</label>
+                        <input type="password" name="senha" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Confirmação de Senha*</label>
+                        <input type="password" name="confirmacao" required>
+                    </div>
+                </div>
+
+                <button class="btn" type="submit">Cadastrar</button>
+            </form>
+
+            <div class="link">
+                Já tem uma conta? <a href="/">Faça o login</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
