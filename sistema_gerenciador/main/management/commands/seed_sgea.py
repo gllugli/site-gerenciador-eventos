@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta, time
 
-from main.models import Usuario  # ajuste se o nome do app/model for outro
+from main.models import Usuario,Evento
 
 
 class Command(BaseCommand):
@@ -9,6 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         User = get_user_model()
+
+        # --------------------- SEEDING Usuários --------------------------------
 
         # 1) Usuário Administrador
         administrador_user, created = User.objects.get_or_create(
@@ -101,6 +105,76 @@ class Command(BaseCommand):
             self.stdout.write("Perfil ALUNO criado.")
         else:
             self.stdout.write("Perfil ALUNO já existia.")
+
+
+# --------------------- SEEDING EVENTOS --------------------------------
+
+        data_base = timezone.now().date()
+        data_inicio = data_base + timedelta(days=7)
+        data_fim = data_inicio + timedelta(days=1)
+
+        horario_inicio = time(19,0)
+        horario_fim = time(21,0)
+
+
+        evento, created = Evento.objects.get_or_create(
+            titulo = "Palestra Segurança Cibernética",
+            defaults={
+                "descricao": "Palestra introdutória sobre conceitos básicos de segurança cibernética.",
+                "status": "Ativo",
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "horario_inicio": horario_inicio,
+                "horario_fim": horario_fim,
+                "localizacao": "UniCEUB",
+                "organizador": administrador_perfil,
+            },
+        )
+
+        if created:
+            self.stdout.write("Evento criado.")
+        else:
+            self.stdout.write("Evento já existia.")
+
+
+        evento, created = Evento.objects.get_or_create(
+            titulo = "Mesa redonda: IA substituirá os Devs no futuro?",
+            defaults={
+                "descricao": "Discussão sobre a possibilidade da IA tomar o lugar dos Devs futuramente.",
+                "status": "Rascunho",
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "horario_inicio": horario_inicio,
+                "horario_fim": horario_fim,
+                "localizacao": "UniCEUB",
+                "organizador": administrador_perfil,
+            },
+        )
+
+        if created:
+            self.stdout.write("Evento criado.")
+        else:
+            self.stdout.write("Evento já existia.")
+
+        
+        evento, created = Evento.objects.get_or_create(
+            titulo = "Minicuros de Python Avançado",
+            defaults={
+                "descricao": "Minicurso ofertado pela Monitoria de TI.",
+                "status": "Cancelado",
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "horario_inicio": horario_inicio,
+                "horario_fim": horario_fim,
+                "localizacao": "UniCEUB",
+                "organizador": administrador_perfil,
+            },
+        )
+
+        if created:
+            self.stdout.write("Evento criado.")
+        else:
+            self.stdout.write("Evento já existia.")
 
 
         self.stdout.write(self.style.SUCCESS("Seeding concluído."))
