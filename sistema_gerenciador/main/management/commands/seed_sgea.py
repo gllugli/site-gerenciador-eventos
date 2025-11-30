@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta, time
 
-from main.models import Usuario,Evento
+from main.models import Usuario, Evento, Inscricao
 
 
 class Command(BaseCommand):
@@ -40,6 +40,11 @@ class Command(BaseCommand):
         )
 
         if created:
+            administrador_user.is_staff = True
+            administrador_user.is_superuser = True
+            administrador_user.set_password("Admin@123")
+            administrador_user.save()
+            
             self.stdout.write("Perfil ADMINISTRADOR criado.")
         else:
             self.stdout.write("Perfil ADMINISTRADOR já existia.")
@@ -107,7 +112,7 @@ class Command(BaseCommand):
             self.stdout.write("Perfil ALUNO já existia.")
 
 
-# --------------------- SEEDING EVENTOS --------------------------------
+        # --------------------- SEEDING EVENTOS --------------------------------
 
         data_base = timezone.now().date()
         data_inicio = data_base + timedelta(days=7)
@@ -117,7 +122,7 @@ class Command(BaseCommand):
         horario_fim = time(21,0)
 
 
-        evento, created = Evento.objects.get_or_create(
+        evento1, created = Evento.objects.get_or_create(
             titulo = "Palestra Segurança Cibernética",
             defaults={
                 "descricao": "Palestra introdutória sobre conceitos básicos de segurança cibernética.",
@@ -137,7 +142,7 @@ class Command(BaseCommand):
             self.stdout.write("Evento já existia.")
 
 
-        evento, created = Evento.objects.get_or_create(
+        evento2, created = Evento.objects.get_or_create(
             titulo = "Mesa redonda: IA substituirá os Devs no futuro?",
             defaults={
                 "descricao": "Discussão sobre a possibilidade da IA tomar o lugar dos Devs futuramente.",
@@ -157,8 +162,8 @@ class Command(BaseCommand):
             self.stdout.write("Evento já existia.")
 
         
-        evento, created = Evento.objects.get_or_create(
-            titulo = "Minicuros de Python Avançado",
+        evento3, created = Evento.objects.get_or_create(
+            titulo = "Minicurso de Python Avançado",
             defaults={
                 "descricao": "Minicurso ofertado pela Monitoria de TI.",
                 "status": "Cancelado",
@@ -175,6 +180,41 @@ class Command(BaseCommand):
             self.stdout.write("Evento criado.")
         else:
             self.stdout.write("Evento já existia.")
+
+
+        # ------------------------- SEDDING INSCRICAO -------------------
+
+        inscricao, created = Inscricao.objects.get_or_create(
+            usuario = professor_perfil, 
+            evento = evento1
+        )
+
+        if created:
+            self.stdout.write(f'Inscrição no evento "{evento1.titulo}" realizada.')
+        else:
+            self.stdout.write(f'Inscrição no evento "{evento1.titulo}" já realizada.')
+
+
+        inscricao, created = Inscricao.objects.get_or_create(
+            usuario = professor_perfil, 
+            evento = evento2
+        )
+
+        if created:
+            self.stdout.write(f'Inscrição no evento "{evento2.titulo}" realizada.')
+        else:
+            self.stdout.write(f'Inscrição no evento "{evento2.titulo}" já realizada.')
+
+        
+        inscricao, created = Inscricao.objects.get_or_create(
+            usuario = aluno_perfil, 
+            evento = evento3
+        )
+
+        if created:
+            self.stdout.write(f'Inscrição no evento "{evento3.titulo}" realizada.')
+        else:
+            self.stdout.write(f'Inscrição no evento "{evento3.titulo}" já realizada.')
 
 
         self.stdout.write(self.style.SUCCESS("Seeding concluído."))
