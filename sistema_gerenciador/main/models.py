@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 import uuid
+
+telefone_validator = RegexValidator(
+    regex=r'^\(\d{2}\)\s\d{5}-\d{4}$',
+    message="Formato inválido. Use (XX) XXXXX-XXXX."
+)
 
 # Create your models here.
 
@@ -20,6 +28,7 @@ class Usuario(models.Model):
     )
     telefone = models.CharField(
         max_length=15,
+        validators=[telefone_validator],
         null=False,
         blank=False,
         unique=True
@@ -68,6 +77,19 @@ class Evento(models.Model):
         Usuario,
         on_delete=models.CASCADE
     )
+
+
+    def clean(self):
+        """
+        Valida a data inicial, para que não seja antes da data atual 
+
+        Valida a data final, para que seja depois da data inicial 
+        """
+        if self.data_inicio < timezone.now().date():
+            raise ValidationError("A data de início não pode ser anterior à data atual.")
+        if self.data_fim < self.data_inicio:
+            raise ValidationError("A data final não pode ser menor que a inicial.")
+
 
     def __str__(self):
         return self.titulo
