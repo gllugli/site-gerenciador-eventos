@@ -146,3 +146,6 @@ REST_FRAMEWORK = {
         'user': '1000/day',
     }
 }
+
+LOGIN_URL = 'login_page'
+LOGIN_REDIRECT_URL = 'dashboard_page'

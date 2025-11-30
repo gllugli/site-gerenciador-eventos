@@ -129,8 +129,8 @@
                 <p class="messages">{{ erro }}</p>
             {% endif %}
 
-            <form method="get" action="{% url 'dashboard' %}">
-
+            <form method="post" action="{% url 'login_page' %}">
+                {% csrf_token %}
             
                 <div class="input-group">
                     <label>E-mail</label>
@@ -149,7 +149,7 @@
             <div class="link">Esqueceu a senha?</div>
             <br>
             <div class="link">
-                <a href="/register/"> Não tem conta? Cadastre-se </a>
+                <a href="{% url 'register_page' %}"> Não tem conta? Cadastre-se </a>
             </div>
 
         </div>
