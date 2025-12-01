@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 # from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+
+from main.forms.forms_usuario import RegistroCompletoForm
 # Create your views here.
 
 # --------------- RENDERS TEMPORÁRIAS ---------------------------
@@ -40,7 +42,15 @@ def logout_view(request):
 
 # Render da register page
 def registerPage(request):
-    return render(request, 'main/register.html')
+    if request.method == 'POST':
+        form = RegistroCompletoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # ou outra rota
+    else:
+        form = RegistroCompletoForm()
+
+    return render(request, 'main/register.html', {'form': form})
 
 
 # Render do dashboard

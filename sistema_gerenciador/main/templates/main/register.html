@@ -98,6 +98,129 @@
             color: #4a1468;
             cursor: pointer;
         }
+
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: #f5f3ff;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            padding: 40px 48px;
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #4a148c;
+        }
+
+        /* linhas do formulário (2 colunas por padrão) */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            /* espaçamento HORIZONTAL entre os campos da esquerda e da direita */
+            column-gap: 48px;     /* aumente/diminua conforme quiser */
+
+            /* espaçamento VERTICAL entre linhas (opcional, ajuda no respiro) */
+            row-gap: 18px;
+
+            margin-bottom: 24px;
+        }
+
+        /* bloco de cada campo */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;             /* espaço entre label e input */
+            font-size: 14px;
+            color: #374151;
+}
+
+        /* campo que deve ocupar o card inteiro */
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* inputs e select */
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+
+            /* pequeno respiro extra acima/abaixo de cada input (opcional) */
+            margin-top: 2px;
+            margin-bottom: 2px;
+
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #7b1fa2;
+            box-shadow: 0 0 0 1px #7b1fa2;
+        }
+
+        /* select com mesmo estilo */
+        .form-group select.input-field {
+            appearance: none;
+        }
+
+        /* botão */
+        .btn-primary {
+            margin-top: 8px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 999px;
+            border: none;
+            background: #4a148c;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #6a1b9a;
+        }
+
+        /* rodapé */
+        .auth-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #4a148c;
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* RESPONSIVO – no mobile vira uma coluna só */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                column-gap: 0;  /* não precisa de gap horizontal em 1 coluna */
+            }
+        }
+
     </style>
 </head>
 
@@ -110,57 +233,65 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="card">
-
-            <h2>Cadastre-se</h2>
-
-            <form method="POST">
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h1 class="auth-title">Cadastre-se</h1>
+            <form method="post">
                 {% csrf_token %}
 
-                <div class="row">
-                    <div class="input-group">
-                        <label>Nome Completo*</label>
-                        <input type="text" name="nome" required>
+                <!-- Linha 1 -->
+                <div class="form-row">
+                    <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">Nome Completo*</label>
+                    {{ form.first_name }}
                     </div>
 
-                    <div class="input-group">
-                        <label>E-mail*</label>
-                        <input type="email" name="email" required>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="input-group">
-                        <label>Telefone*</label>
-                        <input type="text" name="telefone" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Instituição*</label>
-                        <input type="text" name="instituicao" required>
+                    <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">E-mail*</label>
+                    {{ form.email }}
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="input-group">
-                        <label>Senha*</label>
-                        <input type="password" name="senha" required>
+                <!-- Linha 2 -->
+                <div class="form-row">
+                    <div class="form-group">
+                    <label for="{{ form.telefone.id_for_label }}">Telefone*</label>
+                    {{ form.telefone }}
                     </div>
 
-                    <div class="input-group">
-                        <label>Confirmação de Senha*</label>
-                        <input type="password" name="confirmacao" required>
+                    <div class="form-group">
+                    <label for="{{ form.instituicao.id_for_label }}">Instituição*</label>
+                    {{ form.instituicao }}
                     </div>
                 </div>
 
-                <button class="btn" type="submit">Cadastrar</button>
+                <!-- Linha 3: select ocupando o card todo -->
+                <div class="form-row">
+                    <div class="form-group full-width">
+                    <label for="{{ form.tipo_perfil.id_for_label }}">Tipo de Perfil*</label>
+                    {{ form.tipo_perfil }}
+                    </div>
+                </div>
+
+                <!-- Linha 4: senhas lado a lado -->
+                <div class="form-row">
+                    <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Senha*</label>
+                    {{ form.password1 }}
+                    </div>
+
+                    <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirmação de Senha*</label>
+                    {{ form.password2 }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Cadastrar</button>
+
+                <p class="auth-footer">
+                    Já tem uma conta? <a href="{% url 'login_page' %}">Faça o login</a>
+                </p>
             </form>
-
-            <div class="link">
-                Já tem uma conta? <a href="{%  url 'login_page'  %}">Faça o login</a>
-            </div>
-
         </div>
     </div>
 
