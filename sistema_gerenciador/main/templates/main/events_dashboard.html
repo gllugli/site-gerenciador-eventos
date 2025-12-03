@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Eventos – Central de Eventos</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/events_dashboard.css' %}">
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <nav class="sidebar-menu">
+                    <a href="{% url 'dashboard_page' %}" class="menu-item">
+                        <span class="icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+
+                    <a href="{% url 'event_dashboard' %}" class="menu-item active">
+                        <span class="icon">📅</span>
+                        <span>Eventos</span>
+                    </a>
+
+                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
+                        <span class="icon">📝</span>
+                        <span>Inscrições</span>
+                    </a>
+
+                    <a href="{% url 'temporary_user_profile' %}" class="menu-item">
+                        <span class="icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+                </nav>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer" style="text-decoration:none; color:white;">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1>Eventos</h1>
+
+                    <div class="search-box">
+                        🔍
+                        <input type="text" placeholder="Buscar evento, data ou local">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon">🔔</div>
+                    <div class="circle-icon">👤</div>
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <!-- DROPDOWN DO PERFIL -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {% if user.first_name %}
+                                    {{ user.first_name|first|upper }}
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ user.first_name|default:user.username }}
+                                </div>
+                                <div class="user-email">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="content-events">
+
+                <!-- HERO / INTRODUÇÃO UX -->
+                <div class="events-hero">
+                    <div class="events-hero-text">
+                        <h2>Central de Eventos</h2>
+                        <p>
+                            Encontre, acompanhe e participe dos eventos acadêmicos do CEUB.
+                            Acesse a lista completa de eventos ativos e veja em quais você já está inscrito.
+                        </p>
+
+                        <a href="{% url 'events_list' %}" class="btn-hero">
+                            Ver eventos disponíveis
+                        </a>
+                    </div>
+
+                    <div class="events-hero-highlight">
+                        <p class="highlight-label">Próximos passos</p>
+                        <ul class="highlight-list">
+                            <li>Escolha um evento na lista.</li>
+                            <li>Leia os detalhes e requisitos.</li>
+                            <li>Confirme sua inscrição em poucos cliques.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CARDS RESUMO -->
+                <div class="events-bottom">
+
+                    <!-- LADO ESQUERDO – AÇÃO PRINCIPAL -->
+                    <div class="events-actions">
+                        <div class="event-card">
+                            <div class="event-card-left">
+                                <div class="event-icon">📅</div>
+                                <div>
+                                    <span class="event-card-title">Explorar eventos</span>
+                                    <span class="event-card-subtitle">
+                                        Acesse a página com todos os eventos disponíveis para inscrição.
+                                    </span>
+                                </div>
+                            </div>
+                            <a href="{% url 'events_list' %}" class="btn-yellow">
+                                Ver eventos
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', function (event) {
+            if (dropdown.style.display === 'block' &&
+                !dropdown.contains(event.target) &&
+                !btnPerfil.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+</script>
+</body>
+</html>

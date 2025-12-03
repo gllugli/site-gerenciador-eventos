@@ -45,8 +45,9 @@ urlpatterns = [
 
     # --------------- URL DAS TELAS DE EVENTO ---------------------
 
-    path('events/', views.allEventsPage, name="all_events"),
-    path('event/detail/<int:pk>', views.eventDetailPage, name="event"),
+    path('events/', views.events_dashboard_page, name="event_dashboard"),  # PESQUISA FEITA VIA URL API
+    path('events/list', views.events_list_page, name="events_list"),
+    path('eventos/<int:event_id>/', views.eventDetailPage, name='event_detail'),
 
     path('event/admin/create_event', views.adminCreateEventPage, name="admin_create_event"),
     path('event/admin/event_detail/<int:pk>', views.adminEventDetailPage, name="admin_event_detail"),

@@ -45,6 +45,23 @@ class Usuario(models.Model):
         default='AL'
     )
 
+
+    def perfil_aluno(self):
+        return self.tipo_perfil == 'AL'
+
+
+    def perfil_professor(self):
+        return self.tipo_perfil == 'PR'
+
+
+    def perfil_adm(self):
+        return self.tipo_perfil == 'ADM'
+
+
+    def pode_se_inscrever(self):
+        return self.tipo_perfil in ['AL', 'PR']
+
+
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username}" \
             f" - {self.tipo_perfil}" \
@@ -68,6 +85,7 @@ class Evento(models.Model):
         choices=STATUS_EVENTO,
         default='Rascunho'
     )
+    quantidade_vagas = models.IntegerField(null=False)
     data_inicio = models.DateField(null=False)
     data_fim = models.DateField(null=False)
     horario_inicio = models.TimeField(null=False)
@@ -77,6 +95,39 @@ class Evento(models.Model):
         Usuario,
         on_delete=models.CASCADE
     )
+
+
+    def total_inscricoes(self):
+        return self.inscricao.count()
+    
+
+    def tem_vagas(self):
+        return self.quantidade_vagas > self.total_inscricoes()
+
+
+    def usuario_ja_inscrito(self, usuario):
+        return self.inscricao.filter(usuario=usuario).exists()
+    
+
+    def pode_inscrever(self, usuario):
+        # 1) Verifica se o perfil do usuário permite inscrição
+        if not usuario.pode_se_inscrever():
+            return False
+
+        # 2) Evento precisa estar Ativo
+        if self.status != 'Ativo':
+            return False
+
+        # 3) Verifica se ainda há vagas
+        if not self.tem_vagas():
+            return False
+
+        # 4) Verifica se o usuário já está inscrito
+        if self.usuario_ja_inscrito(usuario):
+            return False
+
+        # Se passou em todas as verificações, pode inscrever
+        return True
 
 
     def clean(self):
@@ -98,7 +149,8 @@ class Evento(models.Model):
 class Inscricao(models.Model):
     evento = models.ForeignKey(
         Evento,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="inscricao"
     )
     usuario = models.ForeignKey(
         Usuario,

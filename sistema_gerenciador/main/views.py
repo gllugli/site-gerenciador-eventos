@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
-# from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.contrib.auth import logout
 
+from main.models import Evento, Inscricao, Usuario
 from main.forms.forms_usuario import RegistroCompletoForm
 # Create your views here.
 
@@ -61,70 +63,98 @@ def dashboardPage(request):
 
 # --------------- RENDER DAS TELAS DE EVENTO --------------------
 # @login_required
-def allEventsPage(request):
-    return render(request, 'main/events.html')
+def events_dashboard_page(request):
+    return render(request, 'main/events_dashboard.html')
+
+
+def events_list_page(request):
+    return render(request, 'main/events_list.html')
 
 
 # @login_required
-def eventDetailPage(request): # <---- Falta ser criada
-    render(request, ...)
+@login_required
+def eventDetailPage(request, event_id):
+    evento = get_object_or_404(Evento, pk=event_id)
+    usuario = request.user.perfil  # seu model Usuario
+
+    if request.method == "POST":
+        # Tenta inscrever
+        if not evento.pode_inscrever(usuario):
+            messages.error(request, "Você não pode se inscrever neste evento.")
+            return redirect('event_detail', event_id=evento.id)
+
+        # Se pode inscrever, cria a inscrição
+        Inscricao.objects.create(evento=evento, usuario=usuario)
+        messages.success(request, "Inscrição realizada com sucesso!")
+        return redirect('event_detail', event_id=evento.id)
+
+    # Se for GET, monta as flags para o template
+    contexto = {
+        "evento": evento,
+        "ja_inscrito": evento.usuario_ja_inscrito(usuario),
+        "pode_inscrever": evento.pode_inscrever(usuario),
+        "total_inscricoes": evento.total_inscricoes(),
+        "tem_vagas": evento.tem_vagas(),
+    }
+
+    return render(request, 'main/events.html', contexto)
 
 
 # --------------- RENDER TELAS ADMIN ----------------------------
 
 # @login_required
 def adminCreateEventPage(request): # <---- Falta ser criada
-    render(request, ...)
+    return render(request, ...)
 
 
 # @login_required
 def adminEventDetailPage(request): # <---- Falta ser criada
-    render(request, ...)    
+    return render(request, ...)    
 
 
 # @login_required
 def adminUpdateEventDetailPage(request): # <---- Falta ser criada
-    render(request, ...)
+    return render(request, ...)
 
 
 # @login_required
 def adminDeleteEventPage(request): # <---- Falta ser criada
-    render(request, ...)
+    return render(request, ...)
 
 
 # --------------- RENDER DAS TELAS DE PERFIL --------------------
 
 # @login_required
 def showUserProfilePage(request):
-    render(request, 'main/profile.html')
+    return render(request, 'main/profile.html')
 
 
 # --------------- RENDER TELAS ADMIN ----------------------------
 
 # @login_required
 def adminCreateUserPage(request):
-    render(request, ...)
+    return render(request, ...)
 
 
 # @login_required
 def adminUpdateUserDetailPage(request):
-    render(request, ...)
+    return render(request, ...)
 
 
 # @login_required
 def adminDeleteUserPage(request):
-    render(request, ...)
+    return render(request, ...)
 
 
 # --------------- RENDER DAS TELAS DE INCRIÇÃO --------------------
 
 # @login_required
 def showUserSubscriptionPage(request):
-    render(request, ...)
+    return render(request, ...)
 
 
 # --------------- RENDER TELAS ADMIN ----------------------------
 
 # @login_required
 def adminDeleteUserSubscriptionPage(request):
-    render(request, ...)
+    return render(request, ...)
