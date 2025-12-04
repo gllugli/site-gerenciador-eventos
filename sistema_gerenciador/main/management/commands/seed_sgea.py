@@ -33,9 +33,10 @@ class Command(BaseCommand):
         administrador_perfil, created = Usuario.objects.get_or_create(
             user=administrador_user,
             defaults={
+                "nome_completo": "administrador1",
                 "tipo_perfil": "ADM",  
                 "telefone": "(61) 99999-9999",
-                "instituicao": "UniCEUB",
+                "email_confirmado": True
             },
         )
 
@@ -69,9 +70,11 @@ class Command(BaseCommand):
         professor_perfil, created = Usuario.objects.get_or_create(
             user=professor_user,
             defaults={
+                "nome_completo": "Professor 1",
                 "tipo_perfil": "PR",  
                 "telefone": "(61) 99999-8888",
                 "instituicao": "UniCEUB",
+                "email_confirmado": True
             },
         )
 
@@ -100,9 +103,11 @@ class Command(BaseCommand):
         aluno_perfil, created = Usuario.objects.get_or_create(
             user=aluno_user,
             defaults={
+                "nome_completo": "Aluno 1",
                 "tipo_perfil": "AL",  
                 "telefone": "(61) 99999-7777",
                 "instituicao": "UniCEUB",
+                "email_confirmado": True
             },
         )
 
@@ -218,3 +223,4 @@ class Command(BaseCommand):
 
 
         self.stdout.write(self.style.SUCCESS("Seeding concluído."))
+

@@ -100,61 +100,14 @@ def eventDetailPage(request, event_id):
     return render(request, 'main/events.html', contexto)
 
 
-# --------------- RENDER TELAS ADMIN ----------------------------
-
-# @login_required
-def adminCreateEventPage(request): # <---- Falta ser criada
-    return render(request, ...)
-
-
-# @login_required
-def adminEventDetailPage(request): # <---- Falta ser criada
-    return render(request, ...)    
-
-
-# @login_required
-def adminUpdateEventDetailPage(request): # <---- Falta ser criada
-    return render(request, ...)
-
-
-# @login_required
-def adminDeleteEventPage(request): # <---- Falta ser criada
-    return render(request, ...)
-
-
 # --------------- RENDER DAS TELAS DE PERFIL --------------------
 
 # @login_required
 def showUserProfilePage(request):
     return render(request, 'main/profile.html')
 
-
-# --------------- RENDER TELAS ADMIN ----------------------------
-
-# @login_required
-def adminCreateUserPage(request):
-    return render(request, ...)
-
-
-# @login_required
-def adminUpdateUserDetailPage(request):
-    return render(request, ...)
-
-
-# @login_required
-def adminDeleteUserPage(request):
-    return render(request, ...)
-
-
 # --------------- RENDER DAS TELAS DE INCRIÇÃO --------------------
 
 # @login_required
 def showUserSubscriptionPage(request):
-    return render(request, ...)
-
-
-# --------------- RENDER TELAS ADMIN ----------------------------
-
-# @login_required
-def adminDeleteUserSubscriptionPage(request):
-    return render(request, ...)
+    return render(request, 'main/subscriptions.html')

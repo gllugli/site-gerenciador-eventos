@@ -16,22 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
 from django.conf import settings
 from django.conf.urls.static import static
 
+from rest_framework.authtoken.views import obtain_auth_token
+
 from main import views
+from main.api.views.evento_views import EventoInscricaoAPIView
 
-urlpatterns = [
-
-    # --------------- URLS TEMPORÁRIAS ----------------------------
-
-    # TEMPORÁRIA
-    path('temporary/profile/', views.profile_view, name='temporary_user_profile'),
-
-    # TEMPORÁRIA
-    path('temporary/subscription', views.subscription_view, name='temporary_subscription_page'),
-
+urlpatterns = [    
     path('admin/', admin.site.urls),
     path('api/', include("main.api.urls")),
 
@@ -48,25 +41,15 @@ urlpatterns = [
     path('events/', views.events_dashboard_page, name="event_dashboard"),  # PESQUISA FEITA VIA URL API
     path('events/list', views.events_list_page, name="events_list"),
     path('eventos/<int:event_id>/', views.eventDetailPage, name='event_detail'),
-
-    path('event/admin/create_event', views.adminCreateEventPage, name="admin_create_event"),
-    path('event/admin/event_detail/<int:pk>', views.adminEventDetailPage, name="admin_event_detail"),
-    path('event/admin/update_event/<int:pk>', views.adminUpdateEventDetailPage, name="admin_update_event"),
-    path('event/admin/delete_event/<int:pk>', views.adminDeleteUserPage, name="admin_delete_event"),
+    path('eventos/<int:pk>/inscrever/', EventoInscricaoAPIView.as_view(), name='evento_inscrever'),
 
     # --------------- URL DAS TELAS DE PERFIL ---------------------
 
-    path('profile/', views.showUserProfilePage, name="user_profile"),
-
-    path('profile/admin/register_user', views.adminCreateUserPage, name="admin_create_user"),
-    path('profile/admin/update_user/<int:pk>', views.adminUpdateUserDetailPage, name="admin_update_user"),
-    path('profile/admin/delete_user/<int:pk>', views.adminDeleteUserPage, name="admin_delete_user"),
+    path('profile/', views.profile_view, name="user_profile"),
 
     # --------------- URL DAS TELAS DE INSCRIÇÃO ------------------
 
-    path('subscription/', views.showUserSubscriptionPage, name="subscription_page"),
-
-    path('subscription/admin', views.adminDeleteUserSubscriptionPage, name="admin_delete_user_subscription"),
+    path('subscription/', views.subscription_view, name="subscription_page"),
 ]
 
 if settings.DEBUG:

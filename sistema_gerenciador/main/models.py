@@ -10,9 +10,6 @@ telefone_validator = RegexValidator(
     message="Formato inválido. Use (XX) XXXXX-XXXX."
 )
 
-# Create your models here.
-
-
 class Usuario(models.Model):
 
     TIPO_PERFIL_CHOICES = [
@@ -26,6 +23,8 @@ class Usuario(models.Model):
         on_delete=models.CASCADE,
         related_name='perfil'
     )
+
+    nome_completo = models.CharField(max_length=50, default='Usuário')
     telefone = models.CharField(
         max_length=15,
         validators=[telefone_validator],
@@ -33,12 +32,9 @@ class Usuario(models.Model):
         blank=False,
         unique=True
     )
-    instituicao = models.CharField(max_length=100, null=False, blank=False)
+    instituicao = models.CharField(max_length=100, null=False, blank=True)
+    email_confirmado = models.BooleanField(default=False)  # Feito para guardar se o usuário confirmou o email 
 
-    '''
-    PEDIR PARA O PEDRO ADICIONAR CAMPO NO HTML PARA ESCOLHA DO TIPO DE PERFIL
-    UM CAMPO DE SELEÇÃO MOSTRANDO AS OPÇÕES ALUNO E PROFESSOR
-    '''
     tipo_perfil = models.CharField(
         max_length=3,
         choices=TIPO_PERFIL_CHOICES,
@@ -85,7 +81,7 @@ class Evento(models.Model):
         choices=STATUS_EVENTO,
         default='Rascunho'
     )
-    quantidade_vagas = models.IntegerField(null=False)
+    quantidade_vagas = models.IntegerField(null=False, default=0)
     data_inicio = models.DateField(null=False)
     data_fim = models.DateField(null=False)
     horario_inicio = models.TimeField(null=False)

@@ -1,0 +1,212 @@
+body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+        }
+
+        /* header */
+        .header {
+            background-color: #6a1b9a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 60px;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            border-bottom: 4px solid #e91e63;
+        }
+
+        .logo {
+            font-size: 38px;
+            font-weight: bold;
+        }
+
+        /* card */
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 190px;
+        }
+
+        .card {
+            width: 650px;
+            background: white;
+            padding: 40px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        h2 {
+            color: #4a1468;
+            margin-bottom: 25px;
+        }
+
+        .row {
+            display: flex;
+            gap: 45px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            width: 100%;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 11px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 6px;
+            background: #e6e6e6;
+        }
+
+        .btn {
+            width: 60%;
+            padding: 13px;
+            background: #4a1468;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #380d4f;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4a1468;
+            cursor: pointer;
+        }
+
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: #f5f3ff;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            padding: 40px 48px;
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #4a148c;
+        }
+
+        /* linhas do formulário (2 colunas por padrão) */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            /* espaçamento HORIZONTAL entre os campos da esquerda e da direita */
+            column-gap: 48px;     /* aumente/diminua conforme quiser */
+
+            /* espaçamento VERTICAL entre linhas (opcional, ajuda no respiro) */
+            row-gap: 18px;
+
+            margin-bottom: 24px;
+        }
+
+        /* bloco de cada campo */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;             /* espaço entre label e input */
+            font-size: 14px;
+            color: #374151;
+        }
+
+        /* campo que deve ocupar o card inteiro */
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* inputs e select */
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+
+            /* pequeno respiro extra acima/abaixo de cada input (opcional) */
+            margin-top: 2px;
+            margin-bottom: 2px;
+
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: #f3f4f6;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #7b1fa2;
+            box-shadow: 0 0 0 1px #7b1fa2;
+        }
+
+        /* select com mesmo estilo */
+        .form-group select.input-field {
+            appearance: none;
+        }
+
+        /* botão */
+        .btn-primary {
+            margin-top: 8px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 999px;
+            border: none;
+            background: #4a148c;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #6a1b9a;
+        }
+
+        /* rodapé */
+        .auth-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: #4a148c;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+                column-gap: 0;  /* não precisa de gap horizontal em 1 coluna */
+            }
+        } .auth-footer a:hover {
+            text-decoration: underline;
+        }

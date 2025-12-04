@@ -5,20 +5,20 @@ from ..models import Usuario
 
 
 class RegistroCompletoForm(UserCreationForm):
-    telefone = forms.CharField(max_length=20, required=True)
+    nome_completo = forms.CharField(max_length=50, required=True)
+    telefone = forms.CharField(max_length=15, required=True)
     tipo_perfil = forms.ChoiceField(
         choices=[
             ('AL', 'Aluno'),
             ('PR', 'Professor'),
         ]
     )
-    instituicao = forms.CharField(max_length=255, required=True)
+    instituicao = forms.CharField(max_length=100, required=True)
     email = forms.EmailField(required=True)
 
     class Meta:
         model = User
         fields = [
-            'first_name',
             'email',
             'telefone',
             'instituicao',
@@ -37,3 +37,28 @@ class RegistroCompletoForm(UserCreationForm):
         # adicionar mesma classe em todos os campos
         for field in self.fields.values():
             field.widget.attrs['class'] = 'input-field'
+
+    def save(self, commit=True):
+        # 1) Cria o User "base" sem salvar no banco ainda
+        user = super().save(commit=False)
+
+        user.first_name = self.cleaned_data['nome_completo']
+        user.email = self.cleaned_data['email']
+        user.username = self.cleaned_data['email']
+
+        # 3) Salva o User se commit=True
+        if commit:
+            user.save()
+            
+            Usuario.objects.create(
+                user=user,
+                nome_completo=self.cleaned_data['nome_completo'],
+                telefone=self.cleaned_data['telefone'],
+                instituicao=self.cleaned_data['instituicao'],
+                tipo_perfil=self.cleaned_data['tipo_perfil'],
+                email_confirmado=False
+            )
+
+
+        # 5) Retorna o user (com o perfil já criado)
+        return user
