@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>E-mail confirmado – Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/confirmacao_email/confirmacao_sucesso' %}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="card">
+        <div class="logo-box">
+            <!-- Ajuste o caminho da logo conforme seu projeto -->
+            <img src="{% static 'main/img/logo_CEUB.png' %}" alt="Logo do CEUB">
+        </div>
+
+        <div class="success-icon">✓</div>
+
+        <h1>E-mail confirmado com sucesso!</h1>
+
+        <p class="subtitle">
+            Seu e-mail foi confirmado. Agora você já pode acessar o
+            Sistema de Gestão de Eventos Acadêmicos normalmente.
+        </p>
+
+        <a href="{% url 'login_page' %}" class="btn-primary">
+            Ir para a tela de login
+        </a>
+
+        <p class="helper-text">
+            Caso o botão não funcione por algum motivo, você pode acessar o
+            login diretamente pelo endereço configurado no sistema.
+        </p>
+    </div>
+</div>
+</body>
+</html>

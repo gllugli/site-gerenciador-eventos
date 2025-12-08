@@ -1,39 +1,105 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.templatetags.static import static
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
+from django.core import signing
+from django.urls import reverse
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.exceptions import ValidationError  # se quiser capturar erro genérico do token
+from django.http import HttpResponseForbidden
 
 from main.models import Evento, Inscricao, Usuario
 from main.forms.forms_usuario import RegistroCompletoForm
-# Create your views here.
-
-# --------------- RENDERS TEMPORÁRIAS ---------------------------
-
-# TEMPORÁRIA
-def profile_view(request):
-    return render(request, 'main/profile.html')
-
-# TEMPORÁRIA
-def subscription_view(request):
-    return render(request, 'main/subscriptions.html')
+from main.forms.forms_evento import EventoForm
 
 
-# --------------- RENDER DAS TELAS INICIAIS ---------------------
-
-def landingPage(request):  # <---- Falta ser criada
-    ...
+#  Landing Page
+def landingPage(request):
+    return render(request, 'main/landing.html')
 
 
 # Render da página de login
-def loginPage(request):
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 
+def loginPage(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        return redirect('dashboard_page')
-    
-    return render(request, 'main/login.html')
+        # Autentica usando o e-mail como username
+        user = authenticate(request, username=email, password=password)
+
+        if user is None:
+            messages.error(request, "E-mail ou senha inválidos.")
+            return render(request, "main/login.html")
+
+        # Usa o related_name='perfil'
+        perfil = getattr(user, "perfil", None)
+
+        # Se existir perfil e o e-mail NÃO estiver confirmado
+        if perfil and not perfil.email_confirmado:
+            messages.warning(
+                request,
+                "Seu cadastro ainda não foi confirmado. Verifique seu e-mail para concluir a ativação."
+            )
+            return redirect("aguardar_confirmacao")
+
+        # Tudo ok: faz login e manda para o dashboard
+        login(request, user)
+        return redirect("dashboard_page")
+
+    # GET -> só exibe a tela de login
+    return render(request, "main/login.html")
+
+
+
+# VIEWS DE CONFIRMAÇÃO DE EMAIL
+
+
+def aguardar_confirmacao(request):
+    return render(request, "main/confirmacao_email/aguardar_confirmacao.html")
+
+def confirmacao_sucesso(request):
+    return render(request, "main/confirmacao_email/confirmacao_sucesso.html")
+
+def confirmar_email(request, token):
+    try:
+        # 1) Recupera o ID do usuário a partir do token
+        user_id = signing.loads(
+            token,
+            salt='confirmacao-email-sgea',  # MESMO salt usado na registerPage
+            max_age=60 * 15,          # 15 minutos de validade
+        )
+    except signing.BadSignature:
+        # Token adulterado ou inválido
+        messages.error(request, 'Link de confirmação inválido.')
+        return redirect('login_page')
+    except signing.SignatureExpired:
+        # Token expirado (se usar max_age)
+        messages.error(request, 'Link de confirmação expirado.')
+        return redirect('login_page')
+
+    # 2) Busca o perfil do usuário
+    perfil = get_object_or_404(Usuario, user_id=user_id)
+
+    # 3) Se já estava confirmado
+    if perfil.email_confirmado:
+        messages.info(request, 'Seu e-mail já havia sido confirmado.')
+        return redirect('login_page')
+
+    # 4) Confirma o e-mail
+    perfil.email_confirmado = True
+    perfil.save()
+
+    messages.success(request, 'E-mail confirmado com sucesso!')
+    return redirect('confirmacao_sucesso')
+
 
 
 # @login_required
@@ -47,12 +113,59 @@ def registerPage(request):
     if request.method == 'POST':
         form = RegistroCompletoForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # ou outra rota
+            user = form.save()
+
+            # 1) Gera o token
+            token = signing.dumps(user.pk, salt='confirmacao-email-sgea')
+
+            # 2) Monta a URL de confirmação
+            confirm_path = reverse('confirmar-email', args=[token])
+            confirm_url = request.build_absolute_uri(confirm_path)
+
+            # 3) Monta a URL absoluta da logo
+            logo_path = static('main/img/logo_CEUB.png')  # ajuste o caminho se necessário
+            logo_url = request.build_absolute_uri(logo_path)
+
+            # 4) Assunto do e-mail
+            assunto = 'Confirmação de cadastro - Portal EnCUCA'
+
+            # 5) Corpo em texto simples (fallback)
+            mensagem_texto = (
+                'Olá, {nome}.\n\n'
+                'Obrigado por se cadastrar no Portal EnCUCA.\n'
+                'Para ativar sua conta, acesse o link abaixo:\n'
+                f'{confirm_url}\n\n'
+                'Se você não realizou este cadastro, ignore este e-mail.'
+            ).format(nome=user.first_name or 'usuário')
+
+            # 6) Corpo em HTML, usando o template
+            mensagem_html = render_to_string(
+                'main/confirmacao_email/confirmacao_email.html',
+                {
+                    'nome_usuario': user.first_name or 'usuário',
+                    'url_confirmacao': confirm_url,
+                    'logo_url': logo_url,
+                }
+            )
+
+            remetente = settings.DEFAULT_FROM_EMAIL
+            destinatarios = [user.email]
+
+            # 7) Envio do e-mail com HTML
+            send_mail(
+                assunto,
+                mensagem_texto,           # plain text (fallback)
+                remetente,
+                destinatarios,
+                html_message=mensagem_html  # versão HTML
+            )
+
+            return redirect('login_page')
     else:
         form = RegistroCompletoForm()
 
     return render(request, 'main/register.html', {'form': form})
+
 
 
 # Render do dashboard
@@ -64,7 +177,16 @@ def dashboardPage(request):
 # --------------- RENDER DAS TELAS DE EVENTO --------------------
 # @login_required
 def events_dashboard_page(request):
-    return render(request, 'main/events_dashboard.html')
+    eventos_destaque = (
+        Evento.objects
+        .filter(status="Ativo")
+        .order_by("data_inicio")[:3]
+    )
+
+    context = {
+        "eventos_destaque": eventos_destaque,
+    }
+    return render(request, 'main/eventos/events_dashboard.html', context)
 
 
 def events_list_page(request):
@@ -100,14 +222,22 @@ def eventDetailPage(request, event_id):
     return render(request, 'main/events.html', contexto)
 
 
-# --------------- RENDER DAS TELAS DE PERFIL --------------------
+@login_required
+def criar_evento(request):
+    # bloqueia quem não for ADM
+    if not request.user.perfil.perfil_adm():
+        return HttpResponseForbidden("Você não tem permissão para criar eventos.")
 
-# @login_required
-def showUserProfilePage(request):
-    return render(request, 'main/profile.html')
+    if request.method == "POST":
+        form = EventoForm(request.POST, request.FILES)
+        if form.is_valid():
+            evento = form.save(commit=False)
+            # organizador = perfil do usuário logado
+            evento.organizador = request.user.perfil
+            evento.save()
+            return redirect("eventos_dashboard_page")
+    else:
+        form = EventoForm()
 
-# --------------- RENDER DAS TELAS DE INCRIÇÃO --------------------
+    return render(request, "main/eventos/criar_evento.html", {"form": form})
 
-# @login_required
-def showUserSubscriptionPage(request):
-    return render(request, 'main/subscriptions.html')

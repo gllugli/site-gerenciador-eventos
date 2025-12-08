@@ -1,3 +1,22 @@
+/* ===== VARIÁVEIS DE COR ===== */
+
+:root {
+    --cor-roxo-escuro: #43054e;
+    --cor-roxo:        #662c92;
+    --cor-lilas:       #bf0087;
+    --cor-magenta:     #ec0089;
+    --cor-amarelo:     #fde100;
+
+    --cor-bg-branco:   #ffffff;
+    --cor-bg-body:     #ffffff;
+
+    --cor-texto-principal:   #111827;
+    --cor-texto-secundario:  #6b7280;
+
+    --cor-cinza-input: #f3f3f3;
+    --cor-borda-clara: #e5e7eb;
+}
+
 /* ===== RESET BÁSICO ===== */
 
 * {
@@ -12,7 +31,7 @@ html, body {
 }
 
 body {
-    background: #ffffff;
+    background: var(--cor-bg-body);
 }
 
 /* ===== LAYOUT GERAL ===== */
@@ -27,7 +46,7 @@ body {
 
 .shell {
     width: 100%;
-    background: #ffffff;
+    background: var(--cor-bg-branco);
     display: flex;
     min-height: 100vh;
 }
@@ -37,7 +56,7 @@ body {
 .sidebar {
     width: 190px;
     min-height: 100vh;
-    background: linear-gradient(180deg, #7b1fa2, #4a148c);
+    background: linear-gradient(180deg, var(--cor-roxo), var(--cor-roxo-escuro));
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -70,7 +89,7 @@ body {
 }
 
 .menu-item.active {
-    background: #ff0085;
+    background: var(--cor-magenta);
 }
 
 .menu-item:not(.active):hover {
@@ -79,7 +98,7 @@ body {
 
 .sidebar-footer {
     padding: 20px;
-    border-top: 2px solid #ff0085;
+    border-top: 2px solid var(--cor-magenta);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -128,7 +147,7 @@ body {
 
 .search-box {
     width: 420px;
-    background: #f3f3f3;
+    background: var(--cor-cinza-input);
     border-radius: 999px;
     padding: 7px 15px;
     display: flex;
@@ -148,7 +167,7 @@ body {
     width: 28px;
     height: 28px;
     border-radius: 999px;
-    border: 2px solid #7b1fa2;
+    border: 2px solid var(--cor-roxo);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -161,7 +180,7 @@ body {
     border-radius: 999px;
     padding: 7px 16px;
     font-size: 12px;
-    background: #ffc400;
+    background: var(--cor-amarelo);
     cursor: pointer;
     font-weight: 600;
 }
@@ -191,7 +210,7 @@ body {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: #7b1fa2;
+    background: var(--cor-roxo);
     color: #fff;
     display: flex;
     align-items: center;
@@ -223,17 +242,18 @@ body {
 /* ===== HERO / UX PRINCIPAL ===== */
 
 .events-hero {
-    background: linear-gradient(135deg, #6a1b9a, #ff0085);
+    background: linear-gradient(135deg, var(--cor-roxo), var(--cor-magenta));
     border-radius: 16px;
     padding: 28px 26px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: stretch;
     gap: 26px;
     color: #fff;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
+/* (antiga estrutura, mantida caso seja usada em outro lugar) */
 .events-hero-text {
     flex: 1.2;
     display: flex;
@@ -255,8 +275,8 @@ body {
 .btn-hero {
     margin-top: 6px;
     display: inline-block;
-    background: #ffc400;
-    color: #3b1553;
+    background: var(--cor-amarelo);
+    color: var(--cor-roxo-escuro);
     padding: 10px 24px;
     border-radius: 999px;
     font-size: 13px;
@@ -310,7 +330,7 @@ body {
 }
 
 .event-card {
-    background: #6a1b9a;
+    background: var(--cor-roxo);
     border-radius: 14px;
     padding: 18px 20px;
     display: flex;
@@ -353,14 +373,14 @@ body {
 /* Botões gerais */
 
 .btn-yellow {
-    background: #ffc400;
+    background: var(--cor-amarelo);
     border-radius: 12px;
     border: none;
     padding: 10px 22px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    color: #3b1553;
+    color: var(--cor-roxo-escuro);
     text-decoration: none;
 }
 
@@ -398,7 +418,7 @@ body.dark-mode .search-box input {
 }
 
 body.dark-mode .circle-icon {
-    border-color: #ffc400;
+    border-color: var(--cor-amarelo);
 }
 
 body.dark-mode .btn-perfil,
@@ -427,4 +447,103 @@ body.dark-mode .events-hero {
 
 body.dark-mode .events-hero-highlight {
     background: rgba(0,0,0,0.35);
+}
+
+/* ===== CARROSSEL DE EVENTOS EM DESTAQUE ===== */
+
+.events-hero-carousel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.carousel-item {
+    display: none;
+    gap: 24px;
+    align-items: stretch;
+}
+
+.carousel-item.active {
+    display: flex;
+}
+
+/* lado do banner */
+.carousel-banner {
+    flex: 1;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-banner-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-banner-placeholder {
+    font-size: 56px;
+    opacity: 0.8;
+}
+
+/* lado das informações */
+.carousel-info {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.carousel-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.carousel-meta {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.carousel-description {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ffffff;
+}
+
+/* bolinhas do carrossel */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+}
+
+.carousel-dot.active {
+    background: #ffffff;
+}
+
+/* responsivo */
+@media (max-width: 900px) {
+    .carousel-item {
+        flex-direction: column;
+    }
+
+    .carousel-banner-img {
+        height: 180px;
+    }
 }

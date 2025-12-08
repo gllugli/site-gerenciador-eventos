@@ -23,33 +23,66 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 from main import views
 from main.api.views.evento_views import EventoInscricaoAPIView
+from main.views import confirmar_email
 
-urlpatterns = [    
+urlpatterns = [
+
+
+    #  EXTRAS
+
     path('admin/', admin.site.urls),
+
     path('api/', include("main.api.urls")),
 
-    # --------------- URL DAS TELAS INICIAIS ----------------------
 
-    path('', views.loginPage, name="landing_page"),
+    #  TELAS INICIAS (LOGIN, LOGOUT, CADASTRO, CONFIRMAÇÃO DE EMAIL)
+
+    path('', views.landingPage, name="landing_page"),
+
     path('login/', views.loginPage, name="login_page"),
+
+    path(
+        'aguardar-confirmacao/', views.aguardar_confirmacao, name='aguardar_confirmacao'
+    ),
+
+    path(
+        'confirmacao-sucesso/',
+        views.confirmacao_sucesso,
+        name='confirmacao_sucesso'
+    ),
+
     path('logout/', views.logout_view, name='logout'),
+
     path('register/', views.registerPage, name="register_page"),
+
+    path('confirmar-email/<str:token>/', confirmar_email, name='confirmar-email'),
+
+
+    #  TELAS INTERNAS APLICAÇÃO
+
     path('dashboard/', views.dashboardPage, name="dashboard_page"),
 
-    # --------------- URL DAS TELAS DE EVENTO ---------------------
+    
+    # EVENTOS
 
-    path('events/', views.events_dashboard_page, name="event_dashboard"),  # PESQUISA FEITA VIA URL API
+    path('events/', views.events_dashboard_page, name="event_dashboard"),  
+
     path('events/list', views.events_list_page, name="events_list"),
-    path('eventos/<int:event_id>/', views.eventDetailPage, name='event_detail'),
+
+    path('eventos/<int:event_id>/', views.eventDetailPage, name='event_detail'), 
+
     path('eventos/<int:pk>/inscrever/', EventoInscricaoAPIView.as_view(), name='evento_inscrever'),
 
-    # --------------- URL DAS TELAS DE PERFIL ---------------------
+    path("eventos/novo/", views.criar_evento, name="criar_evento"),
 
-    path('profile/', views.profile_view, name="user_profile"),
 
-    # --------------- URL DAS TELAS DE INSCRIÇÃO ------------------
 
-    path('subscription/', views.subscription_view, name="subscription_page"),
+    # path('profile/', views.profile_view, name="user_profile"),
+
+    # path('subscription/', views.subscription_view, name="subscription_page"),
+
+    # path('admin/events/', views.admin_events_view, name='admin-events'),
+
 ]
 
 if settings.DEBUG:

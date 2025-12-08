@@ -3,10 +3,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Eventos – Central de Eventos</title>
+    <title>Portal EnCUCA</title>
 
     <!-- CSS externo -->
-    <link rel="stylesheet" href="{% static 'main/style/events_list.css' %}">
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
 </head>
 <body>
 <div class="page">
@@ -129,6 +129,15 @@
                     {% if eventos %}
                         {% for evento in eventos %}
                             <article class="event-item">
+
+                                {% if evento.banner %}
+                                    <div class="event-item-banner-wrapper">
+                                        <img src="{{ evento.banner.url }}"
+                                             alt="Banner do evento {{ evento.titulo }}"
+                                             class="event-item-banner">
+                                    </div>
+                                {% endif %}
+
                                 <header class="event-item-header">
                                     <h3 class="event-item-title">{{ evento.titulo }}</h3>
 

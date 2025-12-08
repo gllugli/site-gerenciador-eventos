@@ -3,9 +3,9 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Eventos – Central de Eventos</title>
+    <title>Portal EnCUCA</title>
 
-    <link rel="stylesheet" href="{% static 'main/style/events_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_dashboard.css' %}">
 </head>
 <body>
 <div class="page">
@@ -92,27 +92,73 @@
 
                 <!-- HERO / INTRODUÇÃO UX -->
                 <div class="events-hero">
-                    <div class="events-hero-text">
-                        <h2>Central de Eventos</h2>
-                        <p>
-                            Encontre, acompanhe e participe dos eventos acadêmicos do CEUB.
-                            Acesse a lista completa de eventos ativos e veja em quais você já está inscrito.
-                        </p>
 
-                        <a href="{% url 'events_list' %}" class="btn-hero">
-                            Ver eventos disponíveis
-                        </a>
+                    <div class="events-hero-carousel">
+                        {% if eventos_destaque %}
+                            {% for evento in eventos_destaque %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <div class="carousel-banner">
+                                        {% if evento.banner %}
+                                            <img src="{{ evento.banner.url }}"
+                                                alt="Banner do evento {{ evento.titulo }}"
+                                                class="carousel-banner-img">
+                                        {% else %}
+                                            <div class="carousel-banner-placeholder">
+                                                📅
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="carousel-info">
+                                        <h2 class="carousel-title">{{ evento.titulo }}</h2>
+
+                                        <p class="carousel-meta">
+                                            {{ evento.data_inicio|date:"d/m/Y" }}
+                                            •
+                                            {{ evento.localizacao }}
+                                        </p>
+
+                                        <p class="carousel-description">
+                                            {{ evento.descricao }}
+                                        </p>
+
+                                        <a href="{% url 'events_list' %}" class="btn-hero">
+                                            Ver eventos
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <!-- fallback caso ainda não haja eventos ativos -->
+                            <div class="carousel-item active">
+                                <div class="carousel-banner-placeholder">
+                                    📅
+                                </div>
+                                <div class="carousel-info">
+                                    <h2 class="carousel-title">Central de Eventos</h2>
+                                    <p class="carousel-description">
+                                        Ainda não há eventos ativos cadastrados. Volte mais tarde ou clique abaixo para conferir a lista completa.
+                                    </p>
+                                    <a href="{% url 'events_list' %}" class="btn-hero">
+                                        Ver eventos
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- bolinhas de navegação -->
+                        {% if eventos_destaque %}
+                            <div class="carousel-dots">
+                                {% for evento in eventos_destaque %}
+                                    <button class="carousel-dot {% if forloop.first %}active{% endif %}"
+                                            data-index="{{ forloop.counter0 }}"></button>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
 
-                    <div class="events-hero-highlight">
-                        <p class="highlight-label">Próximos passos</p>
-                        <ul class="highlight-list">
-                            <li>Escolha um evento na lista.</li>
-                            <li>Leia os detalhes e requisitos.</li>
-                            <li>Confirme sua inscrição em poucos cliques.</li>
-                        </ul>
-                    </div>
                 </div>
+
 
                 <!-- CARDS RESUMO -->
                 <div class="events-bottom">

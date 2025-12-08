@@ -132,12 +132,13 @@ class Command(BaseCommand):
             defaults={
                 "descricao": "Palestra introdutória sobre conceitos básicos de segurança cibernética.",
                 "status": "Ativo",
+                "quantidade_vagas": 30,
                 "data_inicio": data_inicio,
                 "data_fim": data_fim,
                 "horario_inicio": horario_inicio,
                 "horario_fim": horario_fim,
                 "localizacao": "UniCEUB",
-                "organizador": administrador_perfil,
+                "organizador": professor_perfil,
             },
         )
 
@@ -152,12 +153,13 @@ class Command(BaseCommand):
             defaults={
                 "descricao": "Discussão sobre a possibilidade da IA tomar o lugar dos Devs futuramente.",
                 "status": "Rascunho",
+                "quantidade_vagas": 50,
                 "data_inicio": data_inicio,
                 "data_fim": data_fim,
                 "horario_inicio": horario_inicio,
                 "horario_fim": horario_fim,
                 "localizacao": "UniCEUB",
-                "organizador": administrador_perfil,
+                "organizador": professor_perfil,
             },
         )
 
@@ -172,12 +174,13 @@ class Command(BaseCommand):
             defaults={
                 "descricao": "Minicurso ofertado pela Monitoria de TI.",
                 "status": "Cancelado",
+                "quantidade_vagas": 100,
                 "data_inicio": data_inicio,
                 "data_fim": data_fim,
                 "horario_inicio": horario_inicio,
                 "horario_fim": horario_fim,
                 "localizacao": "UniCEUB",
-                "organizador": administrador_perfil,
+                "organizador": professor_perfil,
             },
         )
 
@@ -198,29 +201,3 @@ class Command(BaseCommand):
             self.stdout.write(f'Inscrição no evento "{evento1.titulo}" realizada.')
         else:
             self.stdout.write(f'Inscrição no evento "{evento1.titulo}" já realizada.')
-
-
-        inscricao, created = Inscricao.objects.get_or_create(
-            usuario = professor_perfil, 
-            evento = evento2
-        )
-
-        if created:
-            self.stdout.write(f'Inscrição no evento "{evento2.titulo}" realizada.')
-        else:
-            self.stdout.write(f'Inscrição no evento "{evento2.titulo}" já realizada.')
-
-        
-        inscricao, created = Inscricao.objects.get_or_create(
-            usuario = aluno_perfil, 
-            evento = evento3
-        )
-
-        if created:
-            self.stdout.write(f'Inscrição no evento "{evento3.titulo}" realizada.')
-        else:
-            self.stdout.write(f'Inscrição no evento "{evento3.titulo}" já realizada.')
-
-
-        self.stdout.write(self.style.SUCCESS("Seeding concluído."))
-

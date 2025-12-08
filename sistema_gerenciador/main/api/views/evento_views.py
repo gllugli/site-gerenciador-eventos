@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.throttling import ScopedRateThrottle
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions
+from rest_framework import generics
 
 from ...models import Evento, Inscricao
 from ..serializers.evento_serializer import EventoSerializer
+from main.api.permissions import IsEmailConfirmed
+
 
 
 class EventoListAPIView(generics.ListAPIView):
@@ -16,7 +18,8 @@ class EventoListAPIView(generics.ListAPIView):
 
     queryset = Evento.objects.all()
     serializer_class = EventoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    throttle_scope = "consulta_eventos"
+    permission_classes = [permissions.IsAuthenticated, IsEmailConfirmed]
 
 
 class EventoDetailAPIView(generics.RetrieveAPIView):
@@ -25,7 +28,7 @@ class EventoDetailAPIView(generics.RetrieveAPIView):
     """
     queryset = Evento.objects.all()
     serializer_class = EventoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsEmailConfirmed]
 
 
 class EventoInscricaoAPIView(APIView):
@@ -33,7 +36,7 @@ class EventoInscricaoAPIView(APIView):
     Endpoint para o usuário autenticado se inscrever em um evento específico.
     Reaproveita Evento.pode_inscrever(usuario) para aplicar as regras de negócio.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsEmailConfirmed]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "inscricao_eventos"
 
@@ -41,8 +44,8 @@ class EventoInscricaoAPIView(APIView):
         evento = get_object_or_404(Evento, pk=pk)
 
         # Use o mesmo "usuario" que você já usa nas suas regras de negócio:
-        # se o método espera o perfil (Usuario), use request.user.usuario
-        usuario = request.user  # ou request.user.usuario, conforme seu modelo
+        # se o método espera o perfil (Usuario), use request.user.perfil
+        usuario = request.user.perfil  # ou request.user.usuario, conforme seu modelo
 
         # Aqui você reaproveita a regra de negócio centralizada no modelo
         # Ajuste se seu pode_inscrever retornar (bool, mensagem) em vez de só bool

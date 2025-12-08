@@ -97,6 +97,9 @@ AUTH_PASSWORD_VALIDATORS = [
         }
     },
     {
+        'NAME': 'main.validators.SenhaForteValidator',
+    },
+    {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',  # noqa: E501
     },
     {
@@ -152,3 +155,7 @@ REST_FRAMEWORK = {
 
 LOGIN_URL = 'login_page'
 LOGIN_REDIRECT_URL = 'dashboard_page'
+
+DEFAULT_FROM_EMAIL = 'naoresponder@sgea.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+

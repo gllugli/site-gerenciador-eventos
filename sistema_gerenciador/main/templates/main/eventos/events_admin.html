@@ -1,0 +1,498 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_admin.css' %}">
+
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <nav class="sidebar-menu">
+                    <a href="{% url 'dashboard_page' %}" class="menu-item">
+                        <span class="icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+
+                    <a href="{% url 'event_dashboard' %}" class="menu-item">
+                        <span class="icon">📅</span>
+                        <span>Eventos</span>
+                    </a>
+
+                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
+                        <span class="icon">📝</span>
+                        <span>Inscrições</span>
+                    </a>
+
+                    <a href="{% url 'temporary_user_profile' %}" class="menu-item">
+                        <span class="icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+
+                    <a href="#" class="menu-item active">
+                        <span class="icon">⚙️</span>
+                        <span>Admin Eventos</span>
+                    </a>
+                </nav>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer" style="text-decoration:none; color:white;">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1>Administração de Eventos</h1>
+
+                    <div class="search-box">
+                        🔍
+                        <input type="text" id="searchInput" placeholder="Buscar evento, data ou local">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon">🔔</div>
+                    <div class="circle-icon">👤</div>
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <!-- DROPDOWN DO PERFIL -->
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {% if user.first_name %}
+                                    {{ user.first_name|first|upper }}
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ user.first_name|default:user.username }}
+                                </div>
+                                <div class="user-email">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="content-events">
+
+                <div class="events-hero">
+                    <div class="events-hero-text">
+                        <h2>Painel administrativo de eventos</h2>
+                        <p>
+                            Cadastre, edite e gerencie os eventos acadêmicos do CEUB.
+                            Esta tela é apenas visual, com os dados mantidos na memória do navegador.
+                        </p>
+                        <button class="btn-hero" id="btnNewEventHero">
+                            Novo evento
+                        </button>
+                    </div>
+
+                    <div class="events-hero-highlight">
+                        <p class="highlight-label">O que você pode fazer aqui</p>
+                        <ul class="highlight-list">
+                            <li>Cadastrar novos eventos.</li>
+                            <li>Editar informações de eventos existentes.</li>
+                            <li>Ativar ou desativar eventos conforme necessidade.</li>
+                            <li>Excluir eventos que não serão mais utilizados.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ÁREA DE LISTAGEM E AÇÕES -->
+                <div class="events-bottom">
+                    <div class="events-actions" style="width:100%;">
+                        <div class="event-card" style="width:100%; flex-direction: column; gap: 16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
+                                <div class="event-card-left">
+                                    <div class="event-icon">📋</div>
+                                    <div>
+                                        <span class="event-card-title">Eventos cadastrados</span>
+                                        <span class="event-card-subtitle" id="eventsCountText">
+                                            Total: 0 evento(s) na simulação.
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button class="btn-primary" id="btnNewEvent">
+                                    Novo evento
+                                </button>
+                            </div>
+
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Data</th>
+                                        <th>Horário</th>
+                                        <th>Local</th>
+                                        <th>Vagas</th>
+                                        <th>Status</th>
+                                        <th style="width: 160px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTableBody">
+                                    <!-- linhas preenchidas via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+    </div>
+</div>
+
+<!-- MODAL DE CRIAÇÃO/EDIÇÃO -->
+<div class="modal" id="eventModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">Novo evento</div>
+            <button class="modal-close" id="modalCloseButton" aria-label="Fechar">x</button>
+        </div>
+
+        <div class="modal-body">
+            <form id="eventForm">
+                <input type="hidden" id="editingIndex">
+
+                <div class="form-row">
+                    <label for="titleInput">Título</label>
+                    <input type="text" id="titleInput" required>
+                </div>
+
+                <div class="form-row" style="display:flex; gap:8px;">
+                    <div style="flex:1;">
+                        <label for="dateInput">Data</label>
+                        <input type="date" id="dateInput" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label for="timeInput">Horário</label>
+                        <input type="time" id="timeInput">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="locationInput">Local</label>
+                    <input type="text" id="locationInput" required>
+                </div>
+
+                <div class="form-row" style="display:flex; gap:8px;">
+                    <div style="flex:1;">
+                        <label for="seatsInput">Vagas</label>
+                        <input type="number" id="seatsInput" min="0" value="0">
+                    </div>
+                    <div style="flex:1;">
+                        <label for="statusInput">Status</label>
+                        <select id="statusInput">
+                            <option value="active">Ativo</option>
+                            <option value="inactive">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="descriptionInput">Descrição</label>
+                    <textarea id="descriptionInput" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="btnCancelModal">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------------- MODO ESCURO E DROPDOWN ----------------
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', function (event) {
+            if (dropdown.style.display === 'block' &&
+                !dropdown.contains(event.target) &&
+                !btnPerfil.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // ---------------- DADOS FAKE PARA SIMULAR CRUD ----------------
+    const events = [
+        {
+            title: "Semana da Computação",
+            date: "2025-10-15",
+            time: "19:00",
+            location: "Auditório Principal",
+            seats: 80,
+            status: "active",
+            description: "Palestras e workshops sobre tecnologia.",
+        },
+        {
+            title: "Feira de Estágios",
+            date: "2025-08-20",
+            time: "09:00",
+            location: "Hall Central",
+            seats: 120,
+            status: "inactive",
+            description: "Feira com empresas parceiras oferecendo vagas."
+        }
+    ];
+
+    const tableBody = document.getElementById("eventsTableBody");
+    const eventsCountText = document.getElementById("eventsCountText");
+    const searchInput = document.getElementById("searchInput");
+
+    function formatDateToBR(dateStr) {
+        if (!dateStr) return "";
+        const [year, month, day] = dateStr.split("-");
+        if (!year || !month || !day) return dateStr;
+        return `${day}/${month}/${year}`;
+    }
+
+    function updateCount() {
+        eventsCountText.textContent = `Total: ${events.length} evento(s) na simulação.`;
+    }
+
+    function renderTable(filterText = "") {
+        tableBody.innerHTML = "";
+
+        const term = filterText.trim().toLowerCase();
+
+        const filteredEvents = events.filter(ev => {
+            if (term === "") return true;
+            const composite =
+                (ev.title || "") + " " +
+                (ev.location || "") + " " +
+                (ev.date || "");
+            return composite.toLowerCase().includes(term);
+        });
+
+        if (filteredEvents.length === 0) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 7;
+            td.textContent = term
+                ? "Nenhum evento encontrado para o filtro informado."
+                : "Nenhum evento cadastrado na simulação.";
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+            updateCount();
+            return;
+        }
+
+        filteredEvents.forEach((event, filteredIndex) => {
+            const realIndex = events.indexOf(event);
+
+            const tr = document.createElement("tr");
+
+            const tdTitle = document.createElement("td");
+            tdTitle.textContent = event.title;
+
+            const tdDate = document.createElement("td");
+            tdDate.textContent = formatDateToBR(event.date);
+
+            const tdTime = document.createElement("td");
+            tdTime.textContent = event.time || "—";
+
+            const tdLocation = document.createElement("td");
+            tdLocation.textContent = event.location;
+
+            const tdSeats = document.createElement("td");
+            tdSeats.textContent = event.seats;
+
+            const tdStatus = document.createElement("td");
+            const spanStatus = document.createElement("span");
+            if (event.status === "active") {
+                spanStatus.textContent = "Ativo";
+                spanStatus.className = "badge-active";
+            } else {
+                spanStatus.textContent = "Inativo";
+                spanStatus.className = "badge-inactive";
+            }
+            tdStatus.appendChild(spanStatus);
+
+            const tdActions = document.createElement("td");
+            const actionDiv = document.createElement("div");
+            actionDiv.className = "admin-actions";
+
+            const btnEdit = document.createElement("button");
+            btnEdit.type = "button";
+            btnEdit.className = "btn-outline";
+            btnEdit.textContent = "Editar";
+            btnEdit.addEventListener("click", () => openModal("edit", realIndex));
+
+            const btnDelete = document.createElement("button");
+            btnDelete.type = "button";
+            btnDelete.className = "btn-danger";
+            btnDelete.textContent = "Excluir";
+            btnDelete.addEventListener("click", () => deleteEvent(realIndex));
+
+            actionDiv.appendChild(btnEdit);
+            actionDiv.appendChild(btnDelete);
+            tdActions.appendChild(actionDiv);
+
+            tr.appendChild(tdTitle);
+            tr.appendChild(tdDate);
+            tr.appendChild(tdTime);
+            tr.appendChild(tdLocation);
+            tr.appendChild(tdSeats);
+            tr.appendChild(tdStatus);
+            tr.appendChild(tdActions);
+
+            tableBody.appendChild(tr);
+        });
+
+        updateCount();
+    }
+
+    // ---------------- MODAL E FORMULÁRIO ----------------
+    const modal = document.getElementById("eventModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalCloseButton = document.getElementById("modalCloseButton");
+    const btnNewEvent = document.getElementById("btnNewEvent");
+    const btnNewEventHero = document.getElementById("btnNewEventHero");
+    const btnCancelModal = document.getElementById("btnCancelModal");
+    const eventForm = document.getElementById("eventForm");
+
+    const editingIndexInput = document.getElementById("editingIndex");
+    const titleInput = document.getElementById("titleInput");
+    const dateInput = document.getElementById("dateInput");
+    const timeInput = document.getElementById("timeInput");
+    const locationInput = document.getElementById("locationInput");
+    const seatsInput = document.getElementById("seatsInput");
+    const statusInput = document.getElementById("statusInput");
+    const descriptionInput = document.getElementById("descriptionInput");
+
+    function openModal(mode, index) {
+        if (mode === "new") {
+            modalTitle.textContent = "Novo evento";
+            editingIndexInput.value = "";
+            titleInput.value = "";
+            dateInput.value = "";
+            timeInput.value = "";
+            locationInput.value = "";
+            seatsInput.value = 0;
+            statusInput.value = "active";
+            descriptionInput.value = "";
+        } else if (mode === "edit" && typeof index === "number") {
+            const ev = events[index];
+            modalTitle.textContent = "Editar evento";
+            editingIndexInput.value = index;
+            titleInput.value = ev.title;
+            dateInput.value = ev.date;
+            timeInput.value = ev.time || "";
+            locationInput.value = ev.location;
+            seatsInput.value = ev.seats;
+            statusInput.value = ev.status;
+            descriptionInput.value = ev.description || "";
+        }
+
+        modal.classList.add("open");
+    }
+
+    function closeModal() {
+        modal.classList.remove("open");
+    }
+
+    function deleteEvent(index) {
+        const ev = events[index];
+        const confirmDelete = window.confirm(
+            "Deseja realmente excluir o evento: " + ev.title + "?"
+        );
+        if (!confirmDelete) return;
+        events.splice(index, 1);
+        renderTable(searchInput.value);
+    }
+
+    btnNewEvent.addEventListener("click", () => openModal("new"));
+    btnNewEventHero.addEventListener("click", () => openModal("new"));
+    modalCloseButton.addEventListener("click", closeModal);
+    btnCancelModal.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    eventForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const data = {
+            title: titleInput.value.trim(),
+            date: dateInput.value,
+            time: timeInput.value,
+            location: locationInput.value.trim(),
+            seats: Number(seatsInput.value) || 0,
+            status: statusInput.value,
+            description: descriptionInput.value.trim()
+        };
+
+        const index = editingIndexInput.value;
+
+        if (index === "") {
+            events.push(data);
+        } else {
+            events[Number(index)] = data;
+        }
+
+        closeModal();
+        renderTable(searchInput.value);
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            renderTable(searchInput.value);
+        });
+    }
+
+    renderTable();
+</script>
+</body>
+</html>

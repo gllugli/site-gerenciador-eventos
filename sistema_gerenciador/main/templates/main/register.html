@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro – Central de Eventos</title>
+    <title>Portal EnCUCA</title>
 
-    <link rel="stylesheet" href="main/style/register.css">
+    <link rel="stylesheet" href="{% static 'main/style/register.css' %}">
 </head>
 
 <body>
@@ -77,6 +78,31 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const telInput = document.getElementById("id_telefone");
+            if (!telInput) return;
+
+            telInput.addEventListener("input", function (e) {
+                // Remove tudo que não é dígito
+                let v = e.target.value.replace(/\D/g, "");
+
+                // Limita a 11 dígitos (2 DDD + 9 número)
+                if (v.length > 11) v = v.slice(0, 11);
+
+                // Aplica a máscara: (XX) XXXXX-XXXX
+                if (v.length >= 2) {
+                    v = "(" + v.slice(0, 2) + ") " + v.slice(2);
+                }
+                if (v.length >= 10) {
+                    v = v.slice(0, 10) + "-" + v.slice(10);
+                }
+
+                e.target.value = v;
+            });
+        });
+    </script>
 
 </body>
 </html>

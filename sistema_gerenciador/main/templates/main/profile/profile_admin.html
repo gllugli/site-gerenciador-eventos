@@ -1,0 +1,390 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/profile/profile_admin.css' %}">
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <nav class="sidebar-menu">
+                    <a href="{% url 'dashboard_page' %}" class="menu-item">
+                        <span class="icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+
+                    <a href="{% url 'event_dashboard' %}" class="menu-item">
+                        <span class="icon">📅</span>
+                        <span>Eventos</span>
+                    </a>
+
+                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
+                        <span class="icon">📝</span>
+                        <span>Inscrições</span>
+                    </a>
+
+                    <a href="{% url 'temporary_user_profile' %}" class="menu-item">
+                        <span class="icon">👤</span>
+                        <span>Perfil</span>
+                    </a>
+
+                    <!-- ADMIN PERFIL (esta página) -->
+                    <a href="#" class="menu-item active">
+                        <span class="icon">👥</span>
+                        <span>Admin Perfil</span>
+                    </a>
+                </nav>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1>Admin Perfil</h1>
+
+                    <div class="search-box">
+                        🔍
+                        <input type="text" id="searchInput" placeholder="Buscar por nome, e-mail ou instituição">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon">🔔</div>
+                    <div class="circle-icon">👤</div>
+                    <button class="btn-perfil">
+                        Perfil | Usuário
+                    </button>
+                </div>
+            </header>
+
+            <section class="content-perfil">
+                <div class="profile-title-badge">
+                    Administração de Perfis
+                </div>
+
+                <div class="profile-card-admin">
+                    <div class="profile-admin-header">
+                        <div class="profile-admin-header-left">
+                            <span class="profile-admin-title">Perfis cadastrados</span>
+                            <span class="profile-admin-subtitle" id="profilesCountText">
+                                Total: 0 perfil(is) na simulação.
+                            </span>
+                        </div>
+
+                        <button class="btn-novo-perfil" id="btnNovoPerfil">
+                            Novo perfil
+                        </button>
+                    </div>
+
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Telefone</th>
+                                <th>Instituição</th>
+                                <th>Nível</th>
+                                <th style="width: 150px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profilesTableBody">
+                            <!-- linhas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- MODAL ADMIN PERFIL (CRIAR / EDITAR) -->
+<div class="edit-profile-backdrop" id="adminProfileModal">
+    <div class="edit-profile-modal">
+        <div class="edit-profile-title" id="adminProfileModalTitle">Novo perfil</div>
+
+        <form class="edit-profile-form" id="adminProfileForm">
+            <input type="hidden" id="editingIndex">
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_nome">Nome</label>
+                <input type="text" id="id_nome" class="ep-input" required>
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_email">E-mail</label>
+                <input type="email" id="id_email" class="ep-input" required>
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_telefone">Telefone</label>
+                <input type="text" id="id_telefone" class="ep-input">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_instituicao">Instituição</label>
+                <input type="text" id="id_instituicao" class="ep-input">
+            </div>
+
+            <div class="ep-field">
+                <label class="ep-label" for="id_nivel">Nível da conta</label>
+                <select id="id_nivel" class="ep-select">
+                    <option value="Usuário">Usuário</option>
+                    <option value="Administrador">Administrador</option>
+                </select>
+            </div>
+
+            <div class="ep-actions">
+                <button type="button" class="btn-cancelar" id="btnCancelarAdminPerfil">Cancelar</button>
+                <button type="submit" class="btn-salvar">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ---------------- MODO ESCURO (igual tela de perfil) ----------------
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    if (toggle) {
+        toggle.addEventListener('click', function () {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // ---------------- CRUD VISUAL DE PERFIS ----------------
+    const profiles = [
+        {
+            name: "Pedro Augusto",
+            email: "pedro.augusto@ceub.com",
+            phone: "61 99999-8888",
+            institution: "Centro Universitário de Brasília (CEUB)",
+            level: "Usuário"
+        },
+        {
+            name: "Maria Souza",
+            email: "maria.souza@ceub.com",
+            phone: "61 98888-7777",
+            institution: "Centro Universitário de Brasília (CEUB)",
+            level: "Administrador"
+        }
+    ];
+
+    const profilesTableBody = document.getElementById("profilesTableBody");
+    const profilesCountText = document.getElementById("profilesCountText");
+    const searchInput = document.getElementById("searchInput");
+
+    function updateProfilesCount() {
+        profilesCountText.textContent = `Total: ${profiles.length} perfil(is) na simulação.`;
+    }
+
+    function renderProfilesTable(filter = "") {
+        profilesTableBody.innerHTML = "";
+
+        const term = filter.trim().toLowerCase();
+
+        const filtered = profiles.filter(p => {
+            if (term === "") return true;
+            const composite =
+                (p.name || "") + " " +
+                (p.email || "") + " " +
+                (p.institution || "");
+            return composite.toLowerCase().includes(term);
+        });
+
+        if (filtered.length === 0) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 6;
+            td.textContent = term
+                ? "Nenhum perfil encontrado para o filtro informado."
+                : "Nenhum perfil cadastrado na simulação.";
+            tr.appendChild(td);
+            profilesTableBody.appendChild(tr);
+            updateProfilesCount();
+            return;
+        }
+
+        filtered.forEach(profile => {
+            const index = profiles.indexOf(profile);
+
+            const tr = document.createElement("tr");
+
+            const tdName = document.createElement("td");
+            tdName.textContent = profile.name;
+
+            const tdEmail = document.createElement("td");
+            tdEmail.textContent = profile.email;
+
+            const tdPhone = document.createElement("td");
+            tdPhone.textContent = profile.phone || "—";
+
+            const tdInst = document.createElement("td");
+            tdInst.textContent = profile.institution || "—";
+
+            const tdLevel = document.createElement("td");
+            const spanLevel = document.createElement("span");
+            spanLevel.textContent = profile.level;
+            spanLevel.className = "profile-role-badge";
+            tdLevel.appendChild(spanLevel);
+
+            const tdActions = document.createElement("td");
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "admin-actions";
+
+            const btnEdit = document.createElement("button");
+            btnEdit.type = "button";
+            btnEdit.className = "btn-outline";
+            btnEdit.textContent = "Editar";
+            btnEdit.addEventListener("click", () => openAdminProfileModal("edit", index));
+
+            const btnDelete = document.createElement("button");
+            btnDelete.type = "button";
+            btnDelete.className = "btn-danger";
+            btnDelete.textContent = "Excluir";
+            btnDelete.addEventListener("click", () => deleteProfile(index));
+
+            actionsDiv.appendChild(btnEdit);
+            actionsDiv.appendChild(btnDelete);
+            tdActions.appendChild(actionsDiv);
+
+            tr.appendChild(tdName);
+            tr.appendChild(tdEmail);
+            tr.appendChild(tdPhone);
+            tr.appendChild(tdInst);
+            tr.appendChild(tdLevel);
+            tr.appendChild(tdActions);
+
+            profilesTableBody.appendChild(tr);
+        });
+
+        updateProfilesCount();
+    }
+
+    // ---------------- MODAL ADMIN PERFIL ----------------
+    const adminProfileModal = document.getElementById("adminProfileModal");
+    const adminProfileModalTitle = document.getElementById("adminProfileModalTitle");
+    const adminProfileForm = document.getElementById("adminProfileForm");
+    const btnNovoPerfil = document.getElementById("btnNovoPerfil");
+    const btnCancelarAdminPerfil = document.getElementById("btnCancelarAdminPerfil");
+
+    const editingIndexInput = document.getElementById("editingIndex");
+    const nomeInput = document.getElementById("id_nome");
+    const emailInput = document.getElementById("id_email");
+    const telefoneInput = document.getElementById("id_telefone");
+    const instituicaoInput = document.getElementById("id_instituicao");
+    const nivelInput = document.getElementById("id_nivel");
+
+    function openAdminProfileModal(mode, index) {
+        if (mode === "new") {
+            adminProfileModalTitle.textContent = "Novo perfil";
+            editingIndexInput.value = "";
+            nomeInput.value = "";
+            emailInput.value = "";
+            telefoneInput.value = "";
+            instituicaoInput.value = "";
+            nivelInput.value = "Usuário";
+        } else if (mode === "edit" && typeof index === "number") {
+            const p = profiles[index];
+            adminProfileModalTitle.textContent = "Editar perfil";
+            editingIndexInput.value = index;
+            nomeInput.value = p.name;
+            emailInput.value = p.email;
+            telefoneInput.value = p.phone || "";
+            instituicaoInput.value = p.institution || "";
+            nivelInput.value = p.level || "Usuário";
+        }
+
+        adminProfileModal.style.display = "flex";
+    }
+
+    function closeAdminProfileModal() {
+        adminProfileModal.style.display = "none";
+    }
+
+    function deleteProfile(index) {
+        const p = profiles[index];
+        const confirma = window.confirm(
+            "Deseja realmente excluir o perfil de: " + p.name + "?"
+        );
+        if (!confirma) return;
+
+        profiles.splice(index, 1);
+        renderProfilesTable(searchInput.value);
+    }
+
+    if (btnNovoPerfil) {
+        btnNovoPerfil.addEventListener("click", () => openAdminProfileModal("new"));
+    }
+
+    if (btnCancelarAdminPerfil) {
+        btnCancelarAdminPerfil.addEventListener("click", closeAdminProfileModal);
+    }
+
+    if (adminProfileModal) {
+        adminProfileModal.addEventListener("click", function (event) {
+            if (event.target === adminProfileModal) {
+                closeAdminProfileModal();
+            }
+        });
+    }
+
+    if (adminProfileForm) {
+        adminProfileForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const data = {
+                name: nomeInput.value.trim(),
+                email: emailInput.value.trim(),
+                phone: telefoneInput.value.trim(),
+                institution: instituicaoInput.value.trim(),
+                level: nivelInput.value
+            };
+
+            const index = editingIndexInput.value;
+
+            if (index === "") {
+                profiles.push(data);
+            } else {
+                profiles[Number(index)] = data;
+            }
+
+            closeAdminProfileModal();
+            renderProfilesTable(searchInput.value);
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            renderProfilesTable(searchInput.value);
+        });
+    }
+
+    // render inicial
+    renderProfilesTable();
+</script>
+</body>
+</html>

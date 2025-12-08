@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", Arial, sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(135deg, #7b1fa2, #4a148c);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-shell {
+    width: 100%;
+    max-width: 520px;
+    padding: 16px;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.logo-box {
+    margin-right: 12px;
+}
+
+.logo-box img {
+    max-width: 130px;
+    height: auto;
+}
+
+.card-title-area h1 {
+    font-size: 20px;
+    color: #2c1b3f;
+    margin-bottom: 4px;
+}
+
+.card-title-area span {
+    font-size: 12px;
+    color: #777;
+}
+
+.status-box {
+    margin: 12px 0 20px 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    font-size: 13px;
+    color: #856404;
+}
+
+.status-label {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.content-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.content-text strong {
+    color: #333;
+}
+
+.list-tips {
+    font-size: 13px;
+    color: #555;
+    margin-left: 18px;
+    margin-bottom: 16px;
+}
+
+.list-tips li {
+    margin-bottom: 4px;
+}
+
+.buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: #4a148c;
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+    filter: brightness(1.05);
+}
+
+.footer-note {
+    font-size: 11px;
+    color: #999;
+    margin-top: 16px;
+    line-height: 1.4;
+}
+
+@media (max-width: 520px) {
+    .card {
+        padding: 24px 18px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .logo-box {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .card-title-area h1 {
+        font-size: 18px;
+    }
+}

@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmação pendente – Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/confirmacao_email/aguardar_confirmacao.css' %}">
+</head>
+<body>
+<div class="page-shell">
+    <div class="card">
+        <div class="card-header">
+            <div class="logo-box">
+                <!-- Ajuste o caminho da logo conforme seu projeto -->
+                <img src="{% static 'main/img/logo_CEUB.png' %}" alt="SGEA">
+            </div>
+            <div class="card-title-area">
+                <h1>Confirmação de e-mail pendente</h1>
+                <span>Finalize a ativação da sua conta para acessar o sistema.</span>
+            </div>
+        </div>
+
+        <div class="status-box">
+            <span class="status-label">Status da conta</span>
+            Seu cadastro foi realizado, mas o e-mail ainda não foi confirmado.
+        </div>
+
+        <p class="content-text">
+            Para liberar o acesso ao painel do sistema, é necessário
+            <strong>confirmar o endereço de e-mail</strong> informado no momento do cadastro.
+        </p>
+
+        <ul class="list-tips">
+            <li>Verifique sua <strong>caixa de entrada</strong> e a pasta de <strong>spam</strong> ou lixo eletrônico.</li>
+            <li>Procure pelo e-mail de confirmação enviado pelo Portal EnCUCA.</li>
+            <li>Clique no botão de confirmação presente na mensagem.</li>
+        </ul>
+
+        <p class="content-text">
+            Após a confirmação, você poderá fazer login normalmente com seu usuário e senha.
+        </p>
+
+        <div class="buttons-row">
+            <a href="{% url 'login_page' %}" class="btn-secondary">
+                Voltar para o login
+            </a>
+
+            {# Se você criar a view para reenviar o e-mail, basta descomentar e ajustar a URL: #}
+            {# <a href="{% url 'reenviar_confirmacao' %}" class="btn-primary">
+                Reenviar e-mail de confirmação
+            </a> #}
+        </div>
+
+        <p class="footer-note">
+            Se você acredita que não recebeu o e-mail, verifique se o endereço cadastrado está correto ou
+            entre em contato com o suporte da instituição.
+        </p>
+    </div>
+</div>
+</body>
+</html>

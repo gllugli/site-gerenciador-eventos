@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 import uuid
@@ -81,7 +81,16 @@ class Evento(models.Model):
         choices=STATUS_EVENTO,
         default='Rascunho'
     )
-    quantidade_vagas = models.IntegerField(null=False, default=0)
+    quantidade_vagas = models.IntegerField(
+        null=False, 
+        default=0,
+        validators=[MinValueValidator(0)]
+        )
+    banner = models.ImageField(
+        upload_to="banners/",
+        null=True,
+        blank=True,
+    )
     data_inicio = models.DateField(null=False)
     data_fim = models.DateField(null=False)
     horario_inicio = models.TimeField(null=False)
@@ -128,14 +137,38 @@ class Evento(models.Model):
 
     def clean(self):
         """
-        Valida a data inicial, para que não seja antes da data atual 
-
-        Valida a data final, para que seja depois da data inicial 
+        Validações:
+        - data_inicio não pode ser anterior à data atual
+        - data_fim não pode ser menor que data_inicio
+        - horario_fim deve ser posterior a horario_inicio
         """
+        erros = {}
+
+        # Datas
         if self.data_inicio < timezone.now().date():
-            raise ValidationError("A data de início não pode ser anterior à data atual.")
+            erros["data_inicio"] = "A data de início não pode ser anterior à data atual."
+
         if self.data_fim < self.data_inicio:
-            raise ValidationError("A data final não pode ser menor que a inicial.")
+            erros["data_fim"] = "A data final não pode ser menor que a data inicial."
+
+        # Horários
+        if self.horario_fim <= self.horario_inicio:
+            erros["horario_fim"] = "O horário de término deve ser posterior ao horário de início."
+
+        if self.banner:
+            max_size = 2 * 1024 * 1024  # 2 MB em bytes
+
+            if self.banner.size > max_size:
+                erros["banner"] = "O banner não pode ultrapassar 2MB."
+
+            # 2) Tipo de arquivo (só imagens)
+            content_type = getattr(self.banner.file, "content_type", None)
+
+            if content_type is not None and not content_type.startswith("image/"):
+                erros["banner"] = "O arquivo de banner deve ser uma imagem válida."
+
+        if erros:
+            raise ValidationError(erros)
 
 
     def __str__(self):

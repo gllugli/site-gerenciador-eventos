@@ -16,16 +16,9 @@ class RegistroCompletoForm(UserCreationForm):
     instituicao = forms.CharField(max_length=100, required=True)
     email = forms.EmailField(required=True)
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = [
-            'email',
-            'telefone',
-            'instituicao',
-            'tipo_perfil',
-            'password1',
-            'password2',
-        ]
+        fields = ['email', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
