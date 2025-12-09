@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.templatetags.static import static
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.contrib.auth import update_session_auth_hash, password_validation
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
@@ -12,7 +13,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError  # se quiser capturar erro genérico do token
 from django.http import HttpResponseForbidden
 
-from main.models import Evento, Inscricao, Usuario
+from main.models import Evento, Inscricao, Usuario, Certificado
 from main.forms.forms_usuario import RegistroCompletoForm
 from main.forms.forms_evento import EventoForm
 
@@ -22,40 +23,40 @@ def landingPage(request):
     return render(request, 'main/landing.html')
 
 
-# Render da página de login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
-
 def loginPage(request):
     if request.method == "POST":
+        print("DEBUG LOGIN: entrou POST")
+        print("DEBUG LOGIN: POST =", request.POST)
+
         email = request.POST.get("email")
         password = request.POST.get("password")
+        print("DEBUG LOGIN: email =", repr(email))
+        print("DEBUG LOGIN: password vazio?", password == "")
 
-        # Autentica usando o e-mail como username
         user = authenticate(request, username=email, password=password)
+        print("DEBUG LOGIN: user autenticado =", user)
 
         if user is None:
             messages.error(request, "E-mail ou senha inválidos.")
             return render(request, "main/login.html")
 
-        # Usa o related_name='perfil'
         perfil = getattr(user, "perfil", None)
+        print("DEBUG LOGIN: perfil =", perfil)
 
-        # Se existir perfil e o e-mail NÃO estiver confirmado
         if perfil and not perfil.email_confirmado:
+            print("DEBUG LOGIN: email NÃO confirmado")
             messages.warning(
                 request,
                 "Seu cadastro ainda não foi confirmado. Verifique seu e-mail para concluir a ativação."
             )
             return redirect("aguardar_confirmacao")
 
-        # Tudo ok: faz login e manda para o dashboard
+        print("DEBUG LOGIN: vai logar")
         login(request, user)
         return redirect("dashboard_page")
 
-    # GET -> só exibe a tela de login
     return render(request, "main/login.html")
+
 
 
 
@@ -123,7 +124,7 @@ def registerPage(request):
             confirm_url = request.build_absolute_uri(confirm_path)
 
             # 3) Monta a URL absoluta da logo
-            logo_path = static('main/img/logo_CEUB.png')  # ajuste o caminho se necessário
+            logo_path = static('main/img/logo.png')  # ajuste o caminho se necessário
             logo_url = request.build_absolute_uri(logo_path)
 
             # 4) Assunto do e-mail
@@ -169,12 +170,130 @@ def registerPage(request):
 
 
 # Render do dashboard
-# @login_required
+@login_required
 def dashboardPage(request):
     return render(request, 'main/dashboard.html')
 
 
+# VIEW DO PROFILE
+def user_profile(request):
+    """
+    Exibe e atualiza o perfil do usuário logado.
+    - GET: mostra os dados
+    - POST (form_type=editar_dados): atualiza dados pessoais
+    - POST (form_type=alterar_senha): altera a senha do usuário
+    """
+    user = request.user
+
+    # garante que sempre exista um perfil vinculado
+    perfil, created = Usuario.objects.get_or_create(
+        user=user,
+        defaults={
+            "nome_perfil": user.get_full_name() or user.username,
+        }
+    )
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+
+        # -------- EDITAR DADOS PESSOAIS --------
+        if form_type == "editar_dados":
+            nome_perfil = request.POST.get("nome_perfil", "").strip()
+            telefone = request.POST.get("telefone", "").strip()
+            instituicao = request.POST.get("instituicao", "").strip()
+
+            # validações básicas (ajuste conforme sua regra)
+            if not nome_perfil:
+                messages.error(request, "O campo Nome Perfil é obrigatório.")
+            else:
+                perfil.nome_perfil = nome_perfil
+                perfil.telefone = telefone
+                perfil.instituicao = instituicao
+                perfil.save()
+                messages.success(request, "Dados pessoais atualizados com sucesso.")
+                return redirect("user_profile")
+
+        # -------- ALTERAR SENHA --------
+        elif form_type == "alterar_senha":
+            senha_atual = request.POST.get("senha_atual", "")
+            nova_senha = request.POST.get("nova_senha", "")
+            confirmar_senha = request.POST.get("confirmar_senha", "")
+
+            # verifica senha atual
+            if not user.check_password(senha_atual):
+                messages.error(request, "A senha atual informada está incorreta.")
+            elif not nova_senha:
+                messages.error(request, "A nova senha não pode ficar em branco.")
+            elif nova_senha != confirmar_senha:
+                messages.error(request, "A confirmação da senha não confere.")
+            else:
+                # valida nova senha pelos validadores do Django
+                try:
+                    password_validation.validate_password(nova_senha, user=user)
+                except Exception as e:
+                    # e é uma lista de erros; mostramos todos
+                    for erro in e:
+                        messages.error(request, erro)
+                else:
+                    user.set_password(nova_senha)
+                    user.save()
+                    # mantém o usuário logado após alterar a senha
+                    update_session_auth_hash(request, user)
+                    messages.success(request, "Senha alterada com sucesso.")
+                    return redirect("user_profile")
+
+    context = {
+        "user": user,
+        "perfil": perfil,
+    }
+    return render(request, "main/profile/profile.html", context)
+
+
+# VIEW DE INSCRIÇÕES
+
+@login_required
+def subscription_page(request):
+    """
+    Lista as inscrições do usuário logado.
+    """
+    user = request.user
+
+    # supondo que Inscricao tenha FK para User ou para Usuario
+    # Exemplo 1: FK direto para User: Inscricao.user
+    # inscricoes = Inscricao.objects.filter(user=user).select_related("evento")
+
+    # Exemplo 2: FK para Usuario (perfil): Inscricao.usuario
+    # e Usuario tem OneToOne com User (related_name="perfil")
+    try:
+        perfil = user.perfil
+        inscricoes = Inscricao.objects.filter(usuario=perfil).select_related("evento")
+    except Exception:
+        inscricoes = Inscricao.objects.none()
+
+    context = {
+        "user": user,
+        "inscricoes": inscricoes,
+    }
+    return render(request, "main/subscriptions.html", context)
+
+#  CERTIFICADO
+
+def certificado_detalhe(request, codigo_certificado):
+    certificado = get_object_or_404(
+        Certificado,
+        codigo_certificado=codigo_certificado
+    )
+    context = {
+        "certificado": certificado,
+    }
+    return render(request, "main/certificado_detalhe.html", context)
+
+
+
 # --------------- RENDER DAS TELAS DE EVENTO --------------------
+
+# TELA INICIAL (DASHBOARD)
+
 # @login_required
 def events_dashboard_page(request):
     eventos_destaque = (
@@ -189,9 +308,14 @@ def events_dashboard_page(request):
     return render(request, 'main/eventos/events_dashboard.html', context)
 
 
+# LISTAGEM DE TODOS OS EVENTOS
+
 def events_list_page(request):
     return render(request, 'main/events_list.html')
 
+
+
+# VIEW PARA DETALHE DE EVENTO
 
 # @login_required
 @login_required
@@ -221,6 +345,9 @@ def eventDetailPage(request, event_id):
 
     return render(request, 'main/events.html', contexto)
 
+
+
+# VIEW PARA CRIAR EVENTO
 
 @login_required
 def criar_evento(request):

@@ -27,13 +27,13 @@
                         <span>Eventos</span>
                     </a>
 
-                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
+                    <a href="{% url 'subscription_page' %}" class="menu-item">
                         <span class="icon">📝</span>
                         <span>Inscrições</span>
                     </a>
 
                     <!-- ESTA PÁGINA -->
-                    <a href="{% url 'temporary_user_profile' %}" class="menu-item active">
+                    <a href="{% url 'user_profile' %}" class="menu-item active">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
                     </a>
@@ -57,7 +57,10 @@
                     <div class="circle-icon" id="themeToggle">🌙</div>
                     <div class="circle-icon">🔔</div>
                     <div class="circle-icon">👤</div>
-                    <button class="btn-perfil">Perfil | Usuário</button>
+                    <button class="btn-perfil">
+                        Perfil |
+                        {{ perfil.get_perfil_display|default:"Usuário" }}
+                    </button>
                 </div>
             </header>
 
@@ -71,11 +74,17 @@
                         <div class="profile-user-info">
                             <div class="profile-avatar">
                                 <!-- depois você pode trocar por {{ user.foto.url }} -->
-                                <img src="https://via.placeholder.com/80x80" alt="Foto de perfil">
+                                <img
+                                    src="https://via.placeholder.com/80x80"
+                                    alt="Foto de perfil">
                             </div>
                             <div class="profile-name-role">
-                                <span class="name" id="viewNomeCabecalho">Pedro Augusto</span>
-                                <span class="role">Usuário</span>
+                                <span class="name" id="viewNomeCabecalho">
+                                    {{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}
+                                </span>
+                                <span class="role">
+                                    {{ perfil.get_perfil_display|default:"Usuário" }}
+                                </span>
                             </div>
                         </div>
 
@@ -93,35 +102,35 @@
                         <div class="profile-field">
                             <span class="profile-label">Nome Perfil</span>
                             <div class="profile-value" id="viewNomePerfil">
-                                Pedro Augusto Lourenço Da Silva
+                                {{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}
                             </div>
                         </div>
 
                         <div class="profile-field">
                             <span class="profile-label">Telefone</span>
                             <div class="profile-value" id="viewTelefone">
-                                61 99999-8888
+                                {{ perfil.telefone|default:"-" }}
                             </div>
                         </div>
 
                         <div class="profile-field">
                             <span class="profile-label">E-mail</span>
                             <div class="profile-value" id="viewEmail">
-                                pedro@gmail.com
+                                {{ user.email|default:"-" }}
                             </div>
                         </div>
 
                         <div class="profile-field">
                             <span class="profile-label">Instituição</span>
                             <div class="profile-value" id="viewInstituicao">
-                                Centro Universitário de Brasília(CEUB)
+                                {{ perfil.instituicao|default:"-" }}
                             </div>
                         </div>
 
                         <div class="profile-field profile-field-full">
                             <span class="profile-label">Nível da Conta</span>
                             <div class="profile-value" id="viewNivelConta">
-                                Usuário
+                                {{ perfil.get_perfil_display|default:"Usuário" }}
                             </div>
                         </div>
                     </div>
@@ -138,6 +147,7 @@
 
         <form method="post" class="edit-profile-form">
             {% csrf_token %}
+            <input type="hidden" name="form_type" value="editar_dados">
 
             <div class="ep-field">
                 <label class="ep-label" for="id_nome_perfil">Nome Perfil</label>
@@ -146,7 +156,7 @@
                     id="id_nome_perfil"
                     name="nome_perfil"
                     class="ep-input"
-                    value="Pedro Augusto Lindo do pirocao">
+                    value="{{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}">
             </div>
 
             <div class="ep-field">
@@ -156,7 +166,7 @@
                     id="id_telefone"
                     name="telefone"
                     class="ep-input"
-                    value="61 99999-8888">
+                    value="{{ perfil.telefone }}">
             </div>
 
             <div class="ep-field">
@@ -164,7 +174,7 @@
                 <input
                     type="email"
                     class="ep-input"
-                    value="pedro.lindo@gmail.com"
+                    value="{{ user.email }}"
                     disabled>
             </div>
 
@@ -175,10 +185,8 @@
                     id="id_instituicao"
                     name="instituicao"
                     class="ep-input"
-                    value="Centro Universitário de Brasília(CEUB)">
+                    value="{{ perfil.instituicao }}">
             </div>
-
-            <!-- Nível da conta não aparece aqui, fica só de leitura no card -->
 
             <div class="ep-actions">
                 <button type="button" class="btn-cancelar" id="btnCancelarEdicao">Cancelar</button>
@@ -195,6 +203,7 @@
 
         <form method="post" class="edit-profile-form">
             {% csrf_token %}
+            <input type="hidden" name="form_type" value="alterar_senha">
 
             <div class="ep-field">
                 <label class="ep-label" for="id_senha_atual">Senha atual</label>

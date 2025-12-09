@@ -159,3 +159,4 @@ LOGIN_REDIRECT_URL = 'dashboard_page'
 DEFAULT_FROM_EMAIL = 'naoresponder@sgea.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+

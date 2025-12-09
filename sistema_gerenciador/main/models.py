@@ -213,11 +213,16 @@ class Certificado(models.Model):
         related_name="certificado",
     )
 
+    @property
+    def usuario(self):
+        return self.inscricao.usuario
+
+    @property
+    def evento(self):
+        return self.inscricao.evento
+
     def __str__(self):
-        return f"Código Certificado: {self.codigo_certificado}" \
-            f"| Data Emissão: {self.data_emissao}" \
-            f"| Usuário: {self.inscricao.usuario}" \
-            f"| Evento: {self.inscricao.evento}"
+        return f"Certificado de {self.usuario} – {self.evento}"
 
 
 class Log(models.Model):

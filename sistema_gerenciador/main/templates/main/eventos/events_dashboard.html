@@ -27,12 +27,12 @@
                         <span>Eventos</span>
                     </a>
 
-                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item">
+                    <a href="{% url 'subscription_page' %}" class="menu-item">
                         <span class="icon">📝</span>
                         <span>Inscrições</span>
                     </a>
 
-                    <a href="{% url 'temporary_user_profile' %}" class="menu-item">
+                    <a href="{% url 'user_profile' %}" class="menu-item">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
                     </a>
@@ -93,6 +93,10 @@
                 <!-- HERO / INTRODUÇÃO UX -->
                 <div class="events-hero">
 
+                    <!-- seta esquerda -->
+                    <button class="carousel-arrow arrow-left" id="arrowPrev">&#10094;</button>
+
+                    <!-- CARROSSEL -->
                     <div class="events-hero-carousel">
                         {% if eventos_destaque %}
                             {% for evento in eventos_destaque %}
@@ -100,8 +104,8 @@
                                     <div class="carousel-banner">
                                         {% if evento.banner %}
                                             <img src="{{ evento.banner.url }}"
-                                                alt="Banner do evento {{ evento.titulo }}"
-                                                class="carousel-banner-img">
+                                                 alt="Banner do evento {{ evento.titulo }}"
+                                                 class="carousel-banner-img">
                                         {% else %}
                                             <div class="carousel-banner-placeholder">
                                                 📅
@@ -129,7 +133,7 @@
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <!-- fallback caso ainda não haja eventos ativos -->
+                            <!-- fallback -->
                             <div class="carousel-item active">
                                 <div class="carousel-banner-placeholder">
                                     📅
@@ -146,7 +150,6 @@
                             </div>
                         {% endif %}
 
-                        <!-- bolinhas de navegação -->
                         {% if eventos_destaque %}
                             <div class="carousel-dots">
                                 {% for evento in eventos_destaque %}
@@ -157,13 +160,13 @@
                         {% endif %}
                     </div>
 
-                </div>
+                    <!-- seta direita -->
+                    <button class="carousel-arrow arrow-right" id="arrowNext">&#10095;</button>
 
+                </div>
 
                 <!-- CARDS RESUMO -->
                 <div class="events-bottom">
-
-                    <!-- LADO ESQUERDO – AÇÃO PRINCIPAL -->
                     <div class="events-actions">
                         <div class="event-card">
                             <div class="event-card-left">
@@ -180,7 +183,6 @@
                             </a>
                         </div>
                     </div>
-
                 </div>
 
             </section>
@@ -223,6 +225,49 @@
             }
         });
     }
+
+    // LÓGICA DO CARROSSEL
+    document.addEventListener("DOMContentLoaded", function () {
+        const items = document.querySelectorAll(".carousel-item");
+        const dots = document.querySelectorAll(".carousel-dot");
+        const arrowPrev = document.getElementById("arrowPrev");
+        const arrowNext = document.getElementById("arrowNext");
+
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            if (!items.length) return;
+
+            items.forEach((item, i) => {
+                item.classList.toggle("active", i === index);
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle("active", i === index);
+            });
+
+            currentIndex = index;
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener("click", () => showSlide(index));
+        });
+
+        if (arrowPrev) {
+            arrowPrev.addEventListener("click", () => {
+                let newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = items.length - 1;
+                showSlide(newIndex);
+            });
+        }
+
+        if (arrowNext) {
+            arrowNext.addEventListener("click", () => {
+                let newIndex = (currentIndex + 1) % items.length;
+                showSlide(newIndex);
+            });
+        }
+    });
 </script>
 </body>
 </html>

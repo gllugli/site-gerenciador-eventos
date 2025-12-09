@@ -24,6 +24,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from main import views
 from main.api.views.evento_views import EventoInscricaoAPIView
 from main.views import confirmar_email
+from main.decorators import admin_required
 
 urlpatterns = [
 
@@ -67,7 +68,7 @@ urlpatterns = [
 
     path('events/', views.events_dashboard_page, name="event_dashboard"),  
 
-    path('events/list', views.events_list_page, name="events_list"),
+    path('events/list/', views.events_list_page, name="events_list"),
 
     path('eventos/<int:event_id>/', views.eventDetailPage, name='event_detail'), 
 
@@ -76,10 +77,18 @@ urlpatterns = [
     path("eventos/novo/", views.criar_evento, name="criar_evento"),
 
 
+    #  CERTIFICADO
 
-    # path('profile/', views.profile_view, name="user_profile"),
+    path(
+        "certificados/<uuid:codigo_certificado>/",
+        views.certificado_detalhe,
+        name="certificado_detalhe",
+    ),
 
-    # path('subscription/', views.subscription_view, name="subscription_page"),
+
+    path('profile/', views.user_profile, name="user_profile"),
+
+    path('inscricoes/', views.subscription_page, name="subscription_page"),
 
     # path('admin/events/', views.admin_events_view, name='admin-events'),
 

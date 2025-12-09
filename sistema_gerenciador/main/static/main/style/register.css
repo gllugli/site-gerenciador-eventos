@@ -1,20 +1,67 @@
+/* -----------------------------------------------------
+   VARIÁVEIS DE TEMA
+----------------------------------------------------- */
+:root {
+    /* Cores da marca */
+    --color-brand-primary: #6a1b9a;
+    --color-brand-secondary: #4a148c;
+    --color-brand-accent: #e91e63;
+
+    /* Cores de fundo */
+    --bg-base: #f6f6f6;
+    --bg-card: #ffffff;
+    --bg-input: #f3f4f6;
+    --bg-input-alt: #e6e6e6;
+    --bg-auth: #f5f3ff;
+
+    /* Texto */
+    --text-dark: #374151;
+    --text-medium: #444;
+    --text-light: #ffffff;
+    --text-title: #4a1468;
+
+    /* Estados de erro */
+    --error-red: #d93025;
+    --error-bg: #fff5f5;
+
+    /* Bordas */
+    --border-light: #e5e7eb;
+    --border-input: #ccc;
+
+    /* Sombras */
+    --shadow-card: 0 4px 18px rgba(0,0,0,0.15);
+    --shadow-auth: 0 20px 40px rgba(15, 23, 42, 0.12);
+
+    /* Botões */
+    --btn-primary: #4a148c;
+    --btn-primary-hover: #6a1b9a;
+
+    /* Foco */
+    --focus-color: #7b1fa2;
+}
+
+/* -----------------------------------------------------
+   BODY
+----------------------------------------------------- */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f6f6f6;
+    background: var(--bg-base);
 }
 
-/* header */
+/* -----------------------------------------------------
+   HEADER
+----------------------------------------------------- */
 .header {
-    background-color: #6a1b9a;
+    background-color: var(--color-brand-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 25px 60px;
-    color: white;
+    color: var(--text-light);
     font-size: 32px;
     font-weight: bold;
-    border-bottom: 4px solid #e91e63;
+    border-bottom: 4px solid var(--color-brand-accent);
 }
 
 .logo {
@@ -22,7 +69,9 @@ body {
     font-weight: bold;
 }
 
-/* card */
+/* -----------------------------------------------------
+   CARD / CONTAINER (genérico)
+----------------------------------------------------- */
 .container {
     display: flex;
     justify-content: center;
@@ -31,18 +80,21 @@ body {
 
 .card {
     width: 650px;
-    background: white;
+    background: var(--bg-card);
     padding: 40px;
     border-radius: 14px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-card);
     text-align: center;
 }
 
 h2 {
-    color: #4a1468;
+    color: var(--text-title);
     margin-bottom: 25px;
 }
 
+/* -----------------------------------------------------
+   INPUTS / GRUPOS (genéricos)
+----------------------------------------------------- */
 .row {
     display: flex;
     gap: 45px;
@@ -57,23 +109,26 @@ h2 {
 .input-group label {
     font-size: 13px;
     font-weight: bold;
-    color: #444;
+    color: var(--text-medium);
 }
 
 .input-group input {
     width: 100%;
     padding: 11px;
     border-radius: 6px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-input);
     margin-top: 6px;
-    background: #e6e6e6;
+    background: var(--bg-input-alt);
 }
 
+/* -----------------------------------------------------
+   BOTÃO PADRÃO (genérico)
+----------------------------------------------------- */
 .btn {
     width: 60%;
     padding: 13px;
-    background: #4a1468;
-    color: white;
+    background: var(--btn-primary);
+    color: var(--text-light);
     font-weight: bold;
     border-radius: 6px;
     border: none;
@@ -82,32 +137,38 @@ h2 {
 }
 
 .btn:hover {
-    background: #380d4f;
+    background: var(--btn-primary-hover);
 }
 
+/* -----------------------------------------------------
+   LINKS
+----------------------------------------------------- */
 .link {
     margin-top: 15px;
     font-size: 14px;
-    color: #4a1468;
+    color: var(--color-brand-secondary);
     cursor: pointer;
 }
 
+/* -----------------------------------------------------
+   TELA DE AUTENTICAÇÃO
+----------------------------------------------------- */
 .auth-wrapper {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: #f5f3ff;
+    background: var(--bg-auth);
 }
 
 .auth-card {
-    background: #ffffff;
+    background: var(--bg-card);
     padding: 40px 48px;
     border-radius: 24px;
     max-width: 900px;
     width: 100%;
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-auth);
 }
 
 .auth-title {
@@ -115,56 +176,51 @@ h2 {
     margin-bottom: 32px;
     font-size: 28px;
     font-weight: 600;
-    color: #4a148c;
+    color: var(--color-brand-secondary);
 }
 
-/* linhas do formulário (2 colunas por padrão) */
+/* -----------------------------------------------------
+   FORMULÁRIO
+----------------------------------------------------- */
 .form-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    /* espaçamento HORIZONTAL entre os campos da esquerda e da direita */
-    column-gap: 48px;     /* aumente/diminua conforme quiser */
-
-    /* espaçamento VERTICAL entre linhas (opcional, ajuda no respiro) */
+    column-gap: 48px;
     row-gap: 18px;
-
     margin-bottom: 24px;
 }
 
-/* bloco de cada campo */
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;             /* espaço entre label e input */
+    gap: 8px;
     font-size: 14px;
-    color: #374151;
+    color: var(--text-dark);
+    position: relative;
+    margin-bottom: 14px;
 }
 
-/* campo que deve ocupar o card inteiro */
+/* campo que ocupa o card todo */
 .form-group.full-width {
     grid-column: 1 / -1;
 }
 
-/* inputs e select */
+/* inputs/ selects se você usar .input-field nos widgets */
 .input-field {
     width: 100%;
     padding: 12px 16px;
-
-    /* pequeno respiro extra acima/abaixo de cada input (opcional) */
     margin-top: 2px;
     margin-bottom: 2px;
-
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    background: #f3f4f6;
+    border: 1px solid var(--border-light);
+    background: var(--bg-input);
     font-size: 14px;
 }
 
 .input-field:focus {
     outline: none;
-    border-color: #7b1fa2;
-    box-shadow: 0 0 0 1px #7b1fa2;
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 1px var(--focus-color);
 }
 
 /* select com mesmo estilo */
@@ -172,25 +228,35 @@ h2 {
     appearance: none;
 }
 
-/* botão */
+/* -----------------------------------------------------
+   BOTÃO PRIMÁRIO DO FORM
+----------------------------------------------------- */
 .btn-primary {
     margin-top: 8px;
     width: 100%;
     padding: 12px;
     border-radius: 999px;
     border: none;
-    background: #4a148c;
-    color: #ffffff;
+    background: var(--btn-primary);
+    color: var(--text-light);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .btn-primary:hover {
-    background: #6a1b9a;
+    background: var(--btn-primary-hover);
 }
 
-/* rodapé */
+/* Botão desativado */
+.btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* -----------------------------------------------------
+   RODAPÉ DO FORM
+----------------------------------------------------- */
 .auth-footer {
     text-align: center;
     margin-top: 16px;
@@ -198,7 +264,7 @@ h2 {
 }
 
 .auth-footer a {
-    color: #4a148c;
+    color: var(--color-brand-secondary);
     text-decoration: none;
 }
 
@@ -206,10 +272,35 @@ h2 {
     text-decoration: underline;
 }
 
-/* RESPONSIVO – no mobile vira uma coluna só */
+/* -----------------------------------------------------
+   RESPONSIVO
+----------------------------------------------------- */
 @media (max-width: 768px) {
     .form-row {
         grid-template-columns: 1fr;
-        column-gap: 0;  /* não precisa de gap horizontal em 1 coluna */
+        column-gap: 0;
     }
+}
+
+/* -----------------------------------------------------
+   ERROS / REQUIRED
+----------------------------------------------------- */
+.required-asterisk {
+    color: var(--error-red);
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.input-error {
+    border: 1px solid var(--error-red) !important;
+    background-color: var(--error-bg);
+}
+
+.error-message {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--error-red);
+    line-height: 1.3;
+    font-weight: 400;
 }

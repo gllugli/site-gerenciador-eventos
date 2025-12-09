@@ -60,3 +60,6 @@ class CertificadoAdmin(admin.ModelAdmin):
         'codigo_certificado'
     )
     list_filter = ('data_emissao',)
+    ordering = ('-data_emissao',)
+    readonly_fields = ('codigo_certificado', 'data_emissao')
+

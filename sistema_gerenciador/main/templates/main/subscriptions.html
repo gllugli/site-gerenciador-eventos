@@ -29,12 +29,12 @@
                     </a>
 
                     <!-- ESTA PÁGINA -->
-                    <a href="{% url 'temporary_subscription_page' %}" class="menu-item active">
+                    <a href="{% url 'subscription_page' %}" class="menu-item active">
                         <span class="icon">📝</span>
                         <span>Inscrições</span>
                     </a>
 
-                    <a href="{% url 'temporary_user_profile' %}" class="menu-item">
+                    <a href="{% url 'user_profile' %}" class="menu-item">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
                     </a>
@@ -54,8 +54,12 @@
                     <h1>Inscrições</h1>
 
                     <div class="search-box">
-                        🔍
-                        <input type="text" placeholder="Search">
+                        <span class="search-icon">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Buscar evento"
+                            id="searchInput"
+                        >
                     </div>
                 </div>
 
@@ -93,16 +97,25 @@
             <section class="content-inscricoes">
                 <div class="carousel-card">
                     Carrossel Principais Eventos
+                    <!-- depois você pode preencher com cards reais de eventos -->
                 </div>
 
                 <div class="my-subscriptions-wrapper">
                     <div class="my-subscriptions-card">
                         <div class="my-subscriptions-left">
-                            <div class="my-subscriptions-icon">U</div>
-                            <span>Minhas Inscrições:</span>
+                            <div class="my-subscriptions-icon">
+                                {% if user.first_name %}
+                                    {{ user.first_name|first|upper }}
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <span>Minhas Inscrições</span>
                         </div>
 
-                        <button class="btn-ver" id="btnVerMinhasInscricoes">Ver</button>
+                        <button class="btn-ver" id="btnVerMinhasInscricoes">
+                            Ver
+                        </button>
                     </div>
                 </div>
 
@@ -110,9 +123,12 @@
                 <div class="subs-list-card" id="boxMinhasInscricoes">
                     <div class="subs-list-header">
                         <span class="subs-list-title">Minhas Inscrições</span>
+                        <span class="subs-list-count">
+                            {{ inscricoes|length }} inscrição(ões)
+                        </span>
                     </div>
 
-                    <table class="subs-table">
+                    <table class="subs-table" id="subsTable">
                         <thead>
                             <tr>
                                 <th>Evento</th>
@@ -121,17 +137,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Linha de exemplo; depois o back-end preenche aqui -->
-                            <tr>
-                                <td>Evento Exemplo</td>
-                                <td>10/12/2025</td>
-                                <td>Inscrito</td>
-                            </tr>
-                            <tr>
-                                <td colspan="3" class="subs-table-empty">
-                                    Quando o back-end estiver pronto, esta tabela será preenchida com as inscrições reais do usuário.
-                                </td>
-                            </tr>
+                            {% if inscricoes %}
+                                {% for insc in inscricoes %}
+                                    <tr class="subs-row">
+                                        <td class="subs-evento">
+                                            {{ insc.evento.nome }}
+                                        </td>
+                                        <td>
+                                            {{ insc.evento.data|date:"d/m/Y" }}
+                                        </td>
+                                        <td>
+                                            {{ insc.get_status_display|default:insc.status }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="3" class="subs-table-empty">
+                                        Você ainda não possui inscrições em eventos.
+                                    </td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -192,6 +218,27 @@
                 boxMinhasInscricoes.style.display = 'block';
                 window.scrollTo({ top: boxMinhasInscricoes.offsetTop - 80, behavior: 'smooth' });
             }
+        });
+    }
+
+    // filtro simples pelo campo de busca
+    const searchInput = document.getElementById('searchInput');
+    const subsTable = document.getElementById('subsTable');
+
+    if (searchInput && subsTable) {
+        searchInput.addEventListener('input', function () {
+            const termo = searchInput.value.toLowerCase();
+            const linhas = subsTable.querySelectorAll('tbody .subs-row');
+
+            linhas.forEach(function (linha) {
+                const nomeEventoCell = linha.querySelector('.subs-evento');
+                const nomeEvento = nomeEventoCell ? nomeEventoCell.textContent.toLowerCase() : '';
+                if (nomeEvento.includes(termo)) {
+                    linha.style.display = '';
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
         });
     }
 </script>

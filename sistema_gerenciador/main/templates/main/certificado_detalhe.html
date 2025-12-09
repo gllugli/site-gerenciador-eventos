@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificado – {{ certificado.evento }}</title>
+    <link rel="stylesheet" href="main/style/certificado_detalhes.css">
+</head>
+<body>
+<div class="certificado-wrapper">
+    <div class="certificado-titulo">
+        Certificado de Participação
+    </div>
+
+    <div class="certificado-texto">
+        Certificamos que
+    </div>
+
+    <div class="certificado-nome">
+        {{ certificado.usuario }}
+    </div>
+
+    <div class="certificado-texto">
+        participou do evento
+        <strong>{{ certificado.evento }}</strong>.
+    </div>
+
+    <div class="certificado-texto">
+        Data de emissão:
+        <strong>{{ certificado.data_emissao|date:"d/m/Y" }}</strong>
+    </div>
+
+    <div class="certificado-meta">
+        Código do certificado:
+        {{ certificado.codigo_certificado }}
+    </div>
+</div>
+</body>
+</html>
