@@ -1,9 +1,6 @@
 # Portal EnCUCA  
 ## Sistema de Gestão de Eventos Acadêmicos (SGEA)
 
-**Projeto acadêmico – Programação para Web (Fase 2)**  
-Data da documentação: 12/12/2025
-
 ---
 
 ## 1. Apresentação
