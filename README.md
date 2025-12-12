@@ -1,176 +1,120 @@
-# SGEA – Sistema de Gestão de Eventos Acadêmicos
+# Portal EnCUCA
+## Sistema de Gestão de Eventos Acadêmicos (SGEA)
 
-O **SGEA** é um sistema desenvolvido em **Django** para gerenciar eventos acadêmicos, permitindo que estudantes, professores e organizadores realizem inscrições, controlem presença, emitam certificados e consultem auditorias. O sistema também oferece uma **API REST** para integração com o frontend.
-
----
-
-## 🎓 Sobre o Projeto
-
-Este projeto está sendo desenvolvido para o **Centro Universitário de Brasília – UniCEUB**, como **trabalho final da disciplina “Programação para Web”**.  
-O objetivo é aplicar conceitos de desenvolvimento backend com Django, integrações REST, autenticação, controle de acesso, validações avançadas e boas práticas de engenharia de software.
+**Projeto acadêmico – Programação para Web**
+Data da documentação: 12/12/2025
 
 ---
 
-## 📌 Funcionalidades Principais
+## 1. Apresentação
 
-### Usuários
-- Cadastro e autenticação de usuários (Aluno, Professor, Organizador)
-- Perfis com permissões distintas
-- Confirmação de e-mail após cadastro
-- Login via sessão (web) e via token (API)
+O **Portal EnCUCA – Sistema de Gestão de Eventos Acadêmicos (SGEA)** é uma aplicação web desenvolvida para apoiar a organização, divulgação e gestão de eventos acadêmicos, como palestras, seminários, minicursos e semanas acadêmicas.
 
-### Eventos
-- Cadastro, edição e exclusão de eventos (somente organizador)
-- Definição de professor responsável
-- Controle de vagas
-- Validação de datas e horários
-- Upload de banner do evento
-
-### Inscrições
-- Inscrição e cancelamento (alunos e professores)
-- Impedimento de inscrições duplicadas ou acima do limite
-- Marcação de presença pelo organizador
-
-### Certificados
-- Emissão automática após o encerramento do evento
-- Disponibilização para download pelo participante
-- Associação aos eventos e usuários
-
-### API REST
-- Autenticação via token
-- Consulta de eventos
-- Inscrição via API
-- Configuração de limites de requisição (throttling)
-- Registro de auditoria das ações via API
-
-### Auditoria
-- Registro completo de ações do sistema, incluindo:
-  - Criação/alteração de eventos
-  - Inscrições
-  - Geração/consulta de certificados
-  - Consultas à API
-- Tela exclusiva para organizadores visualizarem logs filtrados por usuário e período
+O sistema foi projetado com foco em boas práticas de desenvolvimento backend, utilizando Django, com ênfase em segurança, organização do código e aderência aos requisitos propostos, contemplando autenticação, regras de negócio, auditoria e uma API REST para integrações.
 
 ---
 
-## 🗂️ Tecnologias Utilizadas
-- Python 3.x
-- Django
-- Django REST Framework (DRF)
-- SQLite ou PostgreSQL
-- Bootstrap / HTML / CSS (se usar templates Django)
-- Docker (opcional)
+## 2. Tecnologias Utilizadas
+
+- **Backend**: Python 3, Django, Django REST Framework (DRF)
+- **Banco de Dados**: SQLite (para ambiente de desenvolvimento)
+- **Frontend**: HTML, CSS, JavaScript (renderizados via templates do Django)
+- **Autenticação**: Baseada em sessão e Token (para a API)
+- **E-mail**: SMTP (simulado via console no desenvolvimento)
 
 ---
 
-## 📁 Estrutura Inicial do Projeto
+## 3. Arquitetura do Sistema
 
-```
-/sgea
-    /accounts
-    /eventos
-    /certificados
-    /api
-    /static
-    /media
-README.md
-requirements.txt
-manage.py
-```
+O projeto segue o padrão **MVT (Model-View-Template)** do Django, com uma separação clara de responsabilidades:
+
+- **Models**: Definição das entidades (`Usuario`, `Evento`, `Inscricao`, `Log`, `Certificado`), regras de negócio e persistência de dados.
+- **Views**: Lógica de controle para requisições web e endpoints da API, gerenciando o fluxo de dados entre os models e os templates/serializers.
+- **Templates**: Camada de apresentação (HTML) renderizada pelo Django, com estrutura para páginas de login, dashboard, gestão de eventos, etc.
+- **Forms**: Validação e manipulação de dados de formulários, como em [`RegistroCompletoForm`](sistema_gerenciador/main/forms/forms_usuario.py).
+- **Serializers (DRF)**: Transformação dos models em JSON para a API REST.
+- **Decorators/Permissions**: Controle de acesso a views restritas, como [`@admin_required`](sistema_gerenciador/main/decorators.py).
+- **Logs**: Auditoria de ações relevantes no sistema, armazenadas no model [`Log`](sistema_gerenciador/main/models.py).
 
 ---
 
-## ⚙️ Instalação e Configuração
+## 4. Funcionalidades Implementadas
 
-### 1. Clonar o repositório
-```bash
-git clone https://github.com/usuario/sgea.git
-cd sgea
-```
+### 4.1 Usuários
+- Cadastro de usuários com perfis (Aluno, Professor, Administrador).
+- Autenticação por e-mail e senha.
+- Confirmação de cadastro por e-mail.
+- Painel administrativo para gestão de usuários ([`admin_usuarios`](sistema_gerenciador/main/views_admin_perfil.py)).
+- Atualização de dados cadastrais pelo próprio usuário.
 
-### 2. Criar e ativar um ambiente virtual
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate   # Windows
-```
+### 4.2 Eventos
+- CRUD completo de eventos para administradores.
+- Definição de vagas, datas, horários, localização e organizador.
+- Upload e exibição de banner do evento.
+- Dashboard de eventos para os usuários visualizarem e se inscreverem.
 
-### 3. Instalar dependências
-```bash
-pip install -r requirements.txt
-```
+### 4.3 Inscrições
+- Inscrição em eventos via sistema.
+- Controle de vagas e bloqueio de inscrições duplicadas.
+- Confirmação de presença pelo usuário.
+- Cancelamento de inscrição (conforme regras a serem definidas).
 
-### 4. Configurar o arquivo `.env`
-Crie um arquivo `.env` na raiz do projeto com, por exemplo:
+### 4.4 API REST
+- Autenticação via Token.
+- Endpoints para listagem e detalhe de eventos.
+- Endpoint para inscrição em eventos.
+- Proteção contra uso excessivo com *rate limit* (throttling).
 
-```env
-SECRET_KEY=suachavesecreta
-DEBUG=True
-DATABASE_URL=sqlite:///db.sqlite3
-EMAIL_HOST=smtp.seuservidor.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=seuemail
-EMAIL_HOST_PASSWORD=suasenha
-EMAIL_USE_TLS=True
-```
+### 4.5 Auditoria
+- Registro de ações críticas como criação de usuários, manipulação de eventos e inscrições.
+- Tela administrativa para consulta de logs ([`admin_dashboard`](sistema_gerenciador/main/templates/main/admin/admin_dashboard.html)).
 
-### 5. Rodar migrações
-```bash
-python manage.py migrate
-```
-
-### 6. Criar superusuário
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Rodar servidor
-```bash
-python manage.py runserver
-```
+### 4.6 Certificados
+- Geração de certificados em PDF para participantes com presença confirmada.
+- Comando de gerenciamento ([`emitir_certificados`](sistema_gerenciador/main/management/commands/emitir_certificados.py)) para automatizar a emissão.
 
 ---
 
-## 🔧 Carga Inicial de Dados (Opcional)
+## 5. Status do Projeto
 
-O sistema pode carregar usuários e eventos iniciais com:
+✔ Funcionalidades principais implementadas  
+✔ API REST funcional  
+✔ Validações e regras de negócio aplicadas  
+✔ Identidade visual implementada  
+✔ Sistema de logs e auditoria funcional
 
-```bash
-python manage.py loaddata initial_data.json
-```
-
----
-
-## 📌 Endpoints da API (Resumo)
-
-### Autenticação
-- `POST /api/auth/login/` – retorna token de acesso
-
-### Eventos
-- `GET /api/eventos/` – lista de eventos
-- `GET /api/eventos/<id>/` – detalhes
-- `POST /api/eventos/<id>/inscrever/` – inscrição
-
-### Certificados
-- `GET /api/certificados/` – lista certificados do usuário autenticado
+⏳ Emissão automática de certificados (em evolução)
 
 ---
 
-## 🧪 Guia de Testes Essenciais
+## 6. Como Executar o Projeto
 
-- Criar usuário → confirmar e-mail → login
-- Criar evento com professor responsável
-- Tentar criar evento com data retroativa (deve falhar)
-- Inscrever aluno até esgotar vagas
-- Tentar inscrição duplicada (deve falhar)
-- Marcar presença
-- Gerar certificados
-- Fazer requisições via API com throttling
-- Consultar auditoria
+Consulte o arquivo [`docs/Guia_Instalacao.md`](docs/Guia_Instalacao.md).
+
+Para popular o banco de dados com dados de teste, utilize o comando:
+````sh
+python manage.py seed_sgea
+
+## 7. Documentação Complementar
+
+A documentação detalhada do projeto está organizada na pasta **`docs/`** e contempla os seguintes arquivos:
+
+- **Guia_Instalacao.md**  
+  Instruções passo a passo para configuração do ambiente de desenvolvimento e execução do sistema.
+
+- **Arquitetura_do_Backend.md**  
+  Descrição da arquitetura do projeto, incluindo o padrão MVT adotado pelo Django, organização dos apps e fluxo de dados.
+
+- **Casos_de_Uso.md**  
+  Apresentação das principais funcionalidades do sistema sob a perspectiva dos diferentes perfis de usuário (Aluno, Professor e Organizador).
+
+- **Documentacao_da_API.md**  
+  Guia de referência da API REST, com descrição dos endpoints disponíveis, autenticação por token e exemplos de uso.
 
 ---
 
-## 📄 Licença
+## 8. Considerações Finais
 
-Este projeto é distribuído para fins acadêmicos.
-Caso utilize como base para outros projetos, cite a fonte.
+O **Portal EnCUCA** atende aos objetivos propostos para o projeto acadêmico, demonstrando a aplicação prática dos conceitos de desenvolvimento backend com **Django** e **Django REST Framework**.  
+
+A organização da estrutura do código, a implementação de uma API RESTful, a aplicação de validações e regras de negócio, as práticas de segurança adotadas e a presença de um sistema de auditoria evidenciam o domínio das tecnologias e metodologias trabalhadas na disciplina de **Programação para Web**.
