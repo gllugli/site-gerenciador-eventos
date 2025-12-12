@@ -308,7 +308,7 @@
             </div>
 
             <!-- coloque sua rota POST de inscrição se existir -->
-            <form method="post" id="enrollForm" action="">
+            <form method="post" id="enrollForm">
                 {% csrf_token %}
                 <input type="hidden" name="evento_id" id="eventoIdInput" value="">
             </form>
@@ -521,6 +521,46 @@
             closeModal("modalEnroll");
         }
     });
+
+    (function () {
+    const form = document.getElementById("enrollForm");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault(); // ⛔ impede POST padrão
+
+        const eventoId = document.getElementById("eventoIdInput")?.value;
+        if (!eventoId) {
+            alert("Evento inválido.");
+            return;
+        }
+
+        const csrfToken = document.querySelector(
+            "#enrollForm input[name='csrfmiddlewaretoken']"
+        )?.value;
+
+        fetch(`/eventos/${eventoId}/inscrever/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "Accept": "application/json"
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => { throw err; });
+            }
+            return res.json();
+        })
+        .then(data => {
+            // sucesso
+            window.location.reload();
+        })
+        .catch(err => {
+            alert(err.detail || "Erro ao realizar a inscrição.");
+        });
+    });
+})();
 </script>
 </body>
 </html>

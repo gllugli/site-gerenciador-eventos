@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
 from ..models import Usuario
 
 
@@ -9,8 +11,8 @@ class RegistroCompletoForm(UserCreationForm):
     telefone = forms.CharField(max_length=15, required=True)
     tipo_perfil = forms.ChoiceField(
         choices=[
-            ('AL', 'Aluno'),
-            ('PR', 'Professor'),
+            ("AL", "Aluno"),
+            ("PR", "Professor"),
         ]
     )
     instituicao = forms.CharField(max_length=100, required=True)
@@ -18,40 +20,45 @@ class RegistroCompletoForm(UserCreationForm):
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ['email', 'password1', 'password2']
+        fields = ["email", "password1", "password2"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip().lower()
 
-        # remover help_text da senha (as bolinhas de texto)
-        self.fields['password1'].help_text = ''
-        self.fields['password2'].help_text = ''
+        if User.objects.filter(username__iexact=email).exists():
+            raise ValidationError("Já existe um usuário cadastrado com este e-mail.")
 
-        # adicionar mesma classe em todos os campos
-        for field in self.fields.values():
-            field.widget.attrs['class'] = 'input-field'
+        return email
+
+    def clean_telefone(self):
+        telefone = (self.cleaned_data.get("telefone") or "").strip()
+
+        if Usuario.objects.filter(telefone=telefone).exists():
+            raise ValidationError("Este telefone já está cadastrado.")
+
+        return telefone
 
     def save(self, commit=True):
-        # 1) Cria o User "base" sem salvar no banco ainda
         user = super().save(commit=False)
 
-        user.first_name = self.cleaned_data['nome_completo']
-        user.email = self.cleaned_data['email']
-        user.username = self.cleaned_data['email']
+        email = self.cleaned_data["email"].lower().strip()
+        nome = self.cleaned_data["nome_completo"].strip()
 
-        # 3) Salva o User se commit=True
+        user.username = email
+        user.email = email
+        user.first_name = nome
+        user.is_active = False  # 🔒 só ativa após confirmação
+
         if commit:
             user.save()
-            
+
             Usuario.objects.create(
                 user=user,
-                nome_completo=self.cleaned_data['nome_completo'],
-                telefone=self.cleaned_data['telefone'],
-                instituicao=self.cleaned_data['instituicao'],
-                tipo_perfil=self.cleaned_data['tipo_perfil'],
-                email_confirmado=False
+                nome_completo=nome,
+                telefone=self.cleaned_data["telefone"].strip(),
+                instituicao=self.cleaned_data["instituicao"].strip(),
+                tipo_perfil=self.cleaned_data["tipo_perfil"],
+                email_confirmado=False,
             )
 
-
-        # 5) Retorna o user (com o perfil já criado)
         return user

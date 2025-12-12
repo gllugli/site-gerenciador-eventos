@@ -3,16 +3,17 @@ from django.templatetags.static import static
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib.auth import update_session_auth_hash, password_validation
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.core import signing
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
-from django.core.exceptions import ValidationError  # se quiser capturar erro genérico do token
+from django.db import transaction
 from django.http import HttpResponseForbidden
 from django.http import Http404
+from django.contrib.auth.models import User
 
 from django.http import JsonResponse, HttpResponse
 from reportlab.pdfgen import canvas
@@ -85,35 +86,21 @@ def confirmacao_sucesso(request):
 
 def confirmar_email(request, token):
     try:
-        # 1) Recupera o ID do usuário a partir do token
-        user_id = signing.loads(
-            token,
-            salt='confirmacao-email-sgea',  # MESMO salt usado na registerPage
-            max_age=60 * 15,          # 15 minutos de validade
-        )
-    except signing.BadSignature:
-        # Token adulterado ou inválido
-        messages.error(request, 'Link de confirmação inválido.')
-        return redirect('login_page')
-    except signing.SignatureExpired:
-        # Token expirado (se usar max_age)
-        messages.error(request, 'Link de confirmação expirado.')
-        return redirect('login_page')
+        user_id = signing.loads(token, salt="confirmacao-email-sgea", max_age=60 * 60 * 24)
+        user = User.objects.get(pk=user_id)
 
-    # 2) Busca o perfil do usuário
-    perfil = get_object_or_404(Usuario, user_id=user_id)
+        perfil = user.perfil
+        perfil.email_confirmado = True
+        perfil.save()
 
-    # 3) Se já estava confirmado
-    if perfil.email_confirmado:
-        messages.info(request, 'Seu e-mail já havia sido confirmado.')
-        return redirect('login_page')
+        user.is_active = True
+        user.save()
 
-    # 4) Confirma o e-mail
-    perfil.email_confirmado = True
-    perfil.save()
+        messages.success(request, "E-mail confirmado com sucesso. Faça login.")
+    except Exception:
+        messages.error(request, "Link inválido ou expirado.")
 
-    messages.success(request, 'E-mail confirmado com sucesso!')
-    return redirect('confirmacao_sucesso')
+    return redirect("login")
 
 
 
@@ -125,78 +112,58 @@ def logout_view(request):
 
 # Render da register page
 def registerPage(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = RegistroCompletoForm(request.POST)
+
         if form.is_valid():
-            user = form.save()
+            with transaction.atomic():
+                user = form.save()
 
-            # 1) Gera o token
-            token = signing.dumps(user.pk, salt='confirmacao-email-sgea')
+            token = signing.dumps(user.pk, salt="confirmacao-email-sgea")
+            confirm_url = request.build_absolute_uri(
+                reverse("confirmar_email", args=[token])
+            )
 
-            # 2) Monta a URL de confirmação
-            confirm_path = reverse('confirmar-email', args=[token])
-            confirm_url = request.build_absolute_uri(confirm_path)
+            logo_url = request.build_absolute_uri(static("main/style/img/logo.png"))
 
-            # 3) Monta a URL absoluta da logo
-            logo_path = static('main/img/logo.png')  # ajuste o caminho se necessário
-            logo_url = request.build_absolute_uri(logo_path)
-
-            # 4) Assunto do e-mail
-            assunto = 'Confirmação de cadastro - Portal EnCUCA'
-
-            # 5) Corpo em texto simples (fallback)
-            mensagem_texto = (
-                'Olá, {nome}.\n\n'
-                'Obrigado por se cadastrar no Portal EnCUCA.\n'
-                'Para ativar sua conta, acesse o link abaixo:\n'
-                f'{confirm_url}\n\n'
-                'Se você não realizou este cadastro, ignore este e-mail.'
-            ).format(nome=user.first_name or 'usuário')
-
-            # 6) Corpo em HTML, usando o template
-            mensagem_html = render_to_string(
-                'main/confirmacao_email/confirmacao_email.html',
+            html_email = render_to_string(
+                "main/confirmacao_email/confirmacao_email.html",
                 {
-                    'nome_usuario': user.first_name or 'usuário',
-                    'url_confirmacao': confirm_url,
-                    'logo_url': logo_url,
-                }
+                    "nome_usuario": user.first_name,
+                    "url_confirmacao": confirm_url,
+                    "logo_url": logo_url,
+                },
             )
 
-            remetente = settings.DEFAULT_FROM_EMAIL
-            destinatarios = [user.email]
-
-            # 7) Envio do e-mail com HTML
             send_mail(
-                assunto,
-                mensagem_texto,           # plain text (fallback)
-                remetente,
-                destinatarios,
-                html_message=mensagem_html  # versão HTML
+                "Confirmação de cadastro - Portal EnCUCA",
+                f"Acesse o link para confirmar seu cadastro:\n{confirm_url}",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                html_message=html_email,
             )
 
-            return redirect('login_page')
-    else:
-        form = RegistroCompletoForm()
+            messages.success(
+                request, "Cadastro realizado. Verifique seu e-mail para ativar a conta."
+            )
 
-    return render(request, 'main/register.html', {'form': form})
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"ok": True, "redirect_url": reverse("login_page")})
 
+            return redirect("login_page")
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+
+        return render(request, "main/register.html", {"form": form})
+
+    return render(request, "main/register.html", {"form": RegistroCompletoForm()})  
 
 
 # Render do dashboard
 @login_required
 def dashboardPage(request):
     return render(request, 'main/dashboard.html')
-
-
-# VIEW DO PROFILE
-# views.py (trecho completo da user_profile com confirmar presença)
-from django.contrib import messages
-from django.contrib.auth import update_session_auth_hash, password_validation
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-
-from .models import Usuario, Inscricao, Certificado  # ajuste se Inscricao/Certificado estiverem em outro app
 
 
 def user_profile(request):
@@ -333,24 +300,27 @@ def confirmar_presenca(request, inscricao_id):
     return redirect(url)
 
 
+
 @login_required
 def inscrever_evento(request, evento_id):
     if request.method != "POST":
         return redirect("eventos_list")  # ajuste para sua url
 
     evento = get_object_or_404(Evento, pk=evento_id)
-    usuario = request.user.perfil
 
-    # Regras do seu model
-    if not evento.pode_inscrever(usuario):
-        url = reverse("eventos_list") + "?popup=inscricao_negada"
-        return redirect(url)
+    # ✅ garante que existe perfil (Usuario) para este auth user
+    perfil, _ = Usuario.objects.get_or_create(
+        user=request.user,
+        defaults={"nome_perfil": request.user.get_full_name() or request.user.username}
+    )
 
-    Inscricao.objects.get_or_create(evento=evento, usuario=usuario)
+    # Regras do model (espera Usuario)
+    if not evento.pode_inscrever(perfil):
+        return redirect(reverse("eventos_list") + "?popup=inscricao_negada")
 
-    # Pop-up pedindo confirmação no perfil
-    url = reverse("eventos_list") + "?popup=confirmar_no_perfil"
-    return redirect(url)
+    Inscricao.objects.get_or_create(evento=evento, usuario=perfil)
+
+    return redirect(reverse("eventos_list") + "?popup=confirmar_no_perfil")
 
 #  CERTIFICADO
 
@@ -574,16 +544,17 @@ def certificado_pdf(request, codigo_certificado):
 
 # TELA INICIAL (DASHBOARD)
 
-# @login_required
+@login_required
 def events_dashboard_page(request):
-    # Lista principal (tabela)
+    # ✅ Lista principal (tabela): TODOS os eventos
     eventos = (
         Evento.objects
-        .filter(status="Ativo")
-        .order_by("data_inicio")
+        .select_related("organizador")
+        .all()
+        .order_by("data_inicio", "titulo", "id")
     )
 
-    # Destaques do carrossel
+    # ✅ Destaques do carrossel (somente um recorte; não afeta a tabela)
     eventos_destaque = eventos[:3]
 
     context = {

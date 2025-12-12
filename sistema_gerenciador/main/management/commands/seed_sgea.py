@@ -260,27 +260,35 @@ class Command(BaseCommand):
             seq_phone += 1
 
         # ---------------------------------------------------------------------
-        # 4) EVENTOS (>=10)
+        # 4) EVENTOS (AGORA: MAIS EVENTOS + MAIS "Ativo")
         # ---------------------------------------------------------------------
         self.stdout.write(self.style.WARNING("Criando eventos..."))
 
         status_choices = [s[0] for s in Evento.STATUS_EVENTO]
-        locais = [
-            "UniCEUB - Bloco 1",
-            "UniCEUB - Auditório",
-            "UniCEUB - Sala 203",
-            "Lab de Informática",
-            "Online (Meet)",
-        ]
+
+        # ✅ Somente UniCEUB - Bloco 1..12 (formato exigido)
+        locais = [f"UniCEUB - Bloco {i}" for i in range(1, 13)]
+
         temas = [
             "Segurança Cibernética", "IA e Mercado", "Python", "GoLang", "Django", "DevOps",
             "Dados e BI", "Carreiras em TI", "LGPD", "Cloud", "Product Management", "Git e Versionamento"
         ]
 
+        # ✅ mais eventos
+        total_eventos = 20
+
+        # ✅ aumenta a chance de vir "Ativo" sem mexer na lógica geral (apenas distribuição)
+        # (mantém compatível com o que existir em STATUS_EVENTO; se não tiver "Ativo", cai no random normal)
+        status_pool = (
+            ["Ativo"] * 8 + [s for s in status_choices if s != "Ativo"]
+            if "Ativo" in status_choices
+            else status_choices
+        )
+
         eventos = []
         base_date = timezone.now().date() + timedelta(days=3)
 
-        for i in range(1, 11):
+        for i in range(1, total_eventos + 1):
             tema = random.choice(temas)
             titulo = f"{random.choice(['Palestra', 'Minicurso', 'Mesa redonda', 'Workshop'])}: {tema} #{i}"
 
@@ -296,7 +304,7 @@ class Command(BaseCommand):
             horario_inicio = time(start_hour, start_minute)
             horario_fim = time(end_hour, start_minute)
 
-            status = random.choice(status_choices)
+            status = random.choice(status_pool)
             vagas = random.choice([20, 30, 40, 50, 60, 80, 100])
 
             organizador = random.choice(professores)

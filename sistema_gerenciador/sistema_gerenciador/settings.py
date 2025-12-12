@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-6%3osir@7d@#*1rj%#n63=-dbtcrbw@#v+g0_d7la!-synw)1w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -158,5 +158,3 @@ LOGIN_REDIRECT_URL = 'dashboard_page'
 
 DEFAULT_FROM_EMAIL = 'gabriel.lugli@sempreceub.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-

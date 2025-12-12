@@ -2,6 +2,8 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.dateparse import parse_date
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from .decorators import admin_required
 from .models import Evento, Log, Usuario
@@ -88,25 +90,6 @@ def admin_dashboard(request):
     )
 
 
-
-@admin_required
-def admin_event_list(request):
-    """
-    Lista de eventos + formulário (em modal) para criação rápida.
-    """
-    eventos = Evento.objects.all().order_by("-data_inicio")
-    form_create = EventoForm()  # form vazio para o modal
-
-    return render(
-        request,
-        "main/admin/admin_events_list.html",
-        {
-            "eventos": eventos,
-            "form_create": form_create,
-        },
-    )
-
-
 @admin_required
 def admin_event_detail(request, pk):
     """
@@ -124,82 +107,101 @@ def admin_event_detail(request, pk):
         },
     )
 
-
 @admin_required
-def event_create(request):
+def admin_event_list(request):
     """
-    Criação de evento a partir do modal na listagem administrativa.
+    Lista de eventos + formulário (em modal) para criação rápida.
     """
-    if request.method != "POST":
-        return redirect("admin_event_list")
-
-    form = EventoForm(request.POST, request.FILES)
-
-    if form.is_valid():
-        evento = form.save(commit=False)
-
-        # organizador obrigatório (perfil do usuário logado)
-        if hasattr(request.user, "perfil"):
-            evento.organizador = request.user.perfil
-
-        # dispara as validações de clean() do model
-        evento.full_clean()
-        evento.save()
-
-        # LOG: criação de evento
-        log_evento(
-            usuario=request.user,
-            acao="EVENT_CREATE",
-            evento=evento,
-            detalhes="Evento criado via painel admin.",
-        )
-
-        return redirect("admin_event_list")
-
-    # se o form tiver erros, recarrega a lista com o form preenchido
     eventos = Evento.objects.all().order_by("-data_inicio")
+    form_create = EventoForm()
+
     return render(
         request,
         "main/admin/admin_events_list.html",
         {
             "eventos": eventos,
-            "form_create": form,
+            "form_create": form_create,
+            "status_choices": Evento.STATUS_EVENTO,  # ✅ nome correto
         },
     )
 
 
+@require_POST
+@admin_required
+def event_create(request):
+    """
+    Cria evento via AJAX. Retorna JSON.
+    """
+    form = EventoForm(request.POST, request.FILES)
+
+    if not form.is_valid():
+        return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+
+    evento = form.save(commit=False)
+
+    if hasattr(request.user, "perfil"):
+        evento.organizador = request.user.perfil
+    else:
+        return JsonResponse(
+            {"ok": False, "errors": {"__all__": ["Usuário logado não possui perfil para ser organizador."]}},
+            status=400,
+        )
+
+    try:
+        evento.full_clean()
+    except ValidationError as e:
+        # converte ValidationError em dict compatível
+        if hasattr(e, "message_dict"):
+            return JsonResponse({"ok": False, "errors": e.message_dict}, status=400)
+        return JsonResponse({"ok": False, "errors": {"__all__": [str(e)]}}, status=400)
+
+    evento.save()
+
+    log_evento(
+        usuario=request.user,
+        acao="EVENT_CREATE",
+        evento=evento,
+        detalhes="Evento criado via painel admin (AJAX).",
+    )
+
+    return JsonResponse({"ok": True, "id": evento.id})
+
+
+@require_POST
 @admin_required
 def event_update(request, pk):
     """
-    Edição de evento a partir da tela de detalhes.
+    Edita evento via AJAX. Retorna JSON.
     """
-    evento = get_object_or_404(Evento, pk=pk)
+    evento = Evento.objects.get(pk=pk)
+    form = EventoForm(request.POST, request.FILES, instance=evento)
 
-    if request.method == "POST":
-        form = EventoForm(request.POST, request.FILES, instance=evento)
-        if form.is_valid():
-            evento = form.save()
+    if not form.is_valid():
+        return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
-            # LOG: edição de evento
-            log_evento(
-                usuario=request.user,
-                acao="EVENT_UPDATE",
-                evento=evento,
-                detalhes="Evento editado via painel admin.",
-            )
+    evento = form.save(commit=False)
 
-            return redirect("admin_event_detail", pk=evento.pk)
-    else:
-        form = EventoForm(instance=evento)
+    # mantém organizador, a menos que sua regra seja diferente
+    if not evento.organizador and hasattr(request.user, "perfil"):
+        evento.organizador = request.user.perfil
 
-    return render(
-        request,
-        "main/admin/admin_event_detail.html",
-        {
-            "evento": evento,
-            "form": form,
-        },
+    try:
+        evento.full_clean()
+    except ValidationError as e:
+        if hasattr(e, "message_dict"):
+            return JsonResponse({"ok": False, "errors": e.message_dict}, status=400)
+        return JsonResponse({"ok": False, "errors": {"__all__": [str(e)]}}, status=400)
+
+    evento.save()
+
+    log_evento(
+        usuario=request.user,
+        acao="EVENT_UPDATE",
+        evento=evento,
+        detalhes="Evento editado via painel admin (AJAX).",
     )
+
+    return JsonResponse({"ok": True, "id": evento.id})
 
 
 @admin_required

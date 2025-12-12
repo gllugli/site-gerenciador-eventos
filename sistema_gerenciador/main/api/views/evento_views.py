@@ -80,11 +80,19 @@ class EventoInscricaoAPIView(APIView):
     throttle_scope = "inscricao_eventos"
 
     def post(self, request, pk):
+        # 1) Evento
         evento = get_object_or_404(Evento, pk=pk)
 
-        # perfil (Usuario) usado nas regras de negócio
-        usuario = request.user.perfil  # ajuste se no seu projeto for outro atributo
+        # 2) Usuário (perfil)
+        usuario = request.user.perfil
 
+        # 🔎 DEBUG (remova depois se quiser)
+        print("TIPO PERFIL:", usuario.tipo_perfil)
+        print("STATUS EVENTO:", evento.status)
+        print("VAGAS:", evento.quantidade_vagas, "INSCRICOES:", evento.total_inscricoes())
+        print("JA INSCRITO:", evento.usuario_ja_inscrito(usuario))
+
+        # 3) Regra de negócio
         pode = evento.pode_inscrever(usuario)
 
         if not pode:
@@ -103,28 +111,19 @@ class EventoInscricaoAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Cria a inscrição (evitando duplicata, por segurança)
+        # 4) Cria a inscrição (evita duplicata)
         inscricao, created = Inscricao.objects.get_or_create(
             evento=evento,
             usuario=usuario,
         )
 
         if not created:
-            try:
-                log_evento(
-                    usuario=usuario,
-                    acao="API_EVENT_SUBSCRIBE_FAIL",
-                    evento=evento,
-                    detalhes="Tentativa de inscrição via API: usuário já inscrito.",
-                )
-            except Exception:
-                pass
-
             return Response(
                 {"detail": "Você já está inscrito neste evento."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # 5) Log de sucesso
         try:
             log_evento(
                 usuario=usuario,
@@ -135,6 +134,7 @@ class EventoInscricaoAPIView(APIView):
         except Exception:
             pass
 
+        # 6) Resposta final
         return Response(
             {
                 "detail": "Inscrição realizada com sucesso.",

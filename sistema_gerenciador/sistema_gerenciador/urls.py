@@ -60,7 +60,7 @@ urlpatterns = [
     # Confirmação de e-mail
     path("aguardar-confirmacao/", views.aguardar_confirmacao, name="aguardar_confirmacao"),
     path("confirmacao-sucesso/", views.confirmacao_sucesso, name="confirmacao_sucesso"),
-    path("confirmar-email/<str:token>/", confirmar_email, name="confirmar-email"),
+    path("confirmar-email/<str:token>/", confirmar_email, name="confirmar_email"),
 
     # =========================================================================
     # TELAS INTERNAS (usuário autenticado)
@@ -70,9 +70,9 @@ urlpatterns = [
 
     # Eventos (usuário)
     path("eventos/", views.events_dashboard_page, name="event_dashboard"),
-    path("eventos/list/", views.events_list_page, name="events_list"),
-    path("eventos/<int:event_id>/", views.eventDetailPage, name="event_detail"),
-    path("eventos/novo/", views.criar_evento, name="criar_evento"),
+    # path("eventos/list/", views.events_list_page, name="events_list"),
+    # path("eventos/<int:event_id>/", views.eventDetailPage, name="event_detail"),
+    # path("eventos/novo/", views.criar_evento, name="criar_evento"),
 
     # Perfil / Inscrições (usuário)
     path("perfil/", views.user_profile, name="user_profile"),

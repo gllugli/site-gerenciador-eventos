@@ -13,10 +13,8 @@
 </head>
 
 <body>
-
 <div class="page">
     <div class="shell">
-
         <main class="main">
 
             <!-- TOPBAR -->
@@ -31,12 +29,7 @@
                 <div class="topbar-center">
                     <form method="get" class="search-box" autocomplete="off">
                         <span class="search-icon"></span>
-                        <input
-                            type="text"
-                            name="q"
-                            placeholder="Buscar por título..."
-                            value="{{ request.GET.q }}"
-                        >
+                        <input type="text" name="q" placeholder="Buscar por título..." value="{{ request.GET.q }}">
                     </form>
                 </div>
 
@@ -63,7 +56,6 @@
                                 {{ eventos|length }} evento(s) encontrado(s)
                             </div>
 
-                            <!-- BOTÃO CRIAR (posicionado corretamente) -->
                             <button type="button" class="btn-detalhes" id="btnOpenCreateModal">
                                 + Criar novo evento
                             </button>
@@ -90,22 +82,17 @@
                                     data-titulo="{{ evento.titulo|escape }}"
                                     data-status="{{ evento.status }}"
                                     data-status-label="{{ evento.get_status_display|default:evento.status|escape }}"
-
                                     data-data-inicio-iso="{{ evento.data_inicio|date:'Y-m-d' }}"
                                     data-data-inicio-label="{{ evento.data_inicio|date:'d/m/Y' }}"
-                                    data-data-fim-iso="{% if evento.data_fim %}{{ evento.data_fim|date:'Y-m-d' }}{% else %}{% endif %}"
+                                    data-data-fim-iso="{% if evento.data_fim %}{{ evento.data_fim|date:'Y-m-d' }}{% endif %}"
                                     data-data-fim-label="{% if evento.data_fim %}{{ evento.data_fim|date:'d/m/Y' }}{% else %}—{% endif %}"
-
-                                    data-horario-inicio-iso="{% if evento.horario_inicio %}{{ evento.horario_inicio|time:'H:i' }}{% else %}{% endif %}"
-                                    data-horario-fim-iso="{% if evento.horario_fim %}{{ evento.horario_fim|time:'H:i' }}{% else %}{% endif %}"
+                                    data-horario-inicio-iso="{% if evento.horario_inicio %}{{ evento.horario_inicio|time:'H:i' }}{% endif %}"
+                                    data-horario-fim-iso="{% if evento.horario_fim %}{{ evento.horario_fim|time:'H:i' }}{% endif %}"
                                     data-horario-label="{% if evento.horario_inicio or evento.horario_fim %}{% if evento.horario_inicio %}{{ evento.horario_inicio }}{% endif %}{% if evento.horario_fim %} – {{ evento.horario_fim }}{% endif %}{% else %}—{% endif %}"
-
                                     data-vagas="{{ evento.quantidade_vagas }}"
                                     data-localizacao="{{ evento.localizacao|default:'—'|escape }}"
                                     data-descricao="{{ evento.descricao|default:'—'|striptags|escape }}"
-
                                     data-professor="{% if evento.organizador %}{{ evento.organizador.nome_completo|escape }}{% else %}—{% endif %}"
-
                                     data-update-url="{% url 'event_update' evento.id %}"
                                 >
                                     <td class="col-titulo">{{ evento.titulo }}</td>
@@ -129,7 +116,7 @@
                         </table>
                     </div>
 
-                    <!-- AÇÕES (só habilitam quando seleciona) -->
+                    <!-- AÇÕES -->
                     <div class="events-actions">
                         <button type="button" class="btn-detalhes" id="btnOpenDetails" disabled>
                             Ver detalhes do evento selecionado
@@ -147,9 +134,7 @@
     </div>
 </div>
 
-<!-- ============================================================
-     MODAL 1: DETALHES DO EVENTO  (SEM "Abrir página completa")
-     ============================================================ -->
+<!-- MODAL DETALHES -->
 <div class="modal-overlay" id="modal-evento-detalhes" aria-hidden="true">
     <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Detalhes do evento">
         <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
@@ -164,37 +149,30 @@
                     <div class="detail-label">Data inicial</div>
                     <div class="detail-value" id="det-data-inicio">—</div>
                 </div>
-
                 <div class="detail-box">
                     <div class="detail-label">Data final</div>
                     <div class="detail-value" id="det-data-fim">—</div>
                 </div>
-
                 <div class="detail-box">
                     <div class="detail-label">Horário</div>
                     <div class="detail-value" id="det-horario">—</div>
                 </div>
-
                 <div class="detail-box">
                     <div class="detail-label">Vagas</div>
                     <div class="detail-value" id="det-vagas">—</div>
                 </div>
-
                 <div class="detail-box">
                     <div class="detail-label">Professor responsável</div>
                     <div class="detail-value" id="det-professor">—</div>
                 </div>
-
                 <div class="detail-box">
                     <div class="detail-label">Status</div>
                     <div class="detail-value" id="det-status">—</div>
                 </div>
-
                 <div class="detail-box detail-full">
                     <div class="detail-label">Localização</div>
                     <div class="detail-value" id="det-localizacao">—</div>
                 </div>
-
                 <div class="detail-box detail-full">
                     <div class="detail-label">Descrição</div>
                     <div class="detail-value" id="det-descricao">—</div>
@@ -208,9 +186,7 @@
     </div>
 </div>
 
-<!-- ============================================================
-     MODAL 2: EDITAR EVENTO (MESMO PADRÃO DO MODAL)
-     ============================================================ -->
+<!-- MODAL EDITAR -->
 <div class="modal-overlay" id="modal-evento-editar" aria-hidden="true">
     <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Editar evento">
         <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
@@ -227,6 +203,8 @@
               novalidate>
             {% csrf_token %}
 
+            <div id="edit-errors" style="margin: 0 0 12px 0;"></div>
+
             <div class="modal-body event-form-grid">
                 <div class="form-group form-group-full">
                     <label for="edit-titulo">Título</label>
@@ -236,9 +214,13 @@
                 <div class="form-group">
                     <label for="edit-status">Status</label>
                     <select id="edit-status" name="status" class="input-field" required>
-                        <option value="ATIVO">Ativo</option>
-                        <option value="INATIVO">Inativo</option>
-                        <option value="CANCELADO">Cancelado</option>
+                        {% if status_choices %}
+                            {% for value,label in status_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">(status_choices não veio no context)</option>
+                        {% endif %}
                     </select>
                 </div>
 
@@ -291,9 +273,7 @@
     </div>
 </div>
 
-<!-- ============================================================
-     MODAL 3: CRIAR EVENTO (CÓPIA DO EDITAR)
-     ============================================================ -->
+<!-- MODAL CRIAR -->
 <div class="modal-overlay" id="modal-evento-criar" aria-hidden="true">
     <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Criar evento">
         <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
@@ -310,6 +290,8 @@
               novalidate>
             {% csrf_token %}
 
+            <div id="create-errors" style="margin: 0 0 12px 0;"></div>
+
             <div class="modal-body event-form-grid">
                 <div class="form-group form-group-full">
                     <label for="create-titulo">Título</label>
@@ -319,10 +301,15 @@
                 <div class="form-group">
                     <label for="create-status">Status</label>
                     <select id="create-status" name="status" class="input-field" required>
-                        <option value="ATIVO" selected>Ativo</option>
-                        <option value="INATIVO">Inativo</option>
-                        <option value="CANCELADO">Cancelado</option>
+                        {% if status_choices %}
+                            {% for value,label in status_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">(status_choices não veio no context)</option>
+                        {% endif %}
                     </select>
+
                 </div>
 
                 <div class="form-group">
@@ -420,6 +407,54 @@ document.addEventListener("DOMContentLoaded", function () {
         if (e.key === "Escape") closeAllModals();
     });
 
+    function renderErrors(container, errors) {
+        container.innerHTML = "";
+        if (!errors) return;
+
+        const wrap = document.createElement("div");
+        wrap.className = "form-errors";
+
+        Object.keys(errors).forEach((field) => {
+            const msgs = errors[field];
+            const line = document.createElement("div");
+            line.className = "error-box";
+            const label = (field === "__all__" || field === "non_field_errors") ? "Erro" : field;
+            line.innerHTML = "<strong>" + label + ":</strong> " + (Array.isArray(msgs) ? msgs.join(" ") : msgs);
+            wrap.appendChild(line);
+        });
+
+        container.appendChild(wrap);
+    }
+
+    async function postFormAjax(form, errorsContainer, onSuccess) {
+        errorsContainer.innerHTML = "";
+
+        const url = form.getAttribute("action");
+        const formData = new FormData(form);
+
+        // CSRF (pega do input do form)
+        const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfInput ? csrfInput.value : "";
+
+        const resp = await fetch(url, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": csrfToken,
+            },
+        });
+
+        if (resp.ok) {
+            onSuccess(await resp.json());
+            return;
+        }
+
+        let data = null;
+        try { data = await resp.json(); } catch (e) {}
+        renderErrors(errorsContainer, data ? data.errors : {"__all__": ["Erro ao salvar."]});
+    }
+
     // ===== seleção de evento =====
     const rows = document.querySelectorAll(".events-table .event-row");
     const btnDetails = document.getElementById("btnOpenDetails");
@@ -442,17 +477,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ===== abrir CRIAR =====
+    // abrir CRIAR
     if (btnCreate) {
         btnCreate.addEventListener("click", () => {
-            // reset simples
             const form = document.getElementById("form-criar-evento");
             if (form) form.reset();
+            document.getElementById("create-errors").innerHTML = "";
             openModal(modalCreate);
         });
     }
 
-    // ===== abrir DETALHES =====
+    // abrir DETALHES
     btnDetails.addEventListener("click", () => {
         if (!selectedRow) return;
 
@@ -469,15 +504,17 @@ document.addEventListener("DOMContentLoaded", function () {
         openModal(modalDetails);
     });
 
-    // ===== abrir EDITAR =====
+    // abrir EDITAR
     btnEdit.addEventListener("click", () => {
         if (!selectedRow) return;
 
         const formEdit = document.getElementById("form-editar-evento");
         formEdit.action = selectedRow.dataset.updateUrl || "";
 
+        document.getElementById("edit-errors").innerHTML = "";
+
         document.getElementById("edit-titulo").value = selectedRow.dataset.titulo || "";
-        document.getElementById("edit-status").value = selectedRow.dataset.status || "ATIVO";
+        document.getElementById("edit-status").value = selectedRow.dataset.status || "Rascunho";
         document.getElementById("edit-vagas").value = selectedRow.dataset.vagas || "0";
         document.getElementById("edit-localizacao").value = selectedRow.dataset.localizacao === "—" ? "" : (selectedRow.dataset.localizacao || "");
         document.getElementById("edit-data-inicio").value = selectedRow.dataset.dataInicioIso || "";
@@ -489,6 +526,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         openModal(modalEdit);
     });
+
+    // ===== SUBMITS AJAX =====
+    const formCreate = document.getElementById("form-criar-evento");
+    const createErrors = document.getElementById("create-errors");
+
+    if (formCreate) {
+        formCreate.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            await postFormAjax(formCreate, createErrors, () => {
+                closeAllModals();
+                location.reload(); // recarrega a mesma página (sem navegar para outra rota)
+            });
+        });
+    }
+
+    const formEdit = document.getElementById("form-editar-evento");
+    const editErrors = document.getElementById("edit-errors");
+
+    if (formEdit) {
+        formEdit.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            await postFormAjax(formEdit, editErrors, () => {
+                closeAllModals();
+                location.reload(); // recarrega a mesma página
+            });
+        });
+    }
 });
 </script>
 
