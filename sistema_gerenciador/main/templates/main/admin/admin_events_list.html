@@ -1,0 +1,450 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin – Eventos – Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <a href="{% url 'admin_dashboard' %}"
+                       class="btn-back"
+                       aria-label="Voltar para o painel admin">
+                        <span class="back-arrow">&larr;</span>
+                    </a>
+
+                    <h1>Administração de eventos</h1>
+                </div>
+
+                <div class="topbar-center">
+                    <div class="search-box">
+                        <span class="search-icon"></span>
+                        <input type="text"
+                               id="searchEventos"
+                               placeholder="Buscar por título, professor ou local">
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">
+                        <span class="ci ci-theme"></span>
+                    </div>
+
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        ...
+                    </div>
+                </div>
+            </header>
+
+            <!-- LISTA DE EVENTOS ADMIN -->
+            <section class="content-events-list">
+                <div class="events-table-card">
+                    <div class="events-table-header">
+                        <div>
+                            <h2>Lista de eventos cadastrados</h2>
+                            <p>Selecione um evento para visualizar os detalhes e gerenciar as ações administrativas.</p>
+                        </div>
+                        <div class="events-summary">
+                            {{ eventos|length }} evento(s) encontrado(s)
+                        </div>
+                    </div>
+
+                    <!-- Botão de criação abre modal -->
+                    <div class="events-actions events-actions-top">
+                        <button type="button"
+                                class="btn-detalhes btn-criar-evento"
+                                id="btnOpenCreateModal">
+                            + Criar novo evento
+                        </button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="events-table" id="eventsTable">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Data inicial</th>
+                                    <th>Data final</th>
+                                    <th>Quantidade de participantes</th>
+                                    <th>Professor responsável</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if eventos %}
+                                    {% for evento in eventos %}
+                                        <tr class="event-row"
+                                            data-detail-url="{% url 'admin_event_detail' evento.id %}">
+                                            <td class="col-titulo">{{ evento.titulo }}</td>
+                                            <td>{{ evento.data_inicio|date:"d/m/Y" }}</td>
+                                            <td>{{ evento.data_fim|date:"d/m/Y" }}</td>
+                                            <td>{{ evento.quantidade_vagas }}</td>
+                                            <td>{{ evento.organizador.nome_completo }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="events-table-empty">
+                                            Ainda não há eventos cadastrados.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="events-actions" id="actionsContainer" style="display: none;">
+                        <button id="btnVerDetalhes" class="btn-detalhes">
+                            Ver detalhes do evento selecionado
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- MODAL DE CRIAÇÃO DE EVENTO (cópia do card de edição, mas com form vazio) -->
+<div class="modal-overlay" id="createEventModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Criar novo evento</h2>
+            <button type="button"
+                    class="modal-close"
+                    id="btnCloseCreateModal"
+                    aria-label="Fechar criação">
+                &times;
+            </button>
+        </div>
+
+        <form method="post"
+              action="{% url 'event_create' %}"
+              enctype="multipart/form-data"
+              class="event-form"
+              id="formCreateEvento">
+            {% csrf_token %}
+
+            <div class="modal-body event-form-grid">
+                <div class="form-group form-group-full">
+                    <label for="{{ form_create.titulo.id_for_label }}">
+                        Título<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.titulo }}
+                    {% if form_create.titulo.errors %}
+                        <span class="field-error">{{ form_create.titulo.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form_create.status.id_for_label }}">
+                        Status<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.status }}
+                    {% if form_create.status.errors %}
+                        <span class="field-error">{{ form_create.status.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form_create.quantidade_vagas.id_for_label }}">
+                        Quantidade de vagas<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.quantidade_vagas }}
+                    {% if form_create.quantidade_vagas.errors %}
+                        <span class="field-error">{{ form_create.quantidade_vagas.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form_create.localizacao.id_for_label }}">
+                        Localização<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.localizacao }}
+                    {% if form_create.localizacao.errors %}
+                        <span class="field-error">{{ form_create.localizacao.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form_create.data_inicio.id_for_label }}">
+                        Data de início<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.data_inicio }}
+                    {% if form_create.data_inicio.errors %}
+                        <span class="field-error">{{ form_create.data_inicio.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form_create.data_fim.id_for_label }}">
+                        Data de término<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.data_fim }}
+                    {% if form_create.data_fim.errors %}
+                        <span class="field-error">{{ form_create.data_fim.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form_create.horario_inicio.id_for_label }}">
+                        Horário de início<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.horario_inicio }}
+                    {% if form_create.horario_inicio.errors %}
+                        <span class="field-error">{{ form_create.horario_inicio.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form_create.horario_fim.id_for_label }}">
+                        Horário de término<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.horario_fim }}
+                    {% if form_create.horario_fim.errors %}
+                        <span class="field-error">{{ form_create.horario_fim.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form_create.descricao.id_for_label }}">
+                        Descrição<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_create.descricao }}
+                    {% if form_create.descricao.errors %}
+                        <span class="field-error">{{ form_create.descricao.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="{{ form_create.banner.id_for_label }}">
+                        Banner (opcional)
+                    </label>
+                    {{ form_create.banner }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-detalhes btn-cancelar-modal"
+                        id="btnCloseCreateModal2">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="btn-detalhes btn-submit-disabled"
+                        id="btnCreateSubmit"
+                        disabled>
+                    Salvar evento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tema
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // Dropdown perfil
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (dropdown.style.display === 'block' &&
+                !dropdown.contains(e.target) &&
+                !btnPerfil.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // Seleção de linha + botão "Ver detalhes"
+    const rows = document.querySelectorAll('.event-row');
+    const actionsContainer = document.getElementById('actionsContainer');
+    const btnDetalhes = document.getElementById('btnVerDetalhes');
+    let selectedRow = null;
+
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            if (selectedRow) {
+                selectedRow.classList.remove('selected');
+            }
+            selectedRow = row;
+            row.classList.add('selected');
+            actionsContainer.style.display = 'flex';
+        });
+    });
+
+    if (btnDetalhes) {
+        btnDetalhes.addEventListener('click', () => {
+            if (!selectedRow) return;
+            const url = selectedRow.dataset.detailUrl;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    }
+
+    // Filtro de busca
+    const searchInput = document.getElementById('searchEventos');
+    if (searchInput && rows.length) {
+        searchInput.addEventListener('input', () => {
+            const termo = searchInput.value.toLowerCase();
+            rows.forEach(row => {
+                const titulo = row.querySelector('.col-titulo')?.textContent.toLowerCase() || '';
+                const professor = row.cells[4]?.textContent.toLowerCase() || '';
+                if (titulo.includes(termo) || professor.includes(termo)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Modal de criação de evento
+    const createModal = document.getElementById('createEventModal');
+    const btnOpenCreate = document.getElementById('btnOpenCreateModal');
+    const btnCloseCreate = document.getElementById('btnCloseCreateModal');
+    const btnCloseCreate2 = document.getElementById('btnCloseCreateModal2');
+    const createForm = document.getElementById('formCreateEvento');
+    const createSubmit = document.getElementById('btnCreateSubmit');
+
+    if (btnOpenCreate && createModal) {
+        btnOpenCreate.addEventListener('click', () => {
+            createModal.classList.add('is-open');
+        });
+    }
+
+    function fecharCreateModal() {
+        createModal.classList.remove('is-open');
+    }
+
+    if (btnCloseCreate) {
+        btnCloseCreate.addEventListener('click', fecharCreateModal);
+    }
+    if (btnCloseCreate2) {
+        btnCloseCreate2.addEventListener('click', fecharCreateModal);
+    }
+
+    if (createModal) {
+        createModal.addEventListener('click', (e) => {
+            if (e.target === createModal) {
+                fecharCreateModal();
+            }
+        });
+    }
+
+    // Habilita/desabilita o botão de salvar conforme a validade do formulário
+    function updateCreateButtonState() {
+        if (!createForm || !createSubmit) return;
+
+        if (createForm.checkValidity()) {
+            createSubmit.disabled = false;
+            createSubmit.classList.remove('btn-submit-disabled');
+        } else {
+            createSubmit.disabled = true;
+            createSubmit.classList.add('btn-submit-disabled');
+        }
+    }
+
+    if (createForm) {
+        // escuta mudanças em todos os campos do form
+        const inputs = createForm.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateCreateButtonState);
+            input.addEventListener('change', updateCreateButtonState);
+        });
+        // estado inicial
+        updateCreateButtonState();
+    }
+
+        // =======================
+    // Máscaras de data e hora
+    // =======================
+
+    function applyDateMask(input) {
+        input.addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, ''); // só dígitos
+            if (v.length > 8) v = v.slice(0, 8);
+
+            let out = '';
+            if (v.length >= 1) out = v.slice(0, 2);
+            if (v.length >= 3) out = v.slice(0, 2) + '/' + v.slice(2, 4);
+            if (v.length >= 5) out = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4, 8);
+
+            e.target.value = out;
+        });
+    }
+
+    function applyTimeMask(input) {
+        input.addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, ''); // só dígitos
+            if (v.length > 4) v = v.slice(0, 4);
+
+            let out = '';
+            if (v.length >= 1) out = v.slice(0, 2);
+            if (v.length >= 3) out = v.slice(0, 2) + ':' + v.slice(2, 4);
+
+            e.target.value = out;
+        });
+    }
+
+    function setupDateTimeMasks() {
+        // seleciona os campos de data
+        const dateInputs = document.querySelectorAll(
+            'input[name="data_inicio"], input[name="data_fim"]'
+        );
+        dateInputs.forEach((inp) => {
+            if (inp.type === 'text') {  // evita conflitar se for <input type="date">
+                applyDateMask(inp);
+            }
+        });
+
+        // seleciona os campos de horário
+        const timeInputs = document.querySelectorAll(
+            'input[name="horario_inicio"], input[name="horario_fim"]'
+        );
+        timeInputs.forEach((inp) => {
+            if (inp.type === 'text') { // evita conflitar se for <input type="time">
+                applyTimeMask(inp);
+            }
+        });
+    }
+
+    // chama assim que o script carregar (já está no final do body)
+    setupDateTimeMasks();
+
+</script>
+</body>
+</html>

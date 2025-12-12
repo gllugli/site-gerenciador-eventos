@@ -1,0 +1,830 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Administração de usuários | Portal EnCUCA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Base (mesmo da tela events_list) -->
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
+    <!-- Específico desta tela -->
+    <link rel="stylesheet" href="{% static 'main/style/profile/profile_admin.css' %}">
+</head>
+
+<body>
+
+<!-- =========================
+     MESSAGES DO DJANGO (OCULTO)
+     ========================= -->
+{% if messages %}
+<div id="django-messages" style="display:none">
+    {% for message in messages %}
+        <div data-level="{{ message.tags }}">{{ message|escapejs }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="page">
+    <div class="shell">
+        <main class="main">
+
+            <!-- TOPBAR (mesmo padrão do admin) -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <a href="javascript:history.back()" class="btn-back">
+                        <span class="back-arrow">&larr;</span>
+                    </a>
+                    <h1>Administração de usuários</h1>
+                </div>
+
+                <div class="topbar-center">
+                    <form method="get" class="search-box" autocomplete="off">
+                        <span class="search-icon"></span>
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Buscar por nome, e-mail ou instituição"
+                            value="{{ request.GET.q }}"
+                        >
+                    </form>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon">
+                        <span class="ci">T</span>
+                    </div>
+                    <button class="btn-perfil" type="button">
+                        Perfil | {{ request.user.email }}
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO -->
+            <section class="content-events-list">
+                <div class="events-table-card users-table-card">
+
+                    <div class="events-table-header">
+                        <div>
+                            <h2>Lista de usuários cadastrados</h2>
+                            <p>Selecione um usuário para visualizar e gerenciar ações administrativas.</p>
+                        </div>
+                        <div class="events-summary">
+                            {{ usuarios|length }} usuário(s) encontrado(s)
+                        </div>
+                    </div>
+
+                    <!-- Botão criar -->
+                    <div class="events-actions-top users-actions-top">
+                        <button type="button" class="btn-detalhes" id="btn-abrir-criar">
+                            + Criar novo usuário
+                        </button>
+                    </div>
+
+                    <!-- Tabela -->
+                    <div class="table-wrapper">
+                        <table class="events-table users-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuário</th>
+                                    <th>Telefone</th>
+                                    <th>Instituição</th>
+                                    <th>Perfil</th>
+                                    <th>Cadastro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usuario in usuarios %}
+                                <tr class="event-row user-row"
+                                    data-usuario-id="{{ usuario.id }}"
+                                    data-usuario-nome="{{ usuario.nome_completo }}"
+                                    data-usuario-email="{{ usuario.user.email }}"
+                                    data-usuario-telefone="{{ usuario.telefone }}"
+                                    data-usuario-instituicao="{{ usuario.instituicao }}"
+                                    data-usuario-tipo="{{ usuario.tipo_perfil }}">
+                                    <td class="col-titulo col-user-main">
+                                        <div class="user-main">
+                                            <div class="user-avatar">
+                                                {{ usuario.nome_completo|slice:":1" }}
+                                            </div>
+                                            <div class="user-text">
+                                                <span class="user-name">{{ usuario.nome_completo }}</span>
+                                                <span class="user-email">{{ usuario.user.email }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ usuario.telefone }}</td>
+                                    <td>{{ usuario.instituicao|default:"—" }}</td>
+                                    <td>
+                                        <span class="tag-perfil perfil-{{ usuario.tipo_perfil }}">
+                                            {% if usuario.tipo_perfil == "AL" %}
+                                                Aluno
+                                            {% elif usuario.tipo_perfil == "PR" %}
+                                                Professor
+                                            {% elif usuario.tipo_perfil == "ADM" %}
+                                                Administrador
+                                            {% else %}
+                                                {{ usuario.tipo_perfil }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ usuario.user.date_joined|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="events-table-empty">
+                                        Nenhum usuário encontrado.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Ações (habilita ao selecionar usuário) -->
+                    <div class="events-actions users-actions">
+                        <button class="btn-detalhes" id="btn-editar-usuario" type="button" disabled>
+                            Editar usuário
+                        </button>
+                        <button class="btn-delete-evento" id="btn-excluir-usuario" type="button" disabled>
+                            Excluir usuário
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================
+                 MODAL: CRIAR USUÁRIO
+                 ========================= -->
+            <div id="modal-criar-usuario" class="modal-overlay" aria-hidden="true">
+                <div class="modal-card user-modal-card">
+                    <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
+
+                    <div class="modal-header">
+                        <h2>Criar novo usuário</h2>
+                    </div>
+
+                    <div class="modal-body">
+                        <form method="post"
+                              action="{% url 'usuarios_list' %}"
+                              class="event-form user-form"
+                              id="form-criar-usuario"
+                              novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="create">
+
+                            <div class="event-form-grid user-form-grid">
+                                <div class="form-group form-group-full">
+                                    <label>Nome completo<span class="required-asterisk">*</span></label>
+                                    <input type="text"
+                                           name="nome_completo"
+                                           class="input-field"
+                                           maxlength="50"
+                                           required>
+                                    <span class="field-error" id="erro-nome-criar"></span>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label>E-mail (login)<span class="required-asterisk">*</span></label>
+                                    <input type="email"
+                                           name="email"
+                                           id="email-criar"
+                                           class="input-field"
+                                           required>
+                                    <span class="field-error" id="erro-email-criar"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Telefone<span class="required-asterisk">*</span></label>
+                                    <input type="text"
+                                           name="telefone"
+                                           id="telefone-criar"
+                                           class="input-field"
+                                           maxlength="15"
+                                           inputmode="numeric"
+                                           required>
+                                    <span class="field-error" id="erro-telefone-criar"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Instituição</label>
+                                    <input type="text"
+                                           name="instituicao"
+                                           id="instituicao-criar"
+                                           class="input-field"
+                                           maxlength="100">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Perfil<span class="required-asterisk">*</span></label>
+                                    <select name="tipo_perfil"
+                                            id="tipo-perfil-criar"
+                                            class="input-field"
+                                            required>
+                                        <option value="AL">Aluno</option>
+                                        <option value="PR">Professor</option>
+                                        <option value="ADM">Administrador</option>
+                                    </select>
+                                    <span class="field-error" id="erro-tipo-criar"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Senha<span class="required-asterisk">*</span></label>
+                                    <input type="password"
+                                           name="senha"
+                                           id="senha-criar"
+                                           class="input-field"
+                                           required>
+                                    <span class="field-error" id="erro-senha-criar"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Confirmar senha<span class="required-asterisk">*</span></label>
+                                    <input type="password"
+                                           name="senha2"
+                                           id="senha2-criar"
+                                           class="input-field"
+                                           required>
+                                    <span class="field-error" id="erro-senha2-criar"></span>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn-cancelar-modal" data-close-modal>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn-detalhes" id="btn-submit-criar" disabled>
+                                    Criar usuário
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 MODAL: EDITAR USUÁRIO
+                 ========================= -->
+            <div id="modal-editar-usuario" class="modal-overlay" aria-hidden="true">
+                <div class="modal-card user-modal-card">
+                    <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
+
+                    <div class="modal-header">
+                        <h2>Editar usuário</h2>
+                    </div>
+
+                    <div class="modal-body">
+                        <form method="post"
+                              action="{% url 'usuarios_list' %}"
+                              class="event-form user-form"
+                              id="form-editar-usuario"
+                              novalidate>
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="usuario_id" id="editar-usuario-id">
+
+                            <div class="event-form-grid user-form-grid">
+                                <div class="form-group form-group-full">
+                                    <label>Nome completo<span class="required-asterisk">*</span></label>
+                                    <input type="text"
+                                           name="nome_completo"
+                                           id="editar-nome"
+                                           class="input-field"
+                                           maxlength="50"
+                                           required>
+                                    <span class="field-error" id="erro-nome-editar"></span>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label>E-mail (login)</label>
+                                    <input type="email"
+                                           id="editar-email"
+                                           class="input-field"
+                                           disabled>
+                                    <span class="field-error"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Telefone<span class="required-asterisk">*</span></label>
+                                    <input type="text"
+                                           name="telefone"
+                                           id="editar-telefone"
+                                           class="input-field"
+                                           maxlength="15"
+                                           inputmode="numeric"
+                                           required>
+                                    <span class="field-error" id="erro-telefone-editar"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Instituição</label>
+                                    <input type="text"
+                                           name="instituicao"
+                                           id="editar-instituicao"
+                                           class="input-field"
+                                           maxlength="100">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Perfil<span class="required-asterisk">*</span></label>
+                                    <select name="tipo_perfil"
+                                            id="editar-tipo-perfil"
+                                            class="input-field"
+                                            required>
+                                        <option value="AL">Aluno</option>
+                                        <option value="PR">Professor</option>
+                                        <option value="ADM">Administrador</option>
+                                    </select>
+                                    <span class="field-error" id="erro-tipo-editar"></span>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label>Nova senha (opcional)</label>
+                                    <input type="password"
+                                           name="nova_senha"
+                                           id="editar-nova-senha"
+                                           class="input-field">
+                                    <span class="field-error" id="erro-novasenha-editar"></span>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn-cancelar-modal" data-close-modal>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn-detalhes" id="btn-submit-editar" disabled>
+                                    Salvar alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- =========================
+                 MODAL: EXCLUIR USUÁRIO
+                 ========================= -->
+            <div id="modal-excluir-usuario" class="modal-overlay" aria-hidden="true">
+                <div class="modal-card user-modal-card">
+                    <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
+
+                    <div class="modal-header">
+                        <h2>Excluir usuário</h2>
+                    </div>
+
+                    <div class="modal-body">
+                        <p id="texto-confirmar-exclusao">Tem certeza que deseja excluir este usuário?</p>
+                    </div>
+
+                    <div class="modal-footer modal-footer-inline">
+                        <button type="button" class="btn-cancelar-modal" data-close-modal>
+                            Cancelar
+                        </button>
+
+                        <form method="post"
+                              action="{% url 'usuarios_list' %}"
+                              id="form-excluir-usuario">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="usuario_id" id="excluir-usuario-id">
+                            <button type="submit"
+                                    class="btn-delete-evento"
+                                    onclick="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                Excluir usuário
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================
+                 MODAL DE ALERTA GLOBAL
+                 ========================= -->
+            <div id="modal-alerta" class="modal-overlay" aria-hidden="true">
+                <div class="modal-card user-modal-card">
+                    <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
+
+                    <div class="modal-header">
+                        <h2 id="modal-alerta-titulo">Atenção</h2>
+                    </div>
+
+                    <div class="modal-body">
+                        <p id="modal-alerta-mensagem"></p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-detalhes" data-close-modal>
+                            Entendi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // -----------------------------
+    // Regex
+    // -----------------------------
+    const EMAIL_REGEX = /^[\w.\+\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9.\-]+$/;
+    const SENHA_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-_])[A-Za-z\d@$!%*?&.\-_]{8,}$/;
+
+    // -----------------------------
+    // Elementos principais
+    // -----------------------------
+    const rows = document.querySelectorAll(".users-table .user-row");
+
+    const btnEditar = document.getElementById("btn-editar-usuario");
+    const btnExcluir = document.getElementById("btn-excluir-usuario");
+    const btnAbrirCriar = document.getElementById("btn-abrir-criar");
+
+    const modalCriar = document.getElementById("modal-criar-usuario");
+    const modalEditar = document.getElementById("modal-editar-usuario");
+    const modalExcluir = document.getElementById("modal-excluir-usuario");
+    const modalAlerta = document.getElementById("modal-alerta");
+
+    let selectedRow = null;
+
+    // -----------------------------
+    // Utilitários: modal
+    // -----------------------------
+    function abrirModal(modal) {
+        if (!modal) return;
+        modal.classList.add("is-open");
+    }
+
+    function fecharTodosModais() {
+        document.querySelectorAll(".modal-overlay.is-open").forEach(m => {
+            m.classList.remove("is-open");
+        });
+    }
+
+    // Fechar modais: X e botões com data-close-modal
+    document.querySelectorAll(".modal-close, [data-close-modal]").forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            fecharTodosModais();
+        });
+    });
+
+    // Fechar ao clicar fora do card
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", function (e) {
+            if (e.target === overlay) fecharTodosModais();
+        });
+    });
+
+    // ESC fecha
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") fecharTodosModais();
+    });
+
+    // -----------------------------
+    // Modal de alerta (profissional)
+    // -----------------------------
+    function showAlert(titulo, mensagem) {
+        document.getElementById("modal-alerta-titulo").textContent = titulo || "Atenção";
+        document.getElementById("modal-alerta-mensagem").textContent = mensagem || "";
+        abrirModal(modalAlerta);
+    }
+
+    function clearAndFocus(...ids) {
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = "";
+                el.classList.add("input-error");
+                el.focus();
+            }
+        });
+    }
+
+    function removeErrorClassOnInput(el) {
+        if (!el) return;
+        el.addEventListener("input", () => el.classList.remove("input-error"));
+        el.addEventListener("blur", () => el.classList.remove("input-error"));
+    }
+
+    // -----------------------------
+    // Seleção de usuário (tabela)
+    // -----------------------------
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            if (selectedRow) selectedRow.classList.remove("selected");
+            selectedRow = row;
+            row.classList.add("selected");
+
+            btnEditar.disabled = false;
+            btnExcluir.disabled = false;
+        });
+    });
+
+    // -----------------------------
+    // Abrir criar
+    // -----------------------------
+    if (btnAbrirCriar) {
+        btnAbrirCriar.addEventListener("click", () => {
+            resetCriarForm();
+            abrirModal(modalCriar);
+        });
+    }
+
+    // -----------------------------
+    // Abrir editar (preenche)
+    // -----------------------------
+    btnEditar.addEventListener("click", function () {
+        if (!selectedRow) return;
+
+        const usuarioId = selectedRow.dataset.usuarioId;
+        const nome = selectedRow.dataset.usuarioNome || "";
+        const email = selectedRow.dataset.usuarioEmail || "";
+        const telefone = selectedRow.dataset.usuarioTelefone || "";
+        const instituicao = selectedRow.dataset.usuarioInstituicao || "";
+        const tipo = selectedRow.dataset.usuarioTipo || "AL";
+
+        document.getElementById("editar-usuario-id").value = usuarioId;
+        document.getElementById("editar-nome").value = nome;
+        document.getElementById("editar-email").value = email;
+        document.getElementById("editar-telefone").value = telefone;
+        document.getElementById("editar-instituicao").value = instituicao;
+        document.getElementById("editar-tipo-perfil").value = tipo;
+        document.getElementById("editar-nova-senha").value = "";
+
+        clearEditErrors();
+        validateEditForm();
+
+        abrirModal(modalEditar);
+    });
+
+    // -----------------------------
+    // Abrir excluir (preenche)
+    // -----------------------------
+    btnExcluir.addEventListener("click", function () {
+        if (!selectedRow) return;
+
+        const usuarioId = selectedRow.dataset.usuarioId;
+        const nome = selectedRow.dataset.usuarioNome || "";
+
+        document.getElementById("excluir-usuario-id").value = usuarioId;
+        document.getElementById("texto-confirmar-exclusao").textContent =
+            `Tem certeza que deseja excluir o usuário "${nome}"?`;
+
+        abrirModal(modalExcluir);
+    });
+
+    // -----------------------------
+    // Máscara de telefone (BR)
+    // (61) 99999-8888
+    // -----------------------------
+    function maskTelefone(value) {
+        const digits = (value || "").replace(/\D/g, "").slice(0, 11);
+
+        if (digits.length === 0) return "";
+        if (digits.length < 3) return `(${digits}`;
+        if (digits.length < 7) return `(${digits.slice(0,2)}) ${digits.slice(2)}`;
+        if (digits.length < 11) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
+        return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
+    }
+
+    function attachPhoneMask(input) {
+        if (!input) return;
+        input.addEventListener("input", function () {
+            const caretAtEnd = input.selectionStart === input.value.length;
+            input.value = maskTelefone(input.value);
+            if (caretAtEnd) {
+                input.selectionStart = input.selectionEnd = input.value.length;
+            }
+        });
+        input.value = maskTelefone(input.value);
+    }
+
+    const telCriar = document.getElementById("telefone-criar");
+    const telEditar = document.getElementById("editar-telefone");
+    attachPhoneMask(telCriar);
+    attachPhoneMask(telEditar);
+
+    // -----------------------------
+    // Validações (criar)
+    // -----------------------------
+    const criarForm = document.getElementById("form-criar-usuario");
+    const criarNome = criarForm.querySelector('input[name="nome_completo"]');
+    const criarEmail = document.getElementById("email-criar");
+    const criarTelefone = document.getElementById("telefone-criar");
+    const criarTipo = document.getElementById("tipo-perfil-criar");
+    const criarSenha = document.getElementById("senha-criar");
+    const criarSenha2 = document.getElementById("senha2-criar");
+    const btnSubmitCriar = document.getElementById("btn-submit-criar");
+
+    function setError(id, msg) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = msg || "";
+    }
+
+    function resetCriarForm() {
+        criarForm.reset();
+        setError("erro-nome-criar", "");
+        setError("erro-email-criar", "");
+        setError("erro-telefone-criar", "");
+        setError("erro-tipo-criar", "");
+        setError("erro-senha-criar", "");
+        setError("erro-senha2-criar", "");
+        btnSubmitCriar.disabled = true;
+    }
+
+    function validateCreateForm() {
+        let ok = true;
+
+        const nome = (criarNome.value || "").trim();
+        const email = (criarEmail.value || "").trim().toLowerCase();
+        const telDigits = (criarTelefone.value || "").replace(/\D/g, "");
+        const tipo = criarTipo.value;
+        const s1 = criarSenha.value || "";
+        const s2 = criarSenha2.value || "";
+
+        if (nome.length < 3) {
+            setError("erro-nome-criar", "Informe o nome completo.");
+            ok = false;
+        } else {
+            setError("erro-nome-criar", "");
+        }
+
+        if (!EMAIL_REGEX.test(email)) {
+            setError("erro-email-criar", "E-mail inválido. Ex.: usuario@dominio.com");
+            ok = false;
+        } else {
+            setError("erro-email-criar", "");
+        }
+
+        if (telDigits.length !== 11) {
+            setError("erro-telefone-criar", "Telefone inválido. Ex.: (61) 99999-8888");
+            ok = false;
+        } else {
+            setError("erro-telefone-criar", "");
+        }
+
+        if (!tipo) {
+            setError("erro-tipo-criar", "Selecione um perfil.");
+            ok = false;
+        } else {
+            setError("erro-tipo-criar", "");
+        }
+
+        if (!SENHA_REGEX.test(s1)) {
+            setError(
+                "erro-senha-criar",
+                "Senha fraca: mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial."
+            );
+            ok = false;
+        } else {
+            setError("erro-senha-criar", "");
+        }
+
+        if (s2.length === 0) {
+            setError("erro-senha2-criar", "Confirme a senha.");
+            ok = false;
+        } else if (s1 !== s2) {
+            setError("erro-senha2-criar", "As senhas não conferem.");
+            ok = false;
+        } else {
+            setError("erro-senha2-criar", "");
+        }
+
+        btnSubmitCriar.disabled = !ok;
+        return ok;
+    }
+
+    [criarNome, criarEmail, criarTelefone, criarTipo, criarSenha, criarSenha2].forEach(el => {
+        removeErrorClassOnInput(el);
+        el.addEventListener("input", validateCreateForm);
+        el.addEventListener("blur", validateCreateForm);
+        if (el.tagName === "SELECT") el.addEventListener("change", validateCreateForm);
+    });
+
+    criarForm.addEventListener("submit", function (e) {
+        if (!validateCreateForm()) e.preventDefault();
+    });
+
+    // -----------------------------
+    // Validações (editar)
+    // -----------------------------
+    const editarForm = document.getElementById("form-editar-usuario");
+    const editarNome = document.getElementById("editar-nome");
+    const editarTelefone = document.getElementById("editar-telefone");
+    const editarTipo = document.getElementById("editar-tipo-perfil");
+    const editarNovaSenha = document.getElementById("editar-nova-senha");
+    const btnSubmitEditar = document.getElementById("btn-submit-editar");
+
+    function clearEditErrors() {
+        ["erro-nome-editar","erro-telefone-editar","erro-tipo-editar","erro-novasenha-editar"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = "";
+        });
+    }
+
+    function validateEditForm() {
+        let ok = true;
+
+        const nome = (editarNome.value || "").trim();
+        const telDigits = (editarTelefone.value || "").replace(/\D/g, "");
+        const tipo = editarTipo.value;
+        const novaSenha = (editarNovaSenha.value || "");
+
+        if (nome.length < 3) {
+            document.getElementById("erro-nome-editar").textContent = "Informe o nome completo.";
+            ok = false;
+        } else {
+            document.getElementById("erro-nome-editar").textContent = "";
+        }
+
+        if (telDigits.length !== 11) {
+            document.getElementById("erro-telefone-editar").textContent = "Telefone inválido. Ex.: (61) 99999-8888";
+            ok = false;
+        } else {
+            document.getElementById("erro-telefone-editar").textContent = "";
+        }
+
+        if (!tipo) {
+            document.getElementById("erro-tipo-editar").textContent = "Selecione um perfil.";
+            ok = false;
+        } else {
+            document.getElementById("erro-tipo-editar").textContent = "";
+        }
+
+        if (novaSenha && !SENHA_REGEX.test(novaSenha)) {
+            document.getElementById("erro-novasenha-editar").textContent =
+                "Nova senha fraca: mínimo 8, 1 maiúscula, 1 minúscula, 1 número e 1 especial.";
+            ok = false;
+        } else {
+            document.getElementById("erro-novasenha-editar").textContent = "";
+        }
+
+        btnSubmitEditar.disabled = !ok;
+        return ok;
+    }
+
+    [editarNome, editarTelefone, editarTipo, editarNovaSenha].forEach(el => {
+        removeErrorClassOnInput(el);
+        el.addEventListener("input", validateEditForm);
+        el.addEventListener("blur", validateEditForm);
+        if (el.tagName === "SELECT") el.addEventListener("change", validateEditForm);
+    });
+
+    editarForm.addEventListener("submit", function (e) {
+        if (!validateEditForm()) e.preventDefault();
+    });
+
+    // Inicial
+    resetCriarForm();
+
+    // -----------------------------
+    // FEATURE: erro UNIQUE sem tela feia
+    // Lê Django messages (oculto) e mostra popup + limpa campo
+    // -----------------------------
+    (function handleBackendErrors() {
+        const container = document.getElementById("django-messages");
+        if (!container) return;
+
+        const msgs = Array.from(container.querySelectorAll("div"));
+        if (!msgs.length) return;
+
+        // Abre o alerta com a primeira mensagem (prioridade) e tenta inferir campo
+        const raw = msgs.map(m => m.textContent).join(" | ");
+        const texto = raw.toLowerCase();
+
+        // Se o backend mandar erro de UNIQUE de telefone
+        if (texto.includes("telefone") && (texto.includes("já existe") || texto.includes("unique") || texto.includes("duplic"))) {
+            showAlert(
+                "Telefone já cadastrado",
+                "Este telefone já está vinculado a outro usuário. Informe um telefone diferente."
+            );
+
+            // limpa e foca (criar e editar, se estiverem na tela)
+            clearAndFocus("telefone-criar", "editar-telefone");
+            return;
+        }
+
+        // Se o backend mandar erro de e-mail duplicado
+        if ((texto.includes("email") || texto.includes("e-mail")) && (texto.includes("já existe") || texto.includes("unique") || texto.includes("duplic"))) {
+            showAlert(
+                "E-mail já cadastrado",
+                "Este e-mail já está em uso. Utilize outro endereço de e-mail."
+            );
+            clearAndFocus("email-criar");
+            return;
+        }
+
+        // Genérico
+        showAlert("Erro ao salvar", raw);
+    })();
+});
+</script>
+</body>
+</html>

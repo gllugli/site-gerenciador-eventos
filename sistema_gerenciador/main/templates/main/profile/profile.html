@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Portal EnCUCA</title>
-
     <link rel="stylesheet" href="{% static 'main/style/profile/profile.css' %}">
 </head>
 <body>
+
 <div class="page">
     <div class="shell">
 
-        <!-- MENU LATERAL -->
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div>
                 <div class="sidebar-logo">CEUB</div>
@@ -27,12 +27,6 @@
                         <span>Eventos</span>
                     </a>
 
-                    <a href="{% url 'subscription_page' %}" class="menu-item">
-                        <span class="icon">📝</span>
-                        <span>Inscrições</span>
-                    </a>
-
-                    <!-- ESTA PÁGINA -->
                     <a href="{% url 'user_profile' %}" class="menu-item active">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
@@ -46,93 +40,95 @@
             </a>
         </aside>
 
-        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- MAIN -->
         <main class="main">
+
+            <!-- TOPBAR -->
             <header class="topbar">
-                <div class="topbar-left">
-                    <h1>Perfil</h1>
-                </div>
+                <h1>Perfil</h1>
 
                 <div class="topbar-right">
                     <div class="circle-icon" id="themeToggle">🌙</div>
-                    <div class="circle-icon">🔔</div>
-                    <div class="circle-icon">👤</div>
-                    <button class="btn-perfil">
-                        Perfil |
-                        {{ perfil.get_perfil_display|default:"Usuário" }}
+                    <button class="btn-perfil" type="button">
+                        Perfil | {{ perfil.get_perfil_display|default:"Usuário" }}
                     </button>
                 </div>
             </header>
 
+            <!-- CONTEÚDO -->
             <section class="content-perfil">
-                <div class="profile-title-badge">
-                    Dados Pessoais
-                </div>
 
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div class="profile-user-info">
-                            <div class="profile-avatar">
-                                <!-- depois você pode trocar por {{ user.foto.url }} -->
-                                <img
-                                    src="https://via.placeholder.com/80x80"
-                                    alt="Foto de perfil">
+                <div class="profile-title-badge">Dados Pessoais</div>
+
+                <div class="profile-card-wrap">
+                    <div class="profile-card">
+
+                        <!-- CABEÇALHO -->
+                        <div class="profile-header">
+                            <div class="profile-user-info">
+                                <div class="profile-avatar">
+                                    <img src="https://via.placeholder.com/80x80" alt="Avatar">
+                                </div>
+
+                                <div class="profile-name-role">
+                                    <span class="name">
+                                        {{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}
+                                    </span>
+                                    <span class="role">
+                                        {{ perfil.get_perfil_display|default:"Usuário" }}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="profile-name-role">
-                                <span class="name" id="viewNomeCabecalho">
+
+                            <div class="profile-header-actions">
+                                <button class="btn-minhas-inscricoes" id="btnMinhasInscricoes" type="button">
+                                    Minhas inscrições
+                                </button>
+
+                                <button class="btn-meus-certificados" id="btnMeusCertificados" type="button">
+                                    Meus certificados
+                                </button>
+
+                                <button class="btn-editar-dados" id="btnEditarDados" type="button">
+                                    Editar Dados
+                                </button>
+
+                                <button class="btn-alterar-senha" id="btnAlterarSenha" type="button">
+                                    Alterar Senha
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- GRID -->
+                        <div class="profile-grid">
+                            <div class="profile-field">
+                                <span class="profile-label">Nome Perfil</span>
+                                <div class="profile-value">
                                     {{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}
-                                </span>
-                                <span class="role">
-                                    {{ perfil.get_perfil_display|default:"Usuário" }}
-                                </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-field">
+                                <span class="profile-label">Telefone</span>
+                                <div class="profile-value">{{ perfil.telefone|default:"-" }}</div>
+                            </div>
+
+                            <div class="profile-field">
+                                <span class="profile-label">E-mail</span>
+                                <div class="profile-value">{{ user.email|default:"-" }}</div>
+                            </div>
+
+                            <div class="profile-field">
+                                <span class="profile-label">Instituição</span>
+                                <div class="profile-value">{{ perfil.instituicao|default:"-" }}</div>
+                            </div>
+
+                            <div class="profile-field profile-field-full">
+                                <span class="profile-label">Nível da Conta</span>
+                                <div class="profile-value">{{ perfil.get_perfil_display|default:"Usuário" }}</div>
                             </div>
                         </div>
 
-                        <div class="profile-header-actions">
-                            <button class="btn-editar-dados" id="btnEditarDados" type="button">
-                                Editar Dados Pessoais
-                            </button>
-                            <button class="btn-alterar-senha" id="btnAlterarSenha" type="button">
-                                Alterar Senha
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="profile-grid">
-                        <div class="profile-field">
-                            <span class="profile-label">Nome Perfil</span>
-                            <div class="profile-value" id="viewNomePerfil">
-                                {{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}
-                            </div>
-                        </div>
-
-                        <div class="profile-field">
-                            <span class="profile-label">Telefone</span>
-                            <div class="profile-value" id="viewTelefone">
-                                {{ perfil.telefone|default:"-" }}
-                            </div>
-                        </div>
-
-                        <div class="profile-field">
-                            <span class="profile-label">E-mail</span>
-                            <div class="profile-value" id="viewEmail">
-                                {{ user.email|default:"-" }}
-                            </div>
-                        </div>
-
-                        <div class="profile-field">
-                            <span class="profile-label">Instituição</span>
-                            <div class="profile-value" id="viewInstituicao">
-                                {{ perfil.instituicao|default:"-" }}
-                            </div>
-                        </div>
-
-                        <div class="profile-field profile-field-full">
-                            <span class="profile-label">Nível da Conta</span>
-                            <div class="profile-value" id="viewNivelConta">
-                                {{ perfil.get_perfil_display|default:"Usuário" }}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -140,7 +136,127 @@
     </div>
 </div>
 
-<!-- MODAL EDITAR DADOS PESSOAIS -->
+<!-- ================= MODAL INSCRIÇÕES ================= -->
+<div class="edit-profile-backdrop" id="myEnrollmentsModal">
+    <div class="enrollments-modal" role="dialog" aria-modal="true" aria-label="Minhas inscrições">
+
+        <div class="enrollments-modal-head">
+            <div>
+                <div class="enrollments-title">Minhas inscrições</div>
+                <div class="enrollments-subtitle">Eventos em que você está inscrito</div>
+            </div>
+            <button class="btn-icon-close" id="closeEnrollments" type="button" aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="enrollments-modal-body">
+            <table class="enrollments-table">
+                <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Data de inscrição</th>
+                    <th>Presença</th>
+                    <th>Ação</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if inscricoes %}
+                    {% for ins in inscricoes %}
+                        <tr data-inscricao-row="{{ ins.id }}">
+                            <td>
+                                <strong>{{ ins.evento.titulo|default:"(Sem título)" }}</strong>
+                            </td>
+                            <td>
+                                {{ ins.data_inscricao|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                {% if ins.presenca_confirmada %}
+                                    <span class="status-pill" data-presenca="{{ ins.id }}">Confirmada</span>
+                                {% else %}
+                                    <span class="status-pill" data-presenca="{{ ins.id }}">Pendente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ins.presenca_confirmada %}
+                                    <button type="button" class="btn-action-disabled" disabled>Confirmado</button>
+                                {% else %}
+                                    <button type="button" class="btn-confirmar-presenca" data-inscricao-id="{{ ins.id }}">
+                                        Confirmar
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            Nenhuma inscrição encontrada.
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="enrollments-modal-actions">
+            <button class="btn-cancelar" id="closeEnrollmentsBottom" type="button">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL CERTIFICADOS ================= -->
+<div class="edit-profile-backdrop" id="myCertificatesModal">
+    <div class="enrollments-modal" role="dialog" aria-modal="true" aria-label="Meus certificados">
+
+        <div class="enrollments-modal-head">
+            <div>
+                <div class="enrollments-title">Meus certificados</div>
+                <div class="enrollments-subtitle">Certificados emitidos</div>
+            </div>
+            <button class="btn-icon-close" id="closeCertificates" type="button" aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="enrollments-modal-body">
+            <table class="enrollments-table">
+                <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Emissão</th>
+                    <th>Código</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if certificados %}
+                    {% for cert in certificados %}
+                        <tr>
+                            <td>
+                                <strong>{{ cert.inscricao.evento.titulo|default:"(Sem título)" }}</strong>
+                            </td>
+                            <td>
+                                {{ cert.data_emissao|date:"d/m/Y" }}
+                            </td>
+                            <td>
+                                {{ cert.codigo_certificado|default:"-" }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="empty-state">
+                            Nenhum certificado encontrado.
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="enrollments-modal-actions">
+            <button class="btn-cancelar" id="closeCertificatesBottom" type="button">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL EDITAR DADOS ================= -->
 <div class="edit-profile-backdrop" id="editProfileModal">
     <div class="edit-profile-modal">
         <div class="edit-profile-title">Editar Dados Pessoais</div>
@@ -152,40 +268,40 @@
             <div class="ep-field">
                 <label class="ep-label" for="id_nome_perfil">Nome Perfil</label>
                 <input
-                    type="text"
-                    id="id_nome_perfil"
-                    name="nome_perfil"
-                    class="ep-input"
-                    value="{{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}">
+                        type="text"
+                        id="id_nome_perfil"
+                        name="nome_perfil"
+                        class="ep-input"
+                        value="{{ perfil.nome_perfil|default:user.get_full_name|default:user.username }}">
             </div>
 
             <div class="ep-field">
                 <label class="ep-label" for="id_telefone">Telefone</label>
                 <input
-                    type="text"
-                    id="id_telefone"
-                    name="telefone"
-                    class="ep-input"
-                    value="{{ perfil.telefone }}">
+                        type="text"
+                        id="id_telefone"
+                        name="telefone"
+                        class="ep-input"
+                        value="{{ perfil.telefone }}">
             </div>
 
             <div class="ep-field">
                 <label class="ep-label">E-mail (não pode ser alterado)</label>
                 <input
-                    type="email"
-                    class="ep-input"
-                    value="{{ user.email }}"
-                    disabled>
+                        type="email"
+                        class="ep-input"
+                        value="{{ user.email }}"
+                        disabled>
             </div>
 
             <div class="ep-field">
                 <label class="ep-label" for="id_instituicao">Instituição</label>
                 <input
-                    type="text"
-                    id="id_instituicao"
-                    name="instituicao"
-                    class="ep-input"
-                    value="{{ perfil.instituicao }}">
+                        type="text"
+                        id="id_instituicao"
+                        name="instituicao"
+                        class="ep-input"
+                        value="{{ perfil.instituicao }}">
             </div>
 
             <div class="ep-actions">
@@ -196,7 +312,7 @@
     </div>
 </div>
 
-<!-- MODAL ALTERAR SENHA -->
+<!-- ================= MODAL ALTERAR SENHA ================= -->
 <div class="edit-profile-backdrop" id="changePasswordModal">
     <div class="edit-profile-modal">
         <div class="edit-profile-title">Alterar Senha</div>
@@ -208,31 +324,31 @@
             <div class="ep-field">
                 <label class="ep-label" for="id_senha_atual">Senha atual</label>
                 <input
-                    type="password"
-                    id="id_senha_atual"
-                    name="senha_atual"
-                    class="ep-input"
-                    placeholder="Digite sua senha atual">
+                        type="password"
+                        id="id_senha_atual"
+                        name="senha_atual"
+                        class="ep-input"
+                        placeholder="Digite sua senha atual">
             </div>
 
             <div class="ep-field">
                 <label class="ep-label" for="id_nova_senha">Nova senha</label>
                 <input
-                    type="password"
-                    id="id_nova_senha"
-                    name="nova_senha"
-                    class="ep-input"
-                    placeholder="Digite a nova senha">
+                        type="password"
+                        id="id_nova_senha"
+                        name="nova_senha"
+                        class="ep-input"
+                        placeholder="Digite a nova senha">
             </div>
 
             <div class="ep-field">
                 <label class="ep-label" for="id_confirmar_senha">Confirmar nova senha</label>
                 <input
-                    type="password"
-                    id="id_confirmar_senha"
-                    name="confirmar_senha"
-                    class="ep-input"
-                    placeholder="Repita a nova senha">
+                        type="password"
+                        id="id_confirmar_senha"
+                        name="confirmar_senha"
+                        class="ep-input"
+                        placeholder="Repita a nova senha">
             </div>
 
             <div class="ep-actions">
@@ -243,75 +359,116 @@
     </div>
 </div>
 
+<!-- ================= JS ================= -->
 <script>
-    const body = document.body;
-    const toggle = document.getElementById('themeToggle');
+    // ---------- Tema ----------
+    const toggle = document.getElementById("themeToggle");
+    const savedTheme = localStorage.getItem("theme") || "light";
+    if (savedTheme === "dark") document.body.classList.add("dark-mode");
 
-    // Carregar o tema salvo (se existir)
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-    }
-
-    // Clique na lua alterna o tema
     if (toggle) {
-        toggle.addEventListener('click', function () {
-            body.classList.toggle('dark-mode');
-
-            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
+        toggle.addEventListener("click", () => {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
         });
     }
 
-    // -------- Modal Editar Dados --------
-    const btnEditarDados    = document.getElementById('btnEditarDados');
-    const modalEditar       = document.getElementById('editProfileModal');
-    const btnCancelarEdicao = document.getElementById('btnCancelarEdicao');
+    // ---------- Helpers Modais ----------
+    function bindModal(btnId, modalId, closeIds) {
+        const btn = document.getElementById(btnId);
+        const modal = document.getElementById(modalId);
+        if (!btn || !modal) return;
 
-    if (btnEditarDados && modalEditar) {
-        btnEditarDados.addEventListener('click', function () {
-            modalEditar.style.display = 'flex';
+        btn.addEventListener("click", () => {
+            modal.style.display = "flex";
+        });
+
+        closeIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener("click", () => modal.style.display = "none");
+        });
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) modal.style.display = "none";
         });
     }
 
-    if (btnCancelarEdicao && modalEditar) {
-        btnCancelarEdicao.addEventListener('click', function () {
-            modalEditar.style.display = 'none';
-        });
-    }
+    bindModal("btnMinhasInscricoes", "myEnrollmentsModal", ["closeEnrollments", "closeEnrollmentsBottom"]);
+    bindModal("btnMeusCertificados", "myCertificatesModal", ["closeCertificates", "closeCertificatesBottom"]);
+    bindModal("btnEditarDados", "editProfileModal", ["btnCancelarEdicao"]);
+    bindModal("btnAlterarSenha", "changePasswordModal", ["btnCancelarSenha"]);
 
-    if (modalEditar) {
-        modalEditar.addEventListener('click', function (event) {
-            if (event.target === modalEditar) {
-                modalEditar.style.display = 'none';
+    document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+
+        ["myEnrollmentsModal", "myCertificatesModal", "editProfileModal", "changePasswordModal"].forEach(id => {
+            const m = document.getElementById(id);
+            if (m && m.style.display === "flex") m.style.display = "none";
+        });
+    });
+
+    // ---------- CSRF para fetch ----------
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-        });
+        }
+        return cookieValue;
     }
+    const csrftoken = getCookie('csrftoken');
 
-    // -------- Modal Alterar Senha --------
-    const btnAlterarSenha   = document.getElementById('btnAlterarSenha');
-    const modalSenha        = document.getElementById('changePasswordModal');
-    const btnCancelarSenha  = document.getElementById('btnCancelarSenha');
+    // ---------- Confirmar presença ----------
+    document.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".btn-confirmar-presenca");
+        if (!btn) return;
 
-    if (btnAlterarSenha && modalSenha) {
-        btnAlterarSenha.addEventListener('click', function () {
-            modalSenha.style.display = 'flex';
-        });
-    }
+        const inscricaoId = btn.getAttribute("data-inscricao-id");
+        if (!inscricaoId) return;
 
-    if (btnCancelarSenha && modalSenha) {
-        btnCancelarSenha.addEventListener('click', function () {
-            modalSenha.style.display = 'none';
-        });
-    }
+        btn.disabled = true;
+        btn.textContent = "Confirmando...";
 
-    if (modalSenha) {
-        modalSenha.addEventListener('click', function (event) {
-            if (event.target === modalSenha) {
-                modalSenha.style.display = 'none';
+        try {
+            const formData = new FormData();
+            formData.append("csrfmiddlewaretoken", csrftoken);
+            formData.append("form_type", "confirmar_presenca");
+            formData.append("inscricao_id", inscricaoId);
+
+            const resp = await fetch(window.location.href, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" },
+                body: formData
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok || !data.ok) {
+                throw new Error(data.error || "Falha ao confirmar presença.");
             }
-        });
-    }
+
+            // Atualiza UI
+            const pill = document.querySelector(`[data-presenca="${inscricaoId}"]`);
+            if (pill) pill.textContent = "Confirmada";
+
+            btn.classList.remove("btn-confirmar-presenca");
+            btn.classList.add("btn-action-disabled");
+            btn.textContent = "Confirmado";
+            btn.disabled = true;
+
+        } catch (err) {
+            btn.disabled = false;
+            btn.textContent = "Confirmar";
+            alert(err.message);
+        }
+    });
 </script>
+
 </body>
 </html>

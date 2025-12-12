@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Portal EnCUCA</title>
-
     <link rel="stylesheet" href="{% static 'main/style/dashboard.css'%}">
 </head>
 <body>
@@ -27,16 +26,6 @@
                         <span class="icon">📅</span>
                         <span>Eventos</span>
                     </a>
-
-                    <a href="{% url 'subscription_page' %}" class="menu-item">
-                        <span class="icon">📝</span>
-                        <span>Inscrições</span>
-                    </a>
-
-                    <a href="{% url 'user_profile' %}" class="menu-item">
-                        <span class="icon">👤</span>
-                        <span>Perfil</span>
-                    </a>
                 </nav>
             </div>
 
@@ -49,31 +38,94 @@
         <!-- MAIN -->
         <div class="main">
 
-            <!-- TOPBAR FINAL (SEM PESQUISA) -->
+            <!-- TOPBAR -->
             <header class="topbar">
-
                 <div class="topbar-left">
                     <h1>Início</h1>
                 </div>
 
                 <div class="topbar-right">
                     <div class="circle-icon" id="themeToggle">🌙</div>
-                    <div class="circle-icon">🔔</div>
-                    <div class="circle-icon">👤</div>
-                    <a href="{% url 'user_profile' %}" class="btn-perfil">Acessar Perfil</a>
-                </div>
 
+                    <div class="topbar-user" id="topbarUser">
+                        <button type="button" class="btn-perfil" id="btnPerfil">
+                            Perfil | {{ request.user.email }}
+                        </button>
+
+                        <div class="perfil-dropdown" id="perfilDropdown">
+                            <div class="perfil-dropdown-header">
+                                <div class="perfil-avatar">
+                                    {{ request.user.first_name|default:request.user.username|slice:":1" }}
+                                </div>
+                                <div class="perfil-info">
+                                    <span class="perfil-name">
+                                        {{ request.user.get_full_name|default:request.user.username }}
+                                    </span>
+                                    <span class="perfil-email">
+                                        {{ request.user.email }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="perfil-dropdown-footer">
+                                <a href="{% url 'user_profile' %}" class="perfil-link">
+                                    Ver meu perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <!-- CONTEÚDO -->
             <section class="content">
-                <div class="card-banner">
-                    Carrossel Principais Eventos
+
+                <!-- HERO -->
+                <div class="hero-card">
+                    <h2>Portal EnCUCA</h2>
+                    <p>
+                        Sistema institucional para gestão, participação e certificação
+                        de eventos acadêmicos do Centro Universitário de Brasília.
+                    </p>
                 </div>
 
-                <div class="card-desc">
-                    Descrição sobre o evento em destaque
+                <!-- ORIENTAÇÃO -->
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h3>Participação em Eventos</h3>
+                        <p>
+                            Consulte eventos acadêmicos disponíveis e acompanhe
+                            sua participação de forma centralizada.
+                        </p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Certificados</h3>
+                        <p>
+                            Após a conclusão dos eventos, seus certificados
+                            ficam disponíveis automaticamente no sistema.
+                        </p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>Perfis e Permissões</h3>
+                        <p>
+                            O sistema adapta as funcionalidades conforme
+                            o perfil do usuário: aluno, professor ou organizador.
+                        </p>
+                    </div>
                 </div>
+
+                <!-- AVISOS -->
+                <div class="notice-card">
+                    <h4>Avisos Institucionais</h4>
+                    <ul>
+                        <li>Os eventos seguem regras acadêmicas e institucionais.</li>
+                        <li>Certificados são emitidos somente após a confirmação de presença.</li>
+                        <li>Mantenha seus dados cadastrais sempre atualizados.</li>
+                    </ul>
+                </div>
+
             </section>
 
         </div>
@@ -81,19 +133,34 @@
 </div>
 
 <script>
-    const body = document.body;
-    const toggle = document.getElementById('themeToggle');
+const body = document.body;
+const toggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('theme') || 'light';
 
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
+if (savedTheme === 'dark') body.classList.add('dark-mode');
+
+toggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    localStorage.setItem(
+        'theme',
+        body.classList.contains('dark-mode') ? 'dark' : 'light'
+    );
+});
+
+const btnPerfil = document.getElementById("btnPerfil");
+const dropdown = document.getElementById("perfilDropdown");
+const topbarUser = document.getElementById("topbarUser");
+
+btnPerfil.addEventListener("click", e => {
+    e.stopPropagation();
+    dropdown.classList.toggle("is-open");
+});
+
+document.addEventListener("click", e => {
+    if (!topbarUser.contains(e.target)) {
+        dropdown.classList.remove("is-open");
     }
-
-    toggle.addEventListener('click', function () {
-        body.classList.toggle('dark-mode');
-        const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
-    });
+});
 </script>
 
 </body>

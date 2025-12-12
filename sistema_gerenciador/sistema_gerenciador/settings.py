@@ -156,7 +156,7 @@ REST_FRAMEWORK = {
 LOGIN_URL = 'login_page'
 LOGIN_REDIRECT_URL = 'dashboard_page'
 
-DEFAULT_FROM_EMAIL = 'naoresponder@sgea.com'
+DEFAULT_FROM_EMAIL = 'gabriel.lugli@sempreceub.com'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 

@@ -1,437 +1,270 @@
-/* reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", Arial, sans-serif;
-}
+/* ============================
+   PROFILE_ADMIN.CSS
+   Tela de administração de usuários
+   (reaproveita events_list.css)
+   ============================ */
 
-html, body {
-    height: 100%;
-}
+/* ----- Card principal de lista de usuários ----- */
 
-body {
-    background: #ffffff;
-}
-
-.page {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
-}
-
-.shell {
-    width: 100%;
-    background: #ffffff;
-    display: flex;
-    min-height: 100vh;
-}
-
-/* ========== SIDEBAR ========== */
-.sidebar {
-    width: 190px;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #7b1fa2, #4a148c);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.sidebar-logo {
-    padding: 30px 20px;
-    font-size: 34px;
-    font-weight: 800;
-}
-
-.sidebar-menu {
-    padding: 0 0 20px;
-}
-
-.menu-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 18px 20px;
-    cursor: pointer;
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.menu-item span.icon {
-    font-size: 20px;
-}
-
-.menu-item.active {
-    background: #ff0085;
-}
-
-.menu-item:not(.active):hover {
-    background: rgba(255,255,255,0.08);
-}
-
-.sidebar-footer {
-    padding: 20px;
-    border-top: 2px solid #ff0085;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    text-decoration: none;
-    color: #fff;
-}
-
-/* ========== MAIN ========== */
-.main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* topo */
-.topbar {
-    height: 60px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 25px;
-    font-size: 14px;
-}
-
-.topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.topbar-left h1 {
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.circle-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    border: 2px solid #7b1fa2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.btn-perfil {
-    border: none;
-    border-radius: 999px;
-    padding: 7px 16px;
-    font-size: 12px;
-    background: #ffc400;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 20px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid #ddd;
-    font-size: 13px;
-}
-
-.search-box input {
-    border: none;
-    outline: none;
-    font-size: 13px;
-}
-
-/* ========== CONTEÚDO PERFIL ADMIN ========== */
-.content-perfil {
-    flex: 1;
-    padding: 40px 35px 50px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
-}
-
-.profile-title-badge {
-    background: #ff0085;
-    color: #fff;
-    padding: 10px 40px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 16px;
-}
-
-.profile-card-admin {
-    width: 80%;
-    background: #5c1b8d;
-    border-radius: 12px;
-    padding: 26px 36px 32px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.profile-admin-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.profile-admin-header-left {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.profile-admin-title {
+.users-table-card .events-table-header h2 {
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
-.profile-admin-subtitle {
+.users-table-card .events-table-header p {
     font-size: 13px;
-    opacity: 0.9;
+    color: #6b7280;
 }
 
-.btn-novo-perfil {
-    border: none;
-    border-radius: 999px;
-    padding: 8px 20px;
-    font-size: 13px;
-    background: #ffc400;
-    cursor: pointer;
-    font-weight: 700;
-    color: #3b1553;
-    white-space: nowrap;
+/* Botão "+ Criar novo usuário" alinhado à direita */
+.users-actions-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
 }
 
-/* tabela de perfis */
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background: #fff;
-    color: #333;
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: 13px;
-}
+/* ----- Tabela de usuários ----- */
 
-.admin-table thead {
-    background: #f0f0f5;
-}
-
-.admin-table th,
-.admin-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #e0e0e0;
+.users-table .col-user-main {
     text-align: left;
 }
 
-.admin-table tr:last-child td {
-    border-bottom: none;
-}
-
-.profile-role-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 600;
-    background: #e0f7fa;
-    color: #006064;
-}
-
-.admin-actions {
+.user-main {
     display: flex;
-    gap: 6px;
-}
-
-.btn-outline,
-.btn-danger {
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    cursor: pointer;
-    background: transparent;
-    white-space: nowrap;
-}
-
-.btn-outline {
-    border: 1px solid #6a1b9a;
-    color: #6a1b9a;
-}
-
-.btn-danger {
-    border: 1px solid #c82333;
-    color: #c82333;
-}
-
-/* ========== MODAL ADMIN PERFIL ========== */
-.edit-profile-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: none;
     align-items: center;
-    justify-content: center;
-    z-index: 200;
-}
-
-.edit-profile-modal {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 24px 26px 20px;
-    width: 480px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.30);
-}
-
-.edit-profile-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: #3b1553;
-}
-
-.edit-profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.ep-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 13px;
-}
-
-.ep-label {
-    font-weight: 500;
-    color: #333;
-}
-
-.ep-input,
-.ep-select {
-    border-radius: 999px;
-    border: 1px solid #ccc;
-    padding: 7px 12px;
-    font-size: 13px;
-    outline: none;
-}
-
-.ep-input:focus,
-.ep-select:focus {
-    border-color: #7b1fa2;
-}
-
-.ep-actions {
-    margin-top: 16px;
-    display: flex;
-    justify-content: flex-end;
     gap: 10px;
 }
 
-.btn-cancelar {
-    border: none;
-    border-radius: 999px;
-    padding: 7px 16px;
-    font-size: 13px;
-    background: #e0e0e0;
-    cursor: pointer;
+.user-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.btn-salvar {
-    border: none;
-    border-radius: 999px;
-    padding: 7px 18px;
-    font-size: 13px;
-    background: #ffc400;
-    cursor: pointer;
+.user-name {
     font-weight: 600;
-    color: #3b1553;
 }
 
-/* ========== MODO ESCURO ========== */
-body.dark-mode {
-    background: #121212;
-    color: #f5f5f5;
+.user-email {
+    font-size: 12px;
+    color: #6b7280;
 }
 
-body.dark-mode .shell {
-    background: #181818;
+/* Tag de perfil */
+
+.tag-perfil {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
 }
 
-body.dark-mode .sidebar {
-    background: linear-gradient(180deg, #311b92, #000000);
+.perfil-AL {
+    background: rgba(102, 44, 146, 0.08);
+    color: #5b21b6;
 }
 
-body.dark-mode .topbar {
-    background: #181818;
-    border-bottom-color: #333;
+.perfil-PR {
+    background: rgba(188, 0, 135, 0.08);
+    color: #9d174d;
 }
 
-body.dark-mode .profile-card-admin {
-    background: #26215a;
+.perfil-ADM {
+    background: rgba(67, 5, 78, 0.09);
+    color: #4c1d95;
 }
 
-body.dark-mode .admin-table {
-    background: #262626;
-    color: #f5f5f5;
+/* Ações abaixo da tabela (editar / excluir) */
+
+.users-actions {
+    gap: 10px;
 }
 
-body.dark-mode .admin-table thead {
-    background: #333;
+/* ============================
+   MODAIS (criar / editar / excluir)
+   ============================ */
+
+/* Tamanho do card de modal de usuário */
+.user-modal-card {
+    max-width: 720px;
+    max-height: 88vh;
 }
 
-body.dark-mode .circle-icon {
-    border-color: #ffc400;
+/* Garante que o botão X fique no canto superior direito */
+.modal-card {
+    position: relative;
 }
 
-body.dark-mode .btn-perfil,
-body.dark-mode .btn-novo-perfil {
-    background: #ffb300;
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    border: none;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.15s, transform 0.1s;
 }
 
-body.dark-mode .profile-title-badge {
-    background: #d0006e;
+.modal-close:hover {
+    color: #4b5563;
+    transform: translateY(-1px);
 }
 
-body.dark-mode .edit-profile-modal {
-    background: #262626;
-    color: #f5f5f5;
+/* Grid do formulário no modal */
+
+.user-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 16px;
 }
 
-body.dark-mode .ep-label {
-    color: #f5f5f5;
+.user-form-grid .form-group-full {
+    grid-column: 1 / -1;
 }
 
-body.dark-mode .ep-input,
-body.dark-mode .ep-select {
-    background: #333;
-    border-color: #555;
-    color: #f5f5f5;
+.user-form label {
+    font-size: 13px;
+    color: #4b5563;
 }
 
-body.dark-mode .btn-cancelar {
-    background: #555;
-    color: #f5f5f5;
+.user-form .input-field {
+    width: 100%;
+}
+
+/* Campos desabilitados (ex.: E-mail login) */
+
+.user-form .input-field[disabled],
+.user-form select[disabled],
+.user-form textarea[disabled] {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* ============================
+   Detalhes (se vier a usar)
+   ============================ */
+
+.details-list {
+    margin: 0;
+    padding: 0;
+}
+
+.details-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 6px 12px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #e5e7eb;
+}
+
+.details-row:last-child {
+    border-bottom: none;
+}
+
+.details-row dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.details-row dd {
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+}
+
+/* Responsivo: detalhes em uma coluna */
+@media (max-width: 640px) {
+    .details-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================
+   BOTÕES (Editar / Excluir / Cancelar)
+   ============================ */
+
+/* Editar usuário (usa .btn-detalhes; só tratamos disabled) */
+#btn-editar-usuario:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Excluir usuário: pill "danger" */
+#btn-excluir-usuario,
+.users-actions .btn-delete-evento {
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 20px !important;
+    border-radius: 999px !important;
+    border: 1px solid #fecaca !important;
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease !important;
+}
+
+#btn-excluir-usuario:hover,
+.users-actions .btn-delete-evento:hover {
+    background: #fecaca !important;
+    border-color: #fca5a5 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 10px 22px rgba(185, 28, 28, 0.25) !important;
+}
+
+#btn-excluir-usuario:disabled,
+.users-actions .btn-delete-evento:disabled {
+    background: #e5e7eb !important;
+    border-color: #e5e7eb !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Botão "Cancelar" no modal (pill neutro) */
+.btn-cancelar-modal {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease;
+}
+
+.btn-cancelar-modal:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(148, 163, 184, 0.35);
 }

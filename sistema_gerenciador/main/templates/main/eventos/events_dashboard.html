@@ -11,7 +11,7 @@
 <div class="page">
     <div class="shell">
 
-        <!-- MENU LATERAL -->
+        <!-- SIDEBAR (SEM PERFIL) -->
         <aside class="sidebar">
             <div>
                 <div class="sidebar-logo">CEUB</div>
@@ -26,16 +26,6 @@
                         <span class="icon">📅</span>
                         <span>Eventos</span>
                     </a>
-
-                    <a href="{% url 'subscription_page' %}" class="menu-item">
-                        <span class="icon">📝</span>
-                        <span>Inscrições</span>
-                    </a>
-
-                    <a href="{% url 'user_profile' %}" class="menu-item">
-                        <span class="icon">👤</span>
-                        <span>Perfil</span>
-                    </a>
                 </nav>
             </div>
 
@@ -49,19 +39,20 @@
         <main class="main">
             <header class="topbar">
                 <div class="topbar-left">
-                    <h1>Eventos</h1>
+                    <h1>Eventos disponíveis</h1>
+                </div>
 
+                <div class="topbar-center">
                     <div class="search-box">
                         🔍
-                        <input type="text" placeholder="Buscar evento, data ou local">
+                        <input id="eventsSearch" type="text" placeholder="Buscar por título, professor ou local">
                     </div>
                 </div>
 
                 <div class="topbar-right">
-                    <div class="circle-icon" id="themeToggle">🌙</div>
-                    <div class="circle-icon">🔔</div>
-                    <div class="circle-icon">👤</div>
-                    <button class="btn-perfil" id="btnPerfil">
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">🌙</div>
+
+                    <button class="btn-perfil" id="btnPerfil" type="button">
                         Perfil | {{ user.first_name|default:user.username }}
                     </button>
 
@@ -84,19 +75,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="user-dropdown-footer">
+                            <a class="user-profile-link" href="{% url 'user_profile' %}">Ver meu perfil</a>
+                        </div>
                     </div>
                 </div>
             </header>
 
             <section class="content-events">
 
-                <!-- HERO / INTRODUÇÃO UX -->
+                <!-- HERO / CARROSSEL -->
                 <div class="events-hero">
-
-                    <!-- seta esquerda -->
                     <button class="carousel-arrow arrow-left" id="arrowPrev">&#10094;</button>
 
-                    <!-- CARROSSEL -->
                     <div class="events-hero-carousel">
                         {% if eventos_destaque %}
                             {% for evento in eventos_destaque %}
@@ -107,9 +99,7 @@
                                                  alt="Banner do evento {{ evento.titulo }}"
                                                  class="carousel-banner-img">
                                         {% else %}
-                                            <div class="carousel-banner-placeholder">
-                                                📅
-                                            </div>
+                                            <div class="carousel-banner-placeholder">📅</div>
                                         {% endif %}
                                     </div>
 
@@ -118,34 +108,23 @@
 
                                         <p class="carousel-meta">
                                             {{ evento.data_inicio|date:"d/m/Y" }}
-                                            •
-                                            {{ evento.localizacao }}
+                                            {% if evento.localizacao %} • {{ evento.localizacao }}{% endif %}
                                         </p>
 
                                         <p class="carousel-description">
                                             {{ evento.descricao }}
                                         </p>
-
-                                        <a href="{% url 'events_list' %}" class="btn-hero">
-                                            Ver eventos
-                                        </a>
                                     </div>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <!-- fallback -->
                             <div class="carousel-item active">
-                                <div class="carousel-banner-placeholder">
-                                    📅
-                                </div>
+                                <div class="carousel-banner-placeholder">📅</div>
                                 <div class="carousel-info">
                                     <h2 class="carousel-title">Central de Eventos</h2>
                                     <p class="carousel-description">
-                                        Ainda não há eventos ativos cadastrados. Volte mais tarde ou clique abaixo para conferir a lista completa.
+                                        Ainda não há eventos ativos cadastrados. Volte mais tarde.
                                     </p>
-                                    <a href="{% url 'events_list' %}" class="btn-hero">
-                                        Ver eventos
-                                    </a>
                                 </div>
                             </div>
                         {% endif %}
@@ -160,98 +139,237 @@
                         {% endif %}
                     </div>
 
-                    <!-- seta direita -->
                     <button class="carousel-arrow arrow-right" id="arrowNext">&#10095;</button>
-
                 </div>
 
-                <!-- CARDS RESUMO -->
-                <div class="events-bottom">
-                    <div class="events-actions">
-                        <div class="event-card">
-                            <div class="event-card-left">
-                                <div class="event-icon">📅</div>
-                                <div>
-                                    <span class="event-card-title">Explorar eventos</span>
-                                    <span class="event-card-subtitle">
-                                        Acesse a página com todos os eventos disponíveis para inscrição.
-                                    </span>
-                                </div>
+                <!-- LISTA DE EVENTOS -->
+                <section class="events-list-section">
+                    <div class="events-list-card">
+                        <div class="events-list-header">
+                            <div>
+                                <h2 class="events-list-title">Lista de eventos</h2>
+                                <p class="events-list-subtitle">
+                                    Selecione um evento para visualizar os detalhes e gerenciar ações.
+                                </p>
                             </div>
-                            <a href="{% url 'events_list' %}" class="btn-yellow">
-                                Ver eventos
-                            </a>
+
+                            <div class="events-list-meta">
+                                <span id="eventsCount">
+                                    {% if eventos %}{{ eventos|length }}{% else %}0{% endif %}
+                                    evento(s) encontrados
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="events-table-wrapper">
+                            <table class="events-table" id="eventsTable">
+                                <thead>
+                                <tr>
+                                    <th class="th-left">Título</th>
+                                    <th>Início de dados</th>
+                                    <th>Dados finais</th>
+                                    <th>Vagas</th>
+                                    <th>Professor responsável</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for evento in eventos %}
+                                    <tr class="event-row"
+                                        tabindex="0"
+                                        data-id="{{ evento.id }}"
+                                        data-titulo="{{ evento.titulo|default:''|escape }}"
+                                        data-descricao="{{ evento.descricao|default:''|escape }}"
+                                        data-inicio="{{ evento.data_inicio|date:'d/m/Y' }}"
+                                        data-fim="{{ evento.data_fim|date:'d/m/Y' }}"
+                                        data-local="{{ evento.localizacao|default:''|escape }}"
+                                        data-vagas="{{ evento.quantidade_vagas }}"
+                                        data-organizador="{% if evento.organizador %}{{ evento.organizador.nome_completo|escape }}{% else %}{% endif %}"
+                                        data-organizador-search="{% if evento.organizador %}{{ evento.organizador.nome_completo|lower|escape }}{% else %}{% endif %}"
+                                    >
+                                        <td class="td-left event-title">{{ evento.titulo }}</td>
+                                        <td>{{ evento.data_inicio|date:"d/m/Y" }}</td>
+                                        <td>{{ evento.data_fim|date:"d/m/Y" }}</td>
+                                        <td>{{ evento.quantidade_vagas }}</td>
+                                        <td>
+                                            {% if evento.organizador %}
+                                                {{ evento.organizador.nome_completo }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="events-empty">Nenhum evento disponível no momento.</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- BOTÕES (SÓ APARECEM APÓS SELECIONAR) -->
+                        <div class="events-actions" id="eventsActions" style="display:none;">
+                            <button class="btn-primary" id="btnOpenDetails" type="button" disabled>
+                                Ver detalhes do evento selecionado
+                            </button>
+
+                            <button class="btn-outline" id="btnOpenEnroll" type="button" disabled>
+                                Inscrever no evento selecionado
+                            </button>
                         </div>
                     </div>
-                </div>
+                </section>
 
             </section>
         </main>
+    </div>
+</div>
 
+<!-- MODAL: DETALHES -->
+<div class="modal-overlay" id="modalDetails" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalDetailsTitle">
+        <div class="modal-header">
+            <h2 id="modalDetailsTitle">Detalhes do evento</h2>
+            <button class="modal-close" type="button" data-close="modalDetails" aria-label="Fechar">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="modal-grid">
+                <div class="form-group">
+                    <label>Título</label>
+                    <div class="input-like" id="dTitulo">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Professor responsável</label>
+                    <div class="input-like" id="dProfessor">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Início de dados</label>
+                    <div class="input-like" id="dInicio">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Dados finais</label>
+                    <div class="input-like" id="dFim">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Local</label>
+                    <div class="input-like" id="dLocal">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Vagas</label>
+                    <div class="input-like" id="dVagas">—</div>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label>Descrição</label>
+                    <div class="input-like" id="dDescricao">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-muted" type="button" data-close="modalDetails">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: INSCRIÇÃO -->
+<div class="modal-overlay" id="modalEnroll" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalEnrollTitle">
+        <div class="modal-header">
+            <h2 id="modalEnrollTitle">Inscrever no evento</h2>
+            <button class="modal-close" type="button" data-close="modalEnroll" aria-label="Fechar">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <p class="modal-help">Confirme a inscrição no evento abaixo:</p>
+
+            <div class="modal-grid">
+                <div class="form-group form-group-full">
+                    <label>Evento</label>
+                    <div class="input-like" id="eTitulo">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Início</label>
+                    <div class="input-like" id="eInicio">—</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Fim</label>
+                    <div class="input-like" id="eFim">—</div>
+                </div>
+            </div>
+
+            <!-- coloque sua rota POST de inscrição se existir -->
+            <form method="post" id="enrollForm" action="">
+                {% csrf_token %}
+                <input type="hidden" name="evento_id" id="eventoIdInput" value="">
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-muted" type="button" data-close="modalEnroll">Cancelar</button>
+            <button class="btn-primary" type="submit" form="enrollForm">Confirmar inscrição</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // ===== TEMA =====
     const body = document.body;
     const toggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') body.classList.add('dark-mode');
 
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
+    }
+
+    // ===== DROPDOWN PERFIL =====
     const btnPerfil = document.getElementById('btnPerfil');
     const dropdown = document.getElementById('userDropdown');
 
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-    }
-
-    if (toggle) {
-        toggle.addEventListener('click', function () {
-            body.classList.toggle('dark-mode');
-            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
-        });
-    }
-
     if (btnPerfil && dropdown) {
-        btnPerfil.addEventListener('click', function (event) {
-            event.stopPropagation();
+        btnPerfil.addEventListener('click', (e) => {
+            e.stopPropagation();
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         });
 
-        document.addEventListener('click', function (event) {
+        document.addEventListener('click', (e) => {
             if (dropdown.style.display === 'block' &&
-                !dropdown.contains(event.target) &&
-                !btnPerfil.contains(event.target)) {
+                !dropdown.contains(e.target) &&
+                !btnPerfil.contains(e.target)) {
                 dropdown.style.display = 'none';
             }
         });
     }
 
-    // LÓGICA DO CARROSSEL
+    // ===== CARROSSEL =====
     document.addEventListener("DOMContentLoaded", function () {
         const items = document.querySelectorAll(".carousel-item");
         const dots = document.querySelectorAll(".carousel-dot");
         const arrowPrev = document.getElementById("arrowPrev");
         const arrowNext = document.getElementById("arrowNext");
-
         let currentIndex = 0;
 
         function showSlide(index) {
             if (!items.length) return;
-
-            items.forEach((item, i) => {
-                item.classList.toggle("active", i === index);
-            });
-
-            dots.forEach((dot, i) => {
-                dot.classList.toggle("active", i === index);
-            });
-
+            items.forEach((item, i) => item.classList.toggle("active", i === index));
+            dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
             currentIndex = index;
         }
 
-        dots.forEach((dot, index) => {
-            dot.addEventListener("click", () => showSlide(index));
-        });
+        dots.forEach((dot, index) => dot.addEventListener("click", () => showSlide(index)));
 
         if (arrowPrev) {
             arrowPrev.addEventListener("click", () => {
@@ -266,6 +384,141 @@
                 let newIndex = (currentIndex + 1) % items.length;
                 showSlide(newIndex);
             });
+        }
+    });
+
+    // ===== SEARCH =====
+    (function () {
+        const input = document.getElementById("eventsSearch");
+        const rows = document.querySelectorAll(".event-row");
+        const countEl = document.getElementById("eventsCount");
+        if (!input || !rows || !countEl) return;
+
+        function applyFilter() {
+            const termo = (input.value || "").trim().toLowerCase();
+            let visible = 0;
+
+            rows.forEach((row) => {
+                const titulo = (row.getAttribute("data-titulo") || "").toLowerCase();
+                const local = (row.getAttribute("data-local") || "").toLowerCase();
+                const organizador = (row.getAttribute("data-organizador-search") || "").toLowerCase();
+
+                const match = !termo || titulo.includes(termo) || local.includes(termo) || organizador.includes(termo);
+
+                row.style.display = match ? "" : "none";
+                if (match) visible++;
+            });
+
+            countEl.textContent = `${visible} evento(s) encontrados`;
+        }
+
+        input.addEventListener("input", applyFilter);
+        applyFilter();
+    })();
+
+    // ===== SELEÇÃO + MODAIS (SEM REDIRECIONAR) =====
+    (function () {
+        const rows = Array.from(document.querySelectorAll(".event-row"));
+        const actions = document.getElementById("eventsActions");
+        const btnDetails = document.getElementById("btnOpenDetails");
+        const btnEnroll = document.getElementById("btnOpenEnroll");
+
+        let selectedRow = null;
+
+        function setSelected(row) {
+            rows.forEach(r => r.classList.remove("selected"));
+            selectedRow = row;
+            row.classList.add("selected");
+
+            actions.style.display = "flex";
+            btnDetails.disabled = false;
+            btnEnroll.disabled = false;
+        }
+
+        rows.forEach(row => {
+            row.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSelected(row);
+            });
+
+            row.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelected(row);
+                }
+            });
+        });
+
+        function fillDetails() {
+            if (!selectedRow) return;
+            document.getElementById("dTitulo").textContent = selectedRow.dataset.titulo || "—";
+            // ✅ CORREÇÃO: pega do data-organizador
+            document.getElementById("dProfessor").textContent = selectedRow.dataset.organizador || "—";
+            document.getElementById("dInicio").textContent = selectedRow.dataset.inicio || "—";
+            document.getElementById("dFim").textContent = selectedRow.dataset.fim || "—";
+            document.getElementById("dLocal").textContent = selectedRow.dataset.local || "—";
+            document.getElementById("dVagas").textContent = selectedRow.dataset.vagas || "—";
+            document.getElementById("dDescricao").textContent = selectedRow.dataset.descricao || "—";
+        }
+
+        function fillEnroll() {
+            if (!selectedRow) return;
+            document.getElementById("eTitulo").textContent = selectedRow.dataset.titulo || "—";
+            document.getElementById("eInicio").textContent = selectedRow.dataset.inicio || "—";
+            document.getElementById("eFim").textContent = selectedRow.dataset.fim || "—";
+            document.getElementById("eventoIdInput").value = selectedRow.dataset.id || "";
+        }
+
+        if (btnDetails) {
+            btnDetails.addEventListener("click", (e) => {
+                e.preventDefault();
+                fillDetails();
+                openModal("modalDetails");
+            });
+        }
+
+        if (btnEnroll) {
+            btnEnroll.addEventListener("click", (e) => {
+                e.preventDefault();
+                fillEnroll();
+                openModal("modalEnroll");
+            });
+        }
+    })();
+
+    // ===== MODAL HELPERS =====
+    function openModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add("open");
+        el.setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove("open");
+        el.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll("[data-close]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeModal(btn.getAttribute("data-close"));
+        });
+    });
+
+    document.querySelectorAll(".modal-overlay").forEach(ov => {
+        ov.addEventListener("click", (e) => {
+            if (e.target === ov) closeModal(ov.id);
+        });
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeModal("modalDetails");
+            closeModal("modalEnroll");
         }
     });
 </script>

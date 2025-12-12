@@ -1,0 +1,333 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscrições – Portal EnCUCA</title>
+
+    <!-- Reusa o MESMO CSS da lista de eventos -->
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <!-- CONTEÚDO PRINCIPAL (sem sidebar) -->
+        <main class="main">
+
+            <!-- TOPBAR COM SETA DE VOLTAR -->
+            <header class="topbar">
+                <!-- Esquerda: voltar + título -->
+                <div class="topbar-left">
+                    <a href="{% url 'admin_dashboard' %}"
+                       class="btn-back"
+                       aria-label="Voltar para o painel">
+                        <span class="back-arrow">&larr;</span>
+                    </a>
+
+                    <h1>Inscrições</h1>
+                </div>
+
+                <!-- Centro: search -->
+                <div class="topbar-center">
+                    <div class="search-box">
+                        <span class="search-icon"></span>
+                        <input type="text"
+                               id="searchInscricoes"
+                               placeholder="Buscar por evento, participante ou e-mail">
+                    </div>
+                </div>
+
+                <!-- Direita: tema + perfil -->
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">
+                        <span class="ci ci-theme"></span>
+                    </div>
+
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        ...
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO: TABELA DE INSCRIÇÕES -->
+            <section class="content-events-list">
+                <div class="events-table-card">
+                    <div class="events-table-header">
+                        <div>
+                            <h2>Lista de inscrições</h2>
+                            <p>Selecione uma inscrição para visualizar os dados e gerenciar as ações.</p>
+                        </div>
+                        <div class="events-summary">
+                            {{ inscricoes|length }} inscrição(ões) encontrada(s)
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="events-table" id="inscricoesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Evento</th>
+                                    <th>Participante</th>
+                                    <th>Usuário</th>   <!-- alterado -->
+                                    <th>Data da inscrição</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if inscricoes %}
+                                    {% for inscricao in inscricoes %}
+                                        <tr class="event-row"
+                                            data-id="{{ inscricao.id }}"
+                                            data-evento-id="{{ inscricao.evento.id }}"
+                                            data-evento-nome="{{ inscricao.evento.titulo }}"
+                                            data-usuario-nome="{{ inscricao.usuario.nome_completo }}"
+                                        >
+                                            <td>#{{ inscricao.id }}</td>
+                                            <!-- removi class="col-titulo" para centralizar -->
+                                            <td>{{ inscricao.evento.titulo }}</td>
+                                            <td>{{ inscricao.usuario.nome_completo }}</td>
+                                            <td>{{ inscricao.usuario.user.username }}</td>  <!-- aqui entra o username -->
+                                            <td>{{ inscricao.data_inscricao|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="events-table-empty">
+                                            Ainda não há inscrições cadastradas.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <!-- AÇÕES: aparecem somente quando há inscrição selecionada -->
+                    <div class="events-actions" id="actionsContainer" style="display: none;">
+                        <button id="btnEditarInscricao" class="btn-detalhes">
+                            Atualizar inscrição selecionada
+                        </button>
+                        <button id="btnExcluirInscricao" class="btn-detalhes btn-delete-evento">
+                            Excluir inscrição selecionada
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- MODAL UPDATE -->
+<div class="modal-overlay" id="modalUpdate">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Atualizar inscrição</h2>
+            <button type="button" class="modal-close" data-close-modal="modalUpdate">&times;</button>
+        </div>
+
+        <form method="post" class="event-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="inscricao_id" id="updateInscricaoId">
+
+            <div class="modal-body event-form-grid">
+                <div class="form-group form-group-full">
+                    <label for="{{ form_update.evento.id_for_label }}">
+                        Evento<span class="required-asterisk">*</span>
+                    </label>
+                    {{ form_update.evento }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-detalhes btn-cancelar-modal"
+                        data-close-modal="modalUpdate">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-detalhes">
+                    Salvar alterações
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL DELETE -->
+<div class="modal-overlay" id="modalDelete">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Excluir inscrição</h2>
+            <button type="button" class="modal-close" data-close-modal="modalDelete">&times;</button>
+        </div>
+
+        <form method="post" class="event-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="inscricao_id" id="deleteInscricaoId">
+
+            <div class="modal-body">
+                <p class="delete-text">
+                    Tem certeza de que deseja excluir esta inscrição?
+                </p>
+                <p class="delete-highlight" id="deleteInfo"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn-detalhes btn-cancelar-modal"
+                        data-close-modal="modalDelete">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-detalhes btn-delete-evento">
+                    Excluir
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ===== Tema (mesmo código da tela de eventos) =====
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // ===== Dropdown perfil =====
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (dropdown.style.display === 'block' &&
+                !dropdown.contains(e.target) &&
+                !btnPerfil.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    // ===== Seleção de linha =====
+    const rows = document.querySelectorAll('.event-row');
+    const actionsContainer = document.getElementById('actionsContainer');
+    const btnEditar = document.getElementById('btnEditarInscricao');
+    const btnExcluir = document.getElementById('btnExcluirInscricao');
+    let selectedRow = null;
+
+    rows.forEach(row => {
+        row.addEventListener('click', () => {
+            if (selectedRow) {
+                selectedRow.classList.remove('selected');
+            }
+            selectedRow = row;
+            row.classList.add('selected');
+            actionsContainer.style.display = 'flex';
+        });
+    });
+
+    // ===== Filtro de busca =====
+    const searchInput = document.getElementById('searchInscricoes');
+    if (searchInput && rows.length) {
+        searchInput.addEventListener('input', () => {
+            const termo = searchInput.value.toLowerCase();
+            rows.forEach(row => {
+                const evento   = row.querySelector('.col-titulo')?.textContent.toLowerCase() || '';
+                const aluno    = row.cells[2]?.textContent.toLowerCase() || '';
+                const email    = row.cells[3]?.textContent.toLowerCase() || '';
+                const texto    = `${evento} ${aluno} ${email}`;
+
+                row.style.display = texto.includes(termo) ? '' : 'none';
+            });
+        });
+    }
+
+    // ===== Abrir modais =====
+    const modalUpdate = document.getElementById('modalUpdate');
+    const modalDelete = document.getElementById('modalDelete');
+    const updateInscricaoId = document.getElementById('updateInscricaoId');
+    const deleteInscricaoId = document.getElementById('deleteInscricaoId');
+    const deleteInfo = document.getElementById('deleteInfo');
+
+    function openModal(modal) {
+        if (!modal) return;
+        modal.classList.add('is-open');
+    }
+
+    function closeModal(modal) {
+        if (!modal) return;
+        modal.classList.remove('is-open');
+    }
+
+    if (btnEditar) {
+        btnEditar.addEventListener('click', () => {
+            if (!selectedRow) return;
+
+            const id       = selectedRow.dataset.id;
+            const eventoId = selectedRow.dataset.eventoId;
+
+            updateInscricaoId.value = id;
+
+            const selectEvento = document.querySelector('.event-form select[name="evento"]');
+            if (selectEvento && eventoId) {
+                selectEvento.value = eventoId;
+            }
+
+            openModal(modalUpdate);
+        });
+    }
+
+    if (btnExcluir) {
+        btnExcluir.addEventListener('click', () => {
+            if (!selectedRow) return;
+
+            const id          = selectedRow.dataset.id;
+            const eventoNome  = selectedRow.dataset.eventoNome;
+            const usuarioNome = selectedRow.dataset.usuarioNome;
+
+            deleteInscricaoId.value = id;
+            deleteInfo.textContent = `#${id} — ${eventoNome} — ${usuarioNome}`;
+
+            openModal(modalDelete);
+        });
+    }
+
+    // ===== Fechar modais (botão X, cancelar, clique fora) =====
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-close-modal');
+            closeModal(document.getElementById(targetId));
+        });
+    });
+
+    [modalUpdate, modalDelete].forEach(modal => {
+        if (!modal) return;
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+</script>
+</body>
+</html>

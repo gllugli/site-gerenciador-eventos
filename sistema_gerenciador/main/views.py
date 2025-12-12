@@ -3,7 +3,7 @@ from django.templatetags.static import static
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib.auth import update_session_auth_hash, password_validation
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.core import signing
@@ -12,11 +12,19 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError  # se quiser capturar erro genérico do token
 from django.http import HttpResponseForbidden
+from django.http import Http404
 
-from main.models import Evento, Inscricao, Usuario, Certificado
+from django.http import JsonResponse, HttpResponse
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+from main.utils.logs import log_evento
+from datetime import date
+
+from main.models import Evento, Inscricao, Usuario, Certificado, Log
+from .decorators import admin_required, is_admin
 from main.forms.forms_usuario import RegistroCompletoForm
 from main.forms.forms_evento import EventoForm
-
 
 #  Landing Page
 def landingPage(request):
@@ -53,10 +61,16 @@ def loginPage(request):
 
         print("DEBUG LOGIN: vai logar")
         login(request, user)
-        return redirect("dashboard_page")
+
+        # >>> redirecionamento condicional <<<
+        if is_admin(user):
+            print("DEBUG LOGIN: usuário é admin, indo para admin_dashboard")
+            return redirect("admin_dashboard")   # use o name da URL do painel admin
+        else:
+            print("DEBUG LOGIN: usuário NÃO é admin, indo para dashboard_page")
+            return redirect("dashboard_page")    # dashboard normal
 
     return render(request, "main/login.html")
-
 
 
 
@@ -176,25 +190,58 @@ def dashboardPage(request):
 
 
 # VIEW DO PROFILE
+# views.py (trecho completo da user_profile com confirmar presença)
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash, password_validation
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+
+from .models import Usuario, Inscricao, Certificado  # ajuste se Inscricao/Certificado estiverem em outro app
+
+
 def user_profile(request):
-    """
-    Exibe e atualiza o perfil do usuário logado.
-    - GET: mostra os dados
-    - POST (form_type=editar_dados): atualiza dados pessoais
-    - POST (form_type=alterar_senha): altera a senha do usuário
-    """
     user = request.user
 
-    # garante que sempre exista um perfil vinculado
     perfil, created = Usuario.objects.get_or_create(
         user=user,
-        defaults={
-            "nome_perfil": user.get_full_name() or user.username,
-        }
+        defaults={"nome_perfil": user.get_full_name() or user.username}
+    )
+
+    inscricoes = (
+        Inscricao.objects
+        .filter(usuario=perfil)
+        .select_related("evento")
+        .order_by("-data_inscricao")
+    )
+
+    certificados = (
+        Certificado.objects
+        .filter(inscricao__usuario=perfil)
+        .select_related("inscricao", "inscricao__evento")
+        .order_by("-data_emissao")
     )
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
+
+        # -------- CONFIRMAR PRESENÇA (AJAX) --------
+        if form_type == "confirmar_presenca":
+            inscricao_id = request.POST.get("inscricao_id")
+
+            if not inscricao_id:
+                return JsonResponse({"ok": False, "error": "inscricao_id ausente."}, status=400)
+
+            try:
+                inscricao = Inscricao.objects.get(id=inscricao_id, usuario=perfil)
+            except Inscricao.DoesNotExist:
+                return JsonResponse({"ok": False, "error": "Inscrição não encontrada."}, status=404)
+
+            if inscricao.presenca_confirmada:
+                return JsonResponse({"ok": True, "already": True})
+
+            inscricao.presenca_confirmada = True
+            inscricao.save(update_fields=["presenca_confirmada"])
+            return JsonResponse({"ok": True})
 
         # -------- EDITAR DADOS PESSOAIS --------
         if form_type == "editar_dados":
@@ -202,7 +249,6 @@ def user_profile(request):
             telefone = request.POST.get("telefone", "").strip()
             instituicao = request.POST.get("instituicao", "").strip()
 
-            # validações básicas (ajuste conforme sua regra)
             if not nome_perfil:
                 messages.error(request, "O campo Nome Perfil é obrigatório.")
             else:
@@ -219,7 +265,6 @@ def user_profile(request):
             nova_senha = request.POST.get("nova_senha", "")
             confirmar_senha = request.POST.get("confirmar_senha", "")
 
-            # verifica senha atual
             if not user.check_password(senha_atual):
                 messages.error(request, "A senha atual informada está incorreta.")
             elif not nova_senha:
@@ -227,17 +272,14 @@ def user_profile(request):
             elif nova_senha != confirmar_senha:
                 messages.error(request, "A confirmação da senha não confere.")
             else:
-                # valida nova senha pelos validadores do Django
                 try:
                     password_validation.validate_password(nova_senha, user=user)
                 except Exception as e:
-                    # e é uma lista de erros; mostramos todos
                     for erro in e:
                         messages.error(request, erro)
                 else:
                     user.set_password(nova_senha)
                     user.save()
-                    # mantém o usuário logado após alterar a senha
                     update_session_auth_hash(request, user)
                     messages.success(request, "Senha alterada com sucesso.")
                     return redirect("user_profile")
@@ -245,7 +287,10 @@ def user_profile(request):
     context = {
         "user": user,
         "perfil": perfil,
+        "inscricoes": inscricoes,
+        "certificados": certificados,
     }
+
     return render(request, "main/profile/profile.html", context)
 
 
@@ -256,37 +301,272 @@ def subscription_page(request):
     """
     Lista as inscrições do usuário logado.
     """
-    user = request.user
+    perfil = getattr(request.user, "perfil", None)
 
-    # supondo que Inscricao tenha FK para User ou para Usuario
-    # Exemplo 1: FK direto para User: Inscricao.user
-    # inscricoes = Inscricao.objects.filter(user=user).select_related("evento")
-
-    # Exemplo 2: FK para Usuario (perfil): Inscricao.usuario
-    # e Usuario tem OneToOne com User (related_name="perfil")
-    try:
-        perfil = user.perfil
-        inscricoes = Inscricao.objects.filter(usuario=perfil).select_related("evento")
-    except Exception:
-        inscricoes = Inscricao.objects.none()
+    inscricoes = (
+        Inscricao.objects
+        .filter(usuario=perfil)
+        .select_related("evento")
+        .order_by("-data_inscricao")
+    ) if perfil else Inscricao.objects.none()
 
     context = {
-        "user": user,
+        "user": request.user,
         "inscricoes": inscricoes,
     }
     return render(request, "main/subscriptions.html", context)
 
+@login_required
+def confirmar_presenca(request, inscricao_id):
+    if request.method != "POST":
+        raise Http404
+
+    usuario = request.user.perfil
+
+    inscricao = get_object_or_404(Inscricao, pk=inscricao_id, usuario=usuario)
+
+    if not inscricao.presenca_confirmada:
+        inscricao.presenca_confirmada = True
+        inscricao.save(update_fields=["presenca_confirmada"])
+
+    url = reverse("minhas_inscricoes") + "?popup=presenca_confirmada"
+    return redirect(url)
+
+
+@login_required
+def inscrever_evento(request, evento_id):
+    if request.method != "POST":
+        return redirect("eventos_list")  # ajuste para sua url
+
+    evento = get_object_or_404(Evento, pk=evento_id)
+    usuario = request.user.perfil
+
+    # Regras do seu model
+    if not evento.pode_inscrever(usuario):
+        url = reverse("eventos_list") + "?popup=inscricao_negada"
+        return redirect(url)
+
+    Inscricao.objects.get_or_create(evento=evento, usuario=usuario)
+
+    # Pop-up pedindo confirmação no perfil
+    url = reverse("eventos_list") + "?popup=confirmar_no_perfil"
+    return redirect(url)
+
 #  CERTIFICADO
 
+@login_required
 def certificado_detalhe(request, codigo_certificado):
-    certificado = get_object_or_404(
-        Certificado,
-        codigo_certificado=codigo_certificado
+    """
+    Exibe um certificado pelo UUID (codigo_certificado).
+
+    Regras:
+    - Admin (superuser ou perfil ADM) pode ver qualquer certificado.
+    - Usuário comum só pode ver certificado da própria inscrição.
+    - Certificado é gerado automaticamente se o evento já tiver terminado.
+    """
+
+    qs = Certificado.objects.select_related(
+        "inscricao__usuario",
+        "inscricao__evento"
     )
-    context = {
-        "certificado": certificado,
-    }
-    return render(request, "main/certificado_detalhe.html", context)
+
+    # --------------------------------------------------
+    # Verifica se é admin
+    # --------------------------------------------------
+    is_admin = False
+    if request.user.is_superuser:
+        is_admin = True
+    else:
+        perfil = getattr(request.user, "perfil", None)
+        if perfil and getattr(perfil, "tipo", None) == "ADM":
+            is_admin = True
+
+    # --------------------------------------------------
+    # Busca certificado (ou inscrição relacionada)
+    # --------------------------------------------------
+    if is_admin:
+        certificado = get_object_or_404(
+            qs,
+            codigo_certificado=codigo_certificado
+        )
+        inscricao = certificado.inscricao
+    else:
+        perfil = getattr(request.user, "perfil", None)
+        if not perfil:
+            raise Http404
+
+        certificado = get_object_or_404(
+            qs,
+            codigo_certificado=codigo_certificado,
+            inscricao__usuario=perfil,
+        )
+        inscricao = certificado.inscricao
+
+    evento = inscricao.evento
+
+    # --------------------------------------------------
+    # Regra: evento precisa ter terminado
+    # --------------------------------------------------
+    if evento.data_fim > date.today():
+        raise Http404  # ainda não pode emitir certificado
+
+    # --------------------------------------------------
+    # Geração automática (caso não exista)
+    # --------------------------------------------------
+    if not hasattr(inscricao, "certificado"):
+        certificado = Certificado.objects.create(inscricao=inscricao)
+
+        log_evento(
+            usuario=request.user,
+            acao="CERTIFICATE_GENERATED",
+            evento=evento,
+            detalhes=f"Certificado gerado automaticamente (UUID: {certificado.codigo_certificado})",
+        )
+
+    # --------------------------------------------------
+    # Log de consulta
+    # --------------------------------------------------
+    log_evento(
+        usuario=request.user,
+        acao="CERTIFICATE_VIEWED",
+        evento=evento,
+        detalhes=f"Certificado visualizado (UUID: {certificado.codigo_certificado})",
+    )
+
+    return render(
+        request,
+        "main/certificado_detalhe.html",
+        {"certificado": certificado},
+    )
+
+
+@login_required
+def meus_certificados(request):
+    """
+    Retorna os certificados do usuário logado em JSON.
+    Usado pelo modal no perfil.
+    """
+    perfil = getattr(request.user, "perfil", None)
+    if not perfil:
+        return JsonResponse([], safe=False)
+
+    certificados = (
+        Certificado.objects
+        .filter(inscricao__usuario=perfil)
+        .select_related("inscricao__evento")
+        .order_by("-data_emissao")
+    )
+
+    data = []
+    for cert in certificados:
+        data.append({
+            "codigo": str(cert.codigo_certificado),
+            "evento": cert.inscricao.evento.titulo,
+            "data_emissao": cert.data_emissao.strftime("%Y-%m-%d"),
+        })
+
+    return JsonResponse(data, safe=False)
+
+
+
+@login_required
+def certificado_pdf(request, codigo_certificado):
+    """
+    Gera e retorna o PDF do certificado.
+    Se não existir, gera automaticamente (evento encerrado).
+    """
+
+    qs = Certificado.objects.select_related(
+        "inscricao__usuario",
+        "inscricao__evento"
+    )
+
+    # verifica admin
+    is_admin = False
+    if request.user.is_superuser:
+        is_admin = True
+    else:
+        perfil = getattr(request.user, "perfil", None)
+        if perfil and getattr(perfil, "tipo", None) == "ADM":
+            is_admin = True
+
+    if is_admin:
+        certificado = get_object_or_404(qs, codigo_certificado=codigo_certificado)
+        inscricao = certificado.inscricao
+    else:
+        perfil = getattr(request.user, "perfil", None)
+        if not perfil:
+            raise Http404
+
+        certificado = get_object_or_404(
+            qs,
+            codigo_certificado=codigo_certificado,
+            inscricao__usuario=perfil,
+        )
+        inscricao = certificado.inscricao
+
+    evento = inscricao.evento
+
+    # evento precisa ter terminado
+    if evento.data_fim > date.today():
+        raise Http404
+
+    # gera automaticamente se não existir
+    if not hasattr(inscricao, "certificado"):
+        certificado = Certificado.objects.create(inscricao=inscricao)
+
+        log_evento(
+            usuario=request.user,
+            acao="CERTIFICATE_GENERATED",
+            evento=evento,
+            detalhes=f"Certificado gerado automaticamente (UUID: {certificado.codigo_certificado})",
+        )
+
+    # log de download
+    log_evento(
+        usuario=request.user,
+        acao="CERTIFICATE_DOWNLOADED",
+        evento=evento,
+        detalhes=f"Download do certificado (UUID: {certificado.codigo_certificado})",
+    )
+
+    # -------------------------
+    # GERAÇÃO DO PDF (SIMPLES)
+    # -------------------------
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+
+    p.setFont("Helvetica-Bold", 18)
+    p.drawCentredString(300, 750, "CERTIFICADO")
+
+    p.setFont("Helvetica", 12)
+    p.drawCentredString(
+        300, 700,
+        f"Certificamos que {inscricao.usuario.nome_perfil}"
+    )
+
+    p.drawCentredString(
+        300, 670,
+        f"participou do evento '{evento.titulo}'."
+    )
+
+    p.drawCentredString(
+        300, 640,
+        f"Data do evento: {evento.data_inicio} a {evento.data_fim}"
+    )
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="certificado_{certificado.codigo_certificado}.pdf"'
+    )
+
+    return response
+
 
 
 
@@ -296,22 +576,33 @@ def certificado_detalhe(request, codigo_certificado):
 
 # @login_required
 def events_dashboard_page(request):
-    eventos_destaque = (
+    # Lista principal (tabela)
+    eventos = (
         Evento.objects
         .filter(status="Ativo")
-        .order_by("data_inicio")[:3]
+        .order_by("data_inicio")
     )
 
+    # Destaques do carrossel
+    eventos_destaque = eventos[:3]
+
     context = {
+        "eventos": eventos,
         "eventos_destaque": eventos_destaque,
     }
-    return render(request, 'main/eventos/events_dashboard.html', context)
+    return render(request, "main/eventos/events_dashboard.html", context)
+
 
 
 # LISTAGEM DE TODOS OS EVENTOS
 
+@login_required
 def events_list_page(request):
-    return render(request, 'main/events_list.html')
+    eventos = Evento.objects.select_related("organizador").all()
+    context = {
+        "eventos": eventos,
+    }
+    return render(request, "main/eventos/events_list.html", context)
 
 
 

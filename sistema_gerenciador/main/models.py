@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
@@ -186,6 +187,7 @@ class Inscricao(models.Model):
         on_delete=models.CASCADE
     )
     data_inscricao = models.DateTimeField(auto_now_add=True)
+    presenca_confirmada = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
@@ -226,4 +228,67 @@ class Certificado(models.Model):
 
 
 class Log(models.Model):
-    ...
+    ACOES = [
+        ("USER_CREATE",      "Criação de usuário"),
+        ("EVENT_CREATE",     "Cadastro de evento"),
+        ("EVENT_UPDATE",     "Alteração de evento"),
+        ("EVENT_DELETE",     "Exclusão de evento"),
+        ("EVENT_API_QUERY",  "Consulta de eventos via API"),
+        ("CERT_GENERATE",    "Geração de certificado"),
+        ("CERT_VIEW",        "Consulta de certificado"),
+        ("EVENT_SUBSCRIBE",  "Inscrição em evento"),
+    ]
+
+    # quem fez a ação
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="logs"
+    )
+
+    # tipo da ação (limitado às ações previstas no escopo)
+    acao = models.CharField(
+        max_length=30,
+        choices=ACOES
+    )
+
+    # quando ocorreu (para filtro por dia)
+    data_hora = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
+
+    # sobre o que foi a ação (evento, certificado, etc.)
+    objeto_tipo = models.CharField(
+        max_length=50,
+        blank=True
+    )  # ex.: "Evento", "Certificado"
+
+    objeto_id = models.CharField(
+        max_length=50,
+        blank=True
+    )  # ex.: ID do evento ou da inscrição
+
+    # detalhes adicionais (mensagem descritiva, payload da ação, etc.)
+    descricao = models.TextField(
+        blank=True
+    )
+
+    # se quiser guardar dados extras estruturados (opcional)
+    # requer Django 3.1+ para JSONField genérico
+    extras = models.JSONField(
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        ordering = ["-data_hora"]
+        verbose_name = "Log"
+        verbose_name_plural = "Logs"
+
+    def __str__(self):
+        user_str = self.usuario.get_username() if self.usuario else "Sistema"
+        return f"[{self.data_hora:%d/%m/%Y %H:%M}] {user_str} - {self.get_acao_display()}"
+

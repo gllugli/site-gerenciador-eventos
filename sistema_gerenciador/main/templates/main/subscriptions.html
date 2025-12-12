@@ -17,7 +17,6 @@
                 <div class="sidebar-logo">CEUB</div>
 
                 <nav class="sidebar-menu">
-
                     <a href="{% url 'dashboard_page' %}" class="menu-item">
                         <span class="icon">🏠</span>
                         <span>Início</span>
@@ -28,7 +27,6 @@
                         <span>Eventos</span>
                     </a>
 
-                    <!-- ESTA PÁGINA -->
                     <a href="{% url 'subscription_page' %}" class="menu-item active">
                         <span class="icon">📝</span>
                         <span>Inscrições</span>
@@ -41,7 +39,7 @@
                 </nav>
             </div>
 
-            <a href="{% url 'logout' %}" class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="sidebar-footer" style="text-decoration:none; color:white;">
                 <span class="icon">↩️</span>
                 <span>Sair</span>
             </a>
@@ -65,8 +63,6 @@
 
                 <div class="topbar-right">
                     <div class="circle-icon" id="themeToggle">🌙</div>
-                    <div class="circle-icon">🔔</div>
-                    <div class="circle-icon">👤</div>
                     <button class="btn-perfil" id="btnPerfil">
                         Perfil | {{ user.first_name|default:user.username }}
                     </button>

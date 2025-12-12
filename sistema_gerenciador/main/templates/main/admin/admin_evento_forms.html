@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo_pagina }} – Admin – Portal EnCUCA</title>
+
+    <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
+</head>
+<body>
+<div class="page">
+    <div class="shell">
+
+        <main class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <a href="{% url 'admin_event_list' %}"
+                       class="btn-back"
+                       aria-label="Voltar para a lista de eventos">
+                        <span class="back-arrow">&larr;</span>
+                    </a>
+
+                    <h1>{{ titulo_pagina }}</h1>
+                </div>
+
+                <div class="topbar-center"></div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">
+                        <span class="ci ci-theme"></span>
+                    </div>
+
+                    <button class="btn-perfil" id="btnPerfil">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        ...
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO: FORMULÁRIO DE EVENTO -->
+            <section class="content-events-list">
+                <div class="events-table-card">
+                    <div class="events-table-header">
+                        <div>
+                            <h2>Dados do evento</h2>
+                            <p>Preencha as informações do evento e salve para disponibilizá-lo no sistema.</p>
+                        </div>
+                    </div>
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          class="event-form">
+                        {% csrf_token %}
+
+                        <div class="event-form-grid">
+                            <div class="form-group">
+                                <label for="{{ form.titulo.id_for_label }}">Título</label>
+                                {{ form.titulo }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.status.id_for_label }}">Status</label>
+                                {{ form.status }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.quantidade_vagas.id_for_label }}">Quantidade de vagas</label>
+                                {{ form.quantidade_vagas }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.localizacao.id_for_label }}">Localização</label>
+                                {{ form.localizacao }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.data_inicio.id_for_label }}">Data de início</label>
+                                {{ form.data_inicio }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.data_fim.id_for_label }}">Data de término</label>
+                                {{ form.data_fim }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.horario_inicio.id_for_label }}">Horário de início</label>
+                                {{ form.horario_inicio }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.horario_fim.id_for_label }}">Horário de término</label>
+                                {{ form.horario_fim }}
+                            </div>
+
+                            <div class="form-group form-group-full">
+                                <label for="{{ form.descricao.id_for_label }}">Descrição</label>
+                                {{ form.descricao }}
+                            </div>
+
+                            <div class="form-group form-group-full">
+                                <label for="{{ form.banner.id_for_label }}">Banner (opcional)</label>
+                                {{ form.banner }}
+                            </div>
+                        </div>
+
+                        <div class="events-actions events-actions-detail">
+                            <a href="{% url 'admin_event_list' %}" class="btn-detalhes">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn-detalhes">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    // Tema
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // Dropdown perfil
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (dropdown.style.display === 'block' &&
+                !dropdown.contains(e.target) &&
+                !btnPerfil.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -27,9 +27,13 @@
 
             {% if messages %}
                 {% for msg in messages %}
-                    <p class="messages">{{ msg }}</p>
+                    {# mostra só erros ou avisos; ignora success/info #}
+                    {% if 'error' in msg.tags or 'warning' in msg.tags %}
+                        <p class="messages">{{ msg }}</p>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
+
 
             {% if erro %}
                 <p class="messages">{{ erro }}</p>

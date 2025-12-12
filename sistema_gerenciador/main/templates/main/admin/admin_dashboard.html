@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal EnCUCA - Admin</title>
+
+    <!-- CSS base da dashboard normal -->
+    <link rel="stylesheet" href="{% static 'main/style/dashboard.css' %}">
+    <!-- CSS complementar do admin -->
+    <link rel="stylesheet" href="{% static 'main/style/admin/admin_dashboard.css' %}">
+</head>
+<body>
+
+<div class="page">
+    <div class="shell">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-logo">CEUB</div>
+
+                <div class="sidebar-admin-wrapper">
+                    <div class="sidebar-admin-card">
+                        <div class="sidebar-admin-badge">Área administrativa</div>
+                        <p class="sidebar-admin-text">
+                            Você está no painel de administração. Use os botões da tela principal
+                            para acessar Eventos, Inscrições e Perfis de usuário.
+                        </p>
+                        <ul class="sidebar-admin-list">
+                            <li>Monitorar logs recentes</li>
+                            <li>Acompanhar ações críticas</li>
+                            <li>Acesso restrito a administradores</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'logout' %}" class="sidebar-footer">
+                <span class="icon">↩️</span>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+
+                <div class="topbar-left">
+                    <h1>Painel Administrativo</h1>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="topbar-user" id="topbarUser">
+                        <button type="button" class="btn-perfil" id="btnPerfil">
+                            <span class="btn-perfil-label">
+                                Perfil | {{ request.user.email }}
+                            </span>
+                        </button>
+
+                        <div class="perfil-dropdown" id="perfilDropdown">
+                            <div class="perfil-dropdown-header">
+                                <div class="perfil-avatar">
+                                    {{ request.user.first_name|default:request.user.username|slice:":1" }}
+                                </div>
+                                <div class="perfil-info">
+                                    <span class="perfil-name">
+                                        {{ request.user.get_full_name|default:request.user.username }}
+                                    </span>
+                                    <span class="perfil-email">
+                                        {{ request.user.email }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="perfil-dropdown-footer">
+                                <a href="{% url 'user_profile' %}" class="perfil-link">
+                                    Ver meu perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- CONTEÚDO ADMIN -->
+            <section class="content">
+
+                <!-- BLOCO GRANDE: TABELA DE LOGS -->
+                <section class="admin-logs-section">
+                    <div class="logs-card">
+                        <div class="logs-card-header">
+                            <div>
+                                <h2 class="logs-title">Logs recentes</h2>
+                                <p class="logs-subtitle">
+                                    Últimas ações registradas no sistema.
+                                </p>
+                            </div>
+                            <a href="{% url 'admin_dashboard' %}" class="btn-outline">
+                                Atualizar logs
+                            </a>
+                        </div>
+
+                        <!-- FILTROS -->
+                        <form method="get" class="logs-filters">
+                            <div class="filters-row">
+                                <div class="filter-item">
+                                    <label for="f_data">Dia</label>
+                                    <input id="f_data" type="date" name="data" value="{{ filtro_data }}">
+                                </div>
+
+                                <div class="filter-item">
+                                    <label for="f_usuario">Usuário</label>
+                                    <select id="f_usuario" name="usuario">
+                                        <option value="">Todos</option>
+                                        {% for u in usuarios_com_log %}
+                                            <option value="{{ u.id }}" {% if filtro_usuario == u.id|stringformat:"s" %}selected{% endif %}>
+                                                {{ u.nome|default:u.user.username }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn-primary">Filtrar</button>
+                                    <a href="{% url 'admin_dashboard' %}" class="btn-secondary">Limpar</a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="logs-table-wrapper">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data/Hora</th>
+                                        <th>Usuário</th>
+                                        <th>Ação</th>
+                                        <th>Objeto</th>
+                                        <th>Descrição</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in logs %}
+                                        <tr>
+                                            <td>{{ log.data_hora|date:"d/m/Y H:i" }}</td>
+                                            <td>
+                                                {% if log.usuario %}
+                                                    {{ log.usuario.get_full_name|default:log.usuario.username }}
+                                                {% else %}
+                                                    <span class="logs-sistema">Sistema</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ log.get_acao_display }}</td>
+                                            <td>
+                                                {% if log.objeto_tipo or log.objeto_id %}
+                                                    {{ log.objeto_tipo }}{% if log.objeto_id %} #{{ log.objeto_id }}{% endif %}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td class="logs-descricao">
+                                                {{ log.descricao|default:"—" }}
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="logs-empty">
+                                                Nenhum log registrado até o momento.
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- LINHA INFERIOR: 3 CARDS / BOTÕES -->
+                <section class="admin-actions-row">
+
+                    <!-- Eventos -->
+                    <a href="{% url 'admin_event_list' %}" class="admin-action-card">
+                        <div class="action-icon">📅</div>
+                        <h3 class="action-title">Eventos</h3>
+                        <p class="action-text">
+                            Acesse a tela de eventos para criar, editar ou visualizar todos os eventos disponíveis.
+                        </p>
+                    </a>
+
+                    <!-- Inscrições -->
+                    <a href="{% url 'inscricao_list' %}" class="admin-action-card">
+                        <div class="action-icon">📝</div>
+                        <h3 class="action-title">Inscrições</h3>
+                        <p class="action-text">
+                            Consulte as inscrições realizadas e faça ajustes quando necessário.
+                        </p>
+                    </a>
+
+                    <!-- Perfis de usuário -->
+                    <a href="{% url 'usuarios_list' %}" class="admin-action-card">
+                        <div class="action-icon">👤</div>
+                        <h3 class="action-title">Perfis de usuário</h3>
+                        <p class="action-text">
+                            Visualize e gerencie os dados de usuários (ajuste depois para a tela de lista, se quiser).
+                        </p>
+                    </a>
+
+                </section>
+
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    toggle.addEventListener('click', function () {
+        body.classList.toggle('dark-mode');
+        const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', newTheme);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const btnPerfil = document.getElementById("btnPerfil");
+        const dropdown = document.getElementById("perfilDropdown");
+        const topbarUser = document.getElementById("topbarUser");
+
+        if (!btnPerfil || !dropdown || !topbarUser) return;
+
+        btnPerfil.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("is-open");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!topbarUser.contains(e.target)) {
+                dropdown.classList.remove("is-open");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
