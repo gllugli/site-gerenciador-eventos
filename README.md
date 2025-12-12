@@ -94,6 +94,7 @@ Consulte o arquivo [`docs/Guia_Instalacao.md`](docs/Guia_Instalacao.md).
 Para popular o banco de dados com dados de teste, utilize o comando:
 ````sh
 python manage.py seed_sgea
+````
 
 ## 7. Documentação Complementar
 
@@ -114,6 +115,11 @@ A documentação detalhada do projeto está organizada na pasta **`docs/`** e co
 ---
 
 ## 8. Considerações Finais
+
+O **Portal EnCUCA** atende aos objetivos propostos para o projeto acadêmico, demonstrando a aplicação prática dos conceitos de desenvolvimento backend com **Django** e **Django REST Framework**.  
+
+A organização da estrutura do código, a implementação de uma API RESTful, a aplicação de validações e regras de negócio, as práticas de segurança adotadas e a presença de um sistema de auditoria evidenciam o domínio das tecnologias e metodologias trabalhadas na disciplina de **Programação para Web**.
+
 
 O **Portal EnCUCA** atende aos objetivos propostos para o projeto acadêmico, demonstrando a aplicação prática dos conceitos de desenvolvimento backend com **Django** e **Django REST Framework**.  
 
