@@ -1,3 +1,5 @@
+/* EVENTS_LIST.CSS */
+
 /* ===== VARIÁVEIS GLOBAIS ===== */
 :root {
     --brand-roxo-escuro: #43054e;
@@ -47,9 +49,7 @@ body.dark-mode {
     font-family: "Poppins", Arial, sans-serif;
 }
 
-html, body {
-    height: 100%;
-}
+html, body { height: 100%; }
 
 body {
     background: var(--color-bg);
@@ -81,7 +81,7 @@ body {
 }
 
 /* ============================================================
-   TOPBAR EM 3 COLUNAS (ESQ: voltar+título / CENTRO: busca / DIR: perfil)
+TOPBAR EM 3 COLUNAS (ESQ / CENTRO / DIR)
 ============================================================ */
 .topbar {
     display: grid;
@@ -90,7 +90,6 @@ body {
     column-gap: 24px;
 }
 
-/* Esquerda: botão voltar + título */
 .topbar-left {
     display: flex;
     align-items: center;
@@ -103,7 +102,6 @@ body {
     color: var(--color-text);
 }
 
-/* Botão de voltar (estilo antigo) */
 .btn-back {
     border: none;
     border-radius: 999px;
@@ -123,11 +121,8 @@ body {
     transform: translateY(-1px);
 }
 
-.back-arrow {
-    font-size: 16px;
-}
+.back-arrow { font-size: 16px; }
 
-/* Centro: search box centralizada (estilo antigo) */
 .topbar-center {
     display: flex;
     justify-content: center;
@@ -159,7 +154,6 @@ body {
     position: relative;
 }
 
-/* "Cabinho" da lupa */
 .search-icon::after {
     content: "";
     position: absolute;
@@ -181,11 +175,8 @@ body {
     min-width: 220px;
 }
 
-.search-box input::placeholder {
-    color: var(--search-placeholder);
-}
+.search-box input::placeholder { color: var(--search-placeholder); }
 
-/* Direita: ícone de tema + perfil */
 .topbar-right {
     display: flex;
     align-items: center;
@@ -210,15 +201,8 @@ body {
     transform: translateY(-1px);
 }
 
-.ci {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.ci-theme::before {
-    content: "T";
-}
+.ci { font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.ci-theme::before { content: "T"; }
 
 .btn-perfil {
     border: none;
@@ -251,40 +235,11 @@ body {
     z-index: 20;
 }
 
-.user-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #43054e;
-    color: #fdf8ff;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.user-name {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.user-email {
-    font-size: 12px;
-    color: #bfa3da;
-}
-
 /* ============================================================
-   CONTEÚDO: TABELA DE EVENTOS
+CONTEÚDO: TABELA DE EVENTOS (CARD)
 ============================================================ */
 .content-events-list {
-    margin-top: 20px; /* espaço entre topbar e card */
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -298,11 +253,13 @@ body {
     border: 1px solid var(--card-border);
 }
 
+/* HEADER do card: esquerda (título+sub) / direita (summary+botão) */
 .events-table-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
+    align-items: center;     /* ✅ corrige “botão fora do lugar” */
+    gap: 16px;
+    margin-bottom: 14px;
 }
 
 .events-table-header h2 {
@@ -321,6 +278,33 @@ body {
     color: #6b7280;
 }
 
+/* ✅ bloco da direita (summary + botão criar) */
+.events-header-right{
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* ✅ botão criar: alinhado no header, não “solto” */
+.btn-criar-top{
+    border: none;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--brand-magenta);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+.btn-criar-top:hover{
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
 /* Tabela */
 .table-wrapper {
     width: 100%;
@@ -333,11 +317,8 @@ body {
     font-size: 14px;
 }
 
-.events-table thead {
-    background: #f9ebff;
-}
+.events-table thead { background: #f9ebff; }
 
-/* Cabeçalho centralizado */
 .events-table thead th {
     text-align: center;
     padding: 10px 12px;
@@ -346,7 +327,6 @@ body {
     border-bottom: 1px solid #eed2ff;
 }
 
-/* Células do corpo centralizadas */
 .events-table tbody td {
     padding: 9px 12px;
     border-bottom: 1px solid #eed2ff;
@@ -354,23 +334,18 @@ body {
     vertical-align: middle;
 }
 
-/* Mantém o título (1ª coluna) alinhado à esquerda para leitura melhor */
-.events-table tbody td.col-titulo {
-    text-align: left;
-}
+.events-table tbody td.col-titulo { text-align: left; }
 
 .events-table tbody tr:hover {
     background: #fdf3ff;
     cursor: pointer;
 }
 
-/* Linha selecionada */
 .event-row.selected {
     background: rgba(191, 0, 135, 0.08);
     border-left: 3px solid var(--brand-magenta);
 }
 
-/* Sem eventos */
 .events-table-empty {
     text-align: center;
     font-size: 13px;
@@ -382,6 +357,7 @@ body {
     margin-top: 14px;
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
 }
 
 .btn-detalhes {
@@ -401,271 +377,89 @@ body {
     transform: translateY(-1px);
 }
 
-/* ===== RESPONSIVO ===== */
-@media (max-width: 900px) {
-    .main {
-        padding: 16px;
-    }
-
-    .user-dropdown {
-        right: 16px;
-    }
-
-    .topbar {
-        grid-template-columns: 1fr;
-        row-gap: 12px;
-    }
-
-    .topbar-center {
-        order: 3;
-    }
+.btn-detalhes:disabled{
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
 }
 
-@media (max-width: 640px) {
-    .topbar-left h1 {
-        font-size: 18px;
-    }
+/* ============================================================
+MODAL (BASE ÚNICA PARA TODAS AS TELAS ADMIN)
+============================================================ */
+.modal-overlay{
+    position: fixed !important;
+    inset: 0 !important;
 
-    .search-box input {
-        min-width: 140px;
-    }
+    background: rgba(17, 24, 39, 0.75) !important;
+
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 24px !important;
+    overflow: auto !important;
+
+    z-index: 2147483647 !important;
 }
 
-
-/* Ações no topo (botão Criar novo evento) */
-.events-actions-top {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 12px;
+.modal-overlay.is-open{
+    display: flex !important;
 }
 
-/* Grid de detalhes do evento (tela admin_event_detail) */
-.event-detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px 16px;
-    margin-top: 12px;
+body.modal-open{
+    overflow: hidden !important;
 }
 
-.detail-item {
-    padding: 10px 12px;
-    background: #f9fafb;
-    border-radius: 12px;
-}
+/* ✅ desliga qualquer backdrop global quando modal abre */
+html body.modal-open::before{ display:none !important; }
+html body.dark-mode.modal-open::before{ display:none !important; }
 
-.detail-item.detail-full {
-    grid-column: 1 / -1;
-}
+.modal-card{
+    position: relative !important;
 
-.detail-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #6b7280;
-    margin-bottom: 4px;
-}
-
-.detail-value {
-    font-size: 14px;
-    color: #111827;
-}
-
-.event-banner-preview {
-    max-height: 140px;
-    border-radius: 12px;
-    object-fit: cover;
-}
-
-/* Ações na tela de detalhes */
-.events-actions-detail {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 16px;
-}
-
-/* Exemplo de botão de deletar mais “perigo” */
-.btn-delete-evento {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.btn-delete-evento:hover {
-    background: #fecaca;
-}
-
-.event-form {
-    margin-top: 12px;
-}
-
-.event-form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.form-group-full {
-    grid-column: 1 / -1;
-}
-
-.form-group label {
-    font-size: 13px;
-    color: #4b5563;
-}
-
-/* ============================
-   CAMPOS DO FORM NO MODAL
-   ============================ */
-
-/* Inputs/textarea/select com visual moderno */
-.modal-card .event-form .input-field,
-.modal-card .event-form textarea,
-.modal-card .event-form select {
     width: 100%;
-    padding: 8px 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(238, 210, 255, 0.9);
-    background: #fdf8ff;
-    font-size: 14px;
-    color: var(--color-text);
-    outline: none;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.05s;
+    max-width: 720px;
+
+    background: var(--card-bg, #ffffff) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 18px !important;
+
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45) !important;
+
+    color: var(--color-text, #111827) !important;
 }
 
-/* Foco mais elegante */
-.modal-card .event-form .input-field:focus,
-.modal-card .event-form textarea:focus,
-.modal-card .event-form select:focus {
-    border-color: var(--brand-magenta);
-    background: #fff;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.9),
-        0 0 0 3px rgba(236, 0, 137, 0.2);
-    transform: translateY(-0.5px);
+body.dark-mode .modal-card{
+    background: var(--card-bg, #2b1336) !important;
+    color: var(--neutral-text-light, #fdf8ff) !important;
+    border-color: rgba(253,225,0,0.12) !important;
 }
 
-/* Textarea com altura mais confortável */
-.modal-card .event-form textarea {
-    min-height: 110px;
-    resize: vertical;
-}
-
-/* Select com seta mais discreta (onde o navegador permitir) */
-.modal-card .event-form select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: linear-gradient(45deg, #b08cd0 50%, transparent 50%),
-                      linear-gradient(135deg, #b08cd0 50%, transparent 50%);
-    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
-    padding-right: 28px;
-}
-
-/* File input: só ajusta tipografia e espaçamento */
-.modal-card .event-form input[type="file"] {
-    font-size: 13px;
-}
-
-/* ============================
-   LAYOUT ESPECÍFICO DETALHE ADMIN
-   ============================ */
-
-/* Área da página de detalhes: centraliza o card na tela */
-.content-event-detail {
-    flex: 1;                          /* ocupa o espaço vertical */
-    display: flex;
-    align-items: center;              /* centraliza verticalmente */
-    justify-content: center;          /* centraliza horizontalmente */
-    margin-top: 0;                    /* remove margem padrão */
-}
-
-/* Card de detalhes em formato mais "quadrado" e compacto */
-.event-detail-card {
-    width: 100%;
-    max-width: 560px;                 /* largura máxima do card */
-    min-height: 360px;                /* altura mínima para dar forma de quadrado */
-    margin: 0 auto;
-}
-
-/* Deixa o cabeçalho mais compacto dentro do card menor */
-.event-detail-card .events-table-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-}
-
-/* Grid de detalhes se adapta bem ao card menor */
-.event-detail-card .event-detail-grid {
-    margin-top: 16px;
-}
-
-/* Botões alinhados à direita, mas dentro do card menor */
-.event-detail-card .events-actions-detail {
-    margin-top: 20px;
-    justify-content: flex-end;
-}
-
-/* ============================
-   MODAL DE EDIÇÃO (ADMIN EVENTO)
-   ============================ */
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at top, rgba(253, 225, 255, 0.45), rgba(19, 0, 35, 0.65));
-    backdrop-filter: blur(10px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-overlay.is-open {
-    display: flex;
-}
-
-.modal-card {
-    width: 100%;
-    max-width: 820px;
-    max-height: 88vh;
-    background: var(--card-bg);
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(28, 0, 45, 0.55);
-    border: 1px solid rgba(191, 0, 135, 0.25);
-    padding: 22px 26px 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Cabeçalho do modal */
-.modal-header {
-    display: flex;
+.modal-header{
+    padding: 18px 20px 10px 20px;
+    display:flex;
+    align-items:center;
     justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(238, 210, 255, 0.7);
-    margin-bottom: 14px;
+    gap: 10px;
 }
 
-.modal-header h2 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--color-text);
+.modal-header h2{
+    font-size: 18px;
+    font-weight: 700;
 }
 
-/* Botão de fechar (X) */
-.modal-close {
+.modal-body{
+    padding: 0 20px 18px 20px;
+}
+
+.modal-footer{
+    padding: 14px 20px 18px 20px;
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+}
+
+.modal-close{
     border: none;
     background: transparent;
     font-size: 26px;
@@ -674,142 +468,702 @@ body {
     color: #9ca3af;
     transition: color 0.15s, transform 0.1s;
 }
-
-.modal-close:hover {
+.modal-close:hover{
     color: #4b5563;
     transform: translateY(-1px);
 }
 
-/* Corpo: rolagem interna, grid em 2 colunas no desktop */
-.modal-body {
-    margin-top: 4px;
-    padding-right: 4px;
-    overflow-y: auto;
+/* Detalhes (lista no modal) */
+.details-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    margin-top: 10px;
+}
+.details-item{
+    display:flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.details-item.full{ grid-column: 1 / -1; }
+.details-label{
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+}
+body.dark-mode .details-label{ color: rgba(253,248,255,0.72); }
+.details-value{
+    font-size: 14px;
+    color: var(--color-text);
+}
+body.dark-mode .details-value{ color: var(--neutral-text-light); }
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 900px) {
+    .main { padding: 16px; }
+    .user-dropdown { right: 16px; }
+
+    .topbar {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+    }
+
+    .topbar-center { order: 3; }
 }
 
-/* usa o grid que você já tinha, só refinando dentro do modal */
-.modal-body.event-form-grid {
+@media (max-width: 640px) {
+    .topbar-left h1 { font-size: 18px; }
+    .search-box input { min-width: 140px; }
+    .details-grid{ grid-template-columns: 1fr; }
+}
+
+/* =========================
+   MODAL – DETALHES (campos mais “marcados”)
+   Cole no FINAL do events_list.css (ou profile_admin.css, se preferir)
+   ========================= */
+
+.modal-body{
+    padding-top: 6px;
+}
+
+/* dá “cara” de card em cada campo */
+.details-item{
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 44, 146, 0.14);
+    background: rgba(249, 235, 255, 0.55);
+}
+
+/* os campos full ficam com respiro melhor */
+.details-item.full{
+    padding: 12px 14px;
+}
+
+/* label mais evidente */
+.details-label{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    text-transform: uppercase;
+    color: #5f3c7a;
+}
+
+/* “pílula” do label */
+.details-label::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--brand-magenta);
+    box-shadow: 0 0 0 3px rgba(236, 0, 137, 0.12);
+}
+
+/* valor mais contrastado */
+.details-value{
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b1021;
+    line-height: 1.35;
+}
+
+/* melhora leitura da descrição */
+#md-descricao{
+    font-weight: 500;
+    color: rgba(27, 16, 33, 0.92);
+}
+
+/* DARK MODE */
+body.dark-mode .details-item{
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(253, 225, 0, 0.14);
+}
+
+body.dark-mode .details-label{
+    color: rgba(253, 248, 255, 0.82);
+}
+
+body.dark-mode .details-label::before{
+    background: var(--brand-amarelo);
+    box-shadow: 0 0 0 3px rgba(253, 225, 0, 0.12);
+}
+
+body.dark-mode .details-value{
+    color: var(--neutral-text-light);
+}
+
+body.dark-mode #md-descricao{
+    color: rgba(253, 248, 255, 0.88);
+}
+
+/* =========================
+   FIX: botão "+ Criar novo evento" alinhado no topo do card
+   ========================= */
+.events-actions-top{
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+/* =========================
+   MODAL (base reutilizável)
+   ========================= */
+.modal-overlay{
+    position: fixed !important;
+    inset: 0 !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999 !important;
+    background: rgba(17, 24, 39, 0.75) !important;
+}
+
+.modal-overlay.is-open{ display: flex !important; }
+body.modal-open{ overflow: hidden !important; }
+
+.modal-card{
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 18px;
+    max-width: 780px;
+    width: calc(100% - 36px);
+    padding: 18px 20px;
+    position: relative;
+}
+
+.modal-card-wide{ max-width: 860px; }
+
+.modal-close{
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    border: none;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    color: #9ca3af;
+}
+
+.modal-close:hover{ color: #4b5563; }
+
+.modal-header h2{
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.modal-body{ margin-top: 10px; }
+
+.modal-footer{
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.modal-footer-right{
+    justify-content: flex-end;
+}
+
+/* botão cancelar reaproveitável (igual usuários) */
+.btn-cancelar-modal{
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+}
+.btn-cancelar-modal:hover{
+    background: #e5e7eb;
+}
+
+/* =========================
+   DETALHES – campos mais marcados
+   ========================= */
+.details-grid{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 18px;
+    gap: 12px 14px;
 }
 
-.modal-body .form-group-full {
-    grid-column: 1 / -1;
+.details-item{
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 44, 146, 0.14);
+    background: rgba(249, 235, 255, 0.55);
 }
 
-.modal-body .form-group label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #4b5563;
+.details-item.full{ grid-column: 1 / -1; }
+
+.details-label{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    text-transform: uppercase;
+    color: #5f3c7a;
 }
 
-/* garante inputs ocupando toda a coluna */
-.modal-card .event-form .input-field {
+.details-label::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--brand-magenta);
+    box-shadow: 0 0 0 3px rgba(236, 0, 137, 0.12);
+}
+
+.details-value{
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b1021;
+    line-height: 1.35;
+}
+
+@media (max-width: 760px){
+    .details-grid{ grid-template-columns: 1fr; }
+}
+
+/* DARK MODE */
+body.dark-mode .details-item{
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(253, 225, 0, 0.14);
+}
+
+body.dark-mode .details-label{
+    color: rgba(253, 248, 255, 0.82);
+}
+
+body.dark-mode .details-label::before{
+    background: var(--brand-amarelo);
+    box-shadow: 0 0 0 3px rgba(253, 225, 0, 0.12);
+}
+
+body.dark-mode .details-value{
+    color: var(--neutral-text-light);
+}
+
+/* =========================
+   FIX: MODAL EDITAR EVENTO (form em grid, alinhado e “bonito”)
+   Cole NO FINAL do events_list.css
+   ========================= */
+
+/* garante que o card do modal tenha “estrutura” */
+.modal-card{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* header do modal */
+.modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-right: 34px; /* espaço pro X */
+}
+
+.modal-header h2{
+    margin: 0;
+}
+
+/* ===== FORM GRID (o que estava “bagunçado”) ===== */
+.event-form{
     width: 100%;
 }
 
-/* Rodapé do modal */
-.modal-footer {
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(238, 210, 255, 0.7);
+.event-form-grid{
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px 14px !important;
+    width: 100% !important;
+}
+
+.form-group{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.form-group-full{
+    grid-column: 1 / -1 !important;
+}
+
+.event-form label{
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #4b5563 !important;
+    line-height: 1.2 !important;
+}
+
+body.dark-mode .event-form label{
+    color: rgba(253, 248, 255, 0.86) !important;
+}
+
+/* inputs / selects / textarea 100% */
+.event-form .input-field,
+.event-form input[type="text"],
+.event-form input[type="number"],
+.event-form input[type="date"],
+.event-form input[type="time"],
+.event-form input[type="email"],
+.event-form input[type="password"],
+.event-form select,
+.event-form textarea{
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-radius: 12px !important;
+    padding: 10px 12px !important;
+    border: 1px solid var(--search-border) !important;
+    background: var(--search-bg) !important;
+    color: var(--color-text) !important;
+    outline: none !important;
+}
+
+/* textarea fica “normal” (no print estava minúscula) */
+.event-form textarea{
+    resize: vertical !important;
+    min-height: 110px !important;
+    line-height: 1.35 !important;
+}
+
+/* file input: não quebra a linha toda e fica alinhado */
+.event-form input[type="file"]{
+    padding: 8px 10px !important;
+}
+
+/* footer sempre alinhado à direita */
+.modal-footer{
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    margin-top: 8px !important;
+}
+
+/* responsivo */
+@media (max-width: 760px){
+    .event-form-grid{
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* =========================
+   FIX: hover da linha da tabela (não sumir texto)
+   Cole NO FINAL do events_list.css
+   ========================= */
+
+body.dark-mode .events-table tbody tr:hover{
+    background: rgba(255,255,255,0.10) !important;
+}
+
+/* garante contraste do texto no hover */
+.events-table tbody tr:hover td{
+    color: var(--color-text) !important;
+}
+
+/* se tiver links/spans dentro */
+.events-table tbody tr:hover a,
+.events-table tbody tr:hover .user-name,
+.events-table tbody tr:hover .user-email{
+    color: var(--color-text) !important;
+}
+
+/* hover não deve “quebrar” a linha selecionada */
+.event-row.selected:hover{
+    background: rgba(191, 0, 135, 0.12) !important;
+}
+
+/* =========================
+   MODAL OVERLAY (para telas admin de eventos/usuários/logs)
+   Cole NO FINAL do events_list.css
+   ========================= */
+
+.modal-overlay{
+    position: fixed !important;
+    inset: 0 !important;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 2147483647 !important;
+    isolation: isolate;
+    background: transparent !important;
+}
+
+.modal-overlay.is-open{
+    display: flex !important;
+}
+
+.modal-overlay::before{
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(17, 24, 39, 0.75) !important;
+}
+
+body.modal-open{
+    overflow: hidden !important;
+}
+
+.modal-card{
+    position: relative;
+    z-index: 1;
+}
+
+/* reaproveita o mesmo “card grande” do padrão */
+.user-modal-card{
+    max-width: 860px;
+    width: min(860px, calc(100vw - 40px));
+    max-height: 88vh;
+    overflow: auto;
+    border-radius: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 18px 20px;
+}
+
+.modal-close{
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    border: none;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    color: #9ca3af;
+    z-index: 2;
+}
+
+.modal-close:hover{
+    color: #4b5563;
+}
+
+/* botão cancelar no padrão pill */
+.btn-cancelar-modal{
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* =========================================================
+   HEADER RIGHT (summary + botão criar) - UI correta
+   ========================================================= */
+.events-table-header-right{
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 10px;
 }
 
-/* Botão de cancelar com visual secundário */
-.btn-cancelar-modal {
-    background: #f3e8ff;
-    color: #4b0082;
+/* =========================================================
+   MODAIS (mesmo padrão em todas as telas admin)
+   ========================================================= */
+.modal-overlay{
+    position: fixed !important;
+    inset: 0 !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647 !important;
+    isolation: isolate;
+    background: transparent !important;
 }
 
-.btn-cancelar-modal:hover {
-    filter: none;
-    background: #ead2ff;
+.modal-overlay.is-open{
+    display: flex !important;
 }
 
-/* Responsivo: modal ocupa mais largura e vira 1 coluna */
-@media (max-width: 900px) {
-    .modal-card {
-        max-width: 96vw;
-        padding: 18px 18px 16px;
-        border-radius: 20px;
-    }
-
-    .modal-body.event-form-grid {
-        grid-template-columns: 1fr;
-    }
+.modal-overlay::before{
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(17, 24, 39, 0.75) !important;
 }
 
-
-/* Asterisco de campo obrigatório */
-.required-asterisk {
-    color: #dc2626;
-    margin-left: 4px;
-    font-weight: 600;
+body.modal-open{
+    overflow: hidden !important;
 }
 
-/* Campos obrigatórios inválidos: borda vermelha */
-.modal-card .event-form .input-field:required:invalid,
-.modal-card .event-form textarea:required:invalid,
-.modal-card .event-form select:required:invalid {
-    border-color: #f87171;
-    background: #fff5f5;
+.user-modal-card{
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    width: min(860px, calc(100vw - 40px));
+    max-height: 88vh;
+    overflow: auto;
+    border-radius: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    padding: 18px 20px;
 }
 
-/* Botão de submit desativado (claro que está desativado) */
-.btn-submit-disabled,
-.btn-detalhes[disabled] {
-    background: #e5e7eb;
-    color: #9ca3af;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+.modal-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-right: 34px;
+    margin-bottom: 8px;
 }
 
-.field-error {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: #dc2626;
-}
-
-/* Botão base (rosa, já existente) */
-.btn-detalhes {
+.modal-close{
+    position: absolute;
+    top: 14px;
+    right: 18px;
     border: none;
-    border-radius: 999px;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    background: var(--brand-magenta);
-    color: #fff;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
     cursor: pointer;
-    transition: 0.2s;
+    color: #9ca3af;
+    z-index: 2;
 }
+.modal-close:hover{ color: #4b5563; }
 
-.btn-detalhes:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-}
-
-/* Versão de perigo, reaproveitando o estilo base */
-.btn-delete-evento {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-}
-
-.btn-delete-evento:hover {
-    background: #fecaca;
-    border-color: #fca5a5;
-}
-
-/* Espaço entre os botões */
-.events-actions {
-    margin-top: 14px;
+/* footer alinhado */
+.modal-footer{
     display: flex;
     justify-content: flex-end;
-    gap: 10px;          /* <--- adiciona este gap */
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* botão cancelar padrão */
+.btn-cancelar-modal{
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-cancelar-modal:hover{
+    background: #e5e7eb;
+}
+
+/* =========================================================
+   DETALHES - campos mais marcados
+   ========================================================= */
+.event-details-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+    margin-top: 6px;
+}
+
+.detail-box{
+    padding: 10px 12px;
+    border: 1px solid rgba(148,163,184,0.35);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.55);
+}
+
+body.dark-mode .detail-box{
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(253,225,0,0.12);
+}
+
+.detail-label{
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(107,114,128,0.95);
+    margin-bottom: 4px;
+}
+
+body.dark-mode .detail-label{
+    color: rgba(253,248,255,0.72);
+}
+
+.detail-value{
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.detail-full{
+    grid-column: 1 / -1;
+}
+
+/* =========================================================
+   FORM GRID (criar/editar) - igual e alinhado
+   ========================================================= */
+.event-form-grid{
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px 14px !important;
+    width: 100% !important;
+}
+
+.form-group{
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.form-group-full{ grid-column: 1 / -1 !important; }
+
+.event-form label{
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #4b5563 !important;
+}
+
+body.dark-mode .event-form label{
+    color: rgba(253,248,255,0.86) !important;
+}
+
+.event-form .input-field,
+.event-form input,
+.event-form select,
+.event-form textarea{
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-radius: 12px !important;
+    padding: 10px 12px !important;
+    border: 1px solid var(--search-border) !important;
+    background: var(--search-bg) !important;
+    color: var(--color-text) !important;
+    outline: none !important;
+}
+
+.event-form textarea{
+    resize: vertical !important;
+    min-height: 110px !important;
+    line-height: 1.35 !important;
+}
+
+/* responsivo */
+@media (max-width: 760px){
+    .event-details-grid{ grid-template-columns: 1fr; }
+    .event-form-grid{ grid-template-columns: 1fr !important; }
 }

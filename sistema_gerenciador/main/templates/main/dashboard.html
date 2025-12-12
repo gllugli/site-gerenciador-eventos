@@ -36,42 +36,50 @@
         </aside>
 
         <!-- MAIN -->
-        <div class="main">
+        <main class="main">
 
-            <!-- TOPBAR -->
+            <!-- TOPBAR (IGUAL EVENTOS) -->
             <header class="topbar">
                 <div class="topbar-left">
                     <h1>Início</h1>
                 </div>
 
+                <div class="topbar-center">
+                    <div class="search-box" role="search" aria-label="Buscar no portal">
+                        🔍
+                        <input id="globalSearch" type="text" placeholder="Buscar por atalhos ou avisos (opcional)">
+                    </div>
+                </div>
+
                 <div class="topbar-right">
-                    <div class="circle-icon" id="themeToggle">🌙</div>
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">🌙</div>
 
-                    <div class="topbar-user" id="topbarUser">
-                        <button type="button" class="btn-perfil" id="btnPerfil">
-                            Perfil | {{ request.user.email }}
-                        </button>
+                    <button class="btn-perfil" id="btnPerfil" type="button">
+                        Perfil | {{ user.first_name|default:user.username }}
+                    </button>
 
-                        <div class="perfil-dropdown" id="perfilDropdown">
-                            <div class="perfil-dropdown-header">
-                                <div class="perfil-avatar">
-                                    {{ request.user.first_name|default:request.user.username|slice:":1" }}
+                    <!-- DROPDOWN DO PERFIL -->
+                    <div class="user-dropdown" id="userDropdown" aria-hidden="true">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {% if user.first_name %}
+                                    {{ user.first_name|first|upper }}
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ user.get_full_name|default:user.username }}
                                 </div>
-                                <div class="perfil-info">
-                                    <span class="perfil-name">
-                                        {{ request.user.get_full_name|default:request.user.username }}
-                                    </span>
-                                    <span class="perfil-email">
-                                        {{ request.user.email }}
-                                    </span>
+                                <div class="user-email">
+                                    {{ user.email }}
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="perfil-dropdown-footer">
-                                <a href="{% url 'user_profile' %}" class="perfil-link">
-                                    Ver meu perfil
-                                </a>
-                            </div>
+                        <div class="user-dropdown-footer">
+                            <a class="user-profile-link" href="{% url 'user_profile' %}">Ver meu perfil</a>
                         </div>
                     </div>
                 </div>
@@ -79,8 +87,6 @@
 
             <!-- CONTEÚDO -->
             <section class="content">
-
-                <!-- HERO -->
                 <div class="hero-card">
                     <h2>Portal EnCUCA</h2>
                     <p>
@@ -89,9 +95,8 @@
                     </p>
                 </div>
 
-                <!-- ORIENTAÇÃO -->
-                <div class="info-grid">
-                    <div class="info-card">
+                <div class="info-grid" id="dashboardCards">
+                    <div class="info-card" data-search="participação eventos consultar acompanhar">
                         <h3>Participação em Eventos</h3>
                         <p>
                             Consulte eventos acadêmicos disponíveis e acompanhe
@@ -99,7 +104,7 @@
                         </p>
                     </div>
 
-                    <div class="info-card">
+                    <div class="info-card" data-search="certificados emissão presença">
                         <h3>Certificados</h3>
                         <p>
                             Após a conclusão dos eventos, seus certificados
@@ -107,7 +112,7 @@
                         </p>
                     </div>
 
-                    <div class="info-card">
+                    <div class="info-card" data-search="perfis permissões aluno professor organizador">
                         <h3>Perfis e Permissões</h3>
                         <p>
                             O sistema adapta as funcionalidades conforme
@@ -116,8 +121,7 @@
                     </div>
                 </div>
 
-                <!-- AVISOS -->
-                <div class="notice-card">
+                <div class="notice-card" data-search="avisos institucionais regras presença dados cadastrais">
                     <h4>Avisos Institucionais</h4>
                     <ul>
                         <li>Os eventos seguem regras acadêmicas e institucionais.</li>
@@ -125,42 +129,67 @@
                         <li>Mantenha seus dados cadastrais sempre atualizados.</li>
                     </ul>
                 </div>
-
             </section>
 
-        </div>
+        </main>
     </div>
 </div>
 
 <script>
-const body = document.body;
-const toggle = document.getElementById('themeToggle');
-const savedTheme = localStorage.getItem('theme') || 'light';
+    // ===== TEMA =====
+    const body = document.body;
+    const toggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') body.classList.add('dark-mode');
 
-if (savedTheme === 'dark') body.classList.add('dark-mode');
-
-toggle.addEventListener('click', () => {
-    body.classList.toggle('dark-mode');
-    localStorage.setItem(
-        'theme',
-        body.classList.contains('dark-mode') ? 'dark' : 'light'
-    );
-});
-
-const btnPerfil = document.getElementById("btnPerfil");
-const dropdown = document.getElementById("perfilDropdown");
-const topbarUser = document.getElementById("topbarUser");
-
-btnPerfil.addEventListener("click", e => {
-    e.stopPropagation();
-    dropdown.classList.toggle("is-open");
-});
-
-document.addEventListener("click", e => {
-    if (!topbarUser.contains(e.target)) {
-        dropdown.classList.remove("is-open");
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
     }
-});
+
+    // ===== DROPDOWN PERFIL (MESMA LÓGICA DA TELA DE EVENTOS) =====
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
+
+    function setDropdownOpen(open) {
+        if (!dropdown) return;
+        dropdown.style.display = open ? 'block' : 'none';
+        dropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.style.display === 'block';
+            setDropdownOpen(!isOpen);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btnPerfil.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        });
+    }
+
+    // ===== SEARCH (OPCIONAL, SÓ PARA NÃO SER ENFEITE) =====
+    (function () {
+        const input = document.getElementById("globalSearch");
+        if (!input) return;
+
+        const cards = Array.from(document.querySelectorAll("[data-search]"));
+        function applyFilter() {
+            const termo = (input.value || "").trim().toLowerCase();
+            cards.forEach((el) => {
+                const hay = (el.getAttribute("data-search") || "").toLowerCase();
+                const match = !termo || hay.includes(termo);
+                el.style.display = match ? "" : "none";
+            });
+        }
+
+        input.addEventListener("input", applyFilter);
+    })();
 </script>
 
 </body>

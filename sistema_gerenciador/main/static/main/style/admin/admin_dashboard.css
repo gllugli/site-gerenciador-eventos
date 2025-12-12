@@ -1,5 +1,12 @@
-/* ===== Sidebar admin (sem links clicáveis) ===== */
+/* ============================================================
+   ADMIN (PADRONIZADO COM O DARK MODE DAS OUTRAS TELAS)
+   - Usa variáveis: --card-bg, --card-border, --card-shadow,
+     --table-header-bg, --table-header-text, --table-border,
+     --table-row-hover-bg, --cor-texto-secundario, --color-text, --color-bg
+   - Sidebar admin fica automática (claro/escuro)
+============================================================ */
 
+/* ===== Sidebar admin (sem links clicáveis) ===== */
 .sidebar-admin-wrapper {
     margin-top: 24px;
 }
@@ -9,11 +16,17 @@
     border-radius: 16px;
     padding: 14px 12px;
     border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #fdf8ff;
+    color: var(--neutral-text-light, #fdf8ff);
     font-size: 12px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+/* no modo claro, melhora contraste do card admin dentro da sidebar */
+body:not(.dark-mode) .sidebar-admin-card {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .sidebar-admin-badge {
@@ -60,7 +73,6 @@
 }
 
 /* ===== Layout geral do conteúdo admin ===== */
-
 .admin-page {
     padding: 24px 28px;
 }
@@ -78,21 +90,20 @@
 
 .admin-subtitle {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--cor-texto-secundario, #6b7280);
 }
 
 /* ===== Bloco grande de logs ===== */
-
 .admin-logs-section {
     margin-bottom: 20px;
 }
 
 .logs-card {
-    background: #ffffff;
+    background: var(--card-bg, #ffffff);
     border-radius: 16px;
     padding: 16px 18px 18px;
-    box-shadow: 0 10px 30px rgba(67, 5, 78, 0.08);
-    border: 1px solid rgba(102, 44, 146, 0.08);
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(67, 5, 78, 0.08));
+    border: 1px solid var(--card-border, rgba(102, 44, 146, 0.08));
 }
 
 .logs-card-header {
@@ -111,33 +122,31 @@
 
 .logs-subtitle {
     font-size: 13px;
-    color: #6b7280;
+    color: var(--cor-texto-secundario, #6b7280);
 }
 
-/* Botão outline (atualizar logs) */
+/* Botão outline (atualizar logs) - padronizado */
 .btn-outline {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 6px 14px;
     border-radius: 999px;
-    border: 1px solid rgba(102, 44, 146, 0.35);
+    border: 2px solid var(--brand-magenta, #ec0089);
     font-size: 13px;
-    font-weight: 500;
-    color: #662c92;
+    font-weight: 800;
+    color: var(--brand-magenta, #ec0089);
     text-decoration: none;
-    background: #fdf8ff;
-    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    background: transparent;
+    transition: transform 0.1s, filter 0.15s;
 }
 
 .btn-outline:hover {
-    background: #f3e8ff;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(102, 44, 146, 0.18);
+    filter: brightness(1.03);
 }
 
 /* ===== Filtros de Logs ===== */
-
 .logs-filters {
     margin: 12px 0 14px;
 }
@@ -158,22 +167,38 @@
 
 .filter-item label {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--cor-texto-secundario, #6b7280);
 }
 
+/* inputs/selects padronizados com o tema */
 .filter-item input,
 .filter-item select {
     padding: 10px 12px;
     border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
+    border: 1px solid var(--table-border, rgba(148,163,184,0.55));
+    background: var(--card-bg, #ffffff);
+    color: var(--color-text, #111827);
     outline: none;
+}
+
+.filter-item input::placeholder {
+    color: rgba(156, 163, 175, 0.95);
+}
+body.dark-mode .filter-item input::placeholder {
+    color: rgba(216, 183, 255, 0.9);
 }
 
 .filter-item input:focus,
 .filter-item select:focus {
-    border-color: rgba(102, 44, 146, 0.5);
-    box-shadow: 0 0 0 4px rgba(102, 44, 146, 0.12);
+    border-color: var(--brand-magenta, #ec0089);
+    box-shadow: 0 0 0 4px rgba(236, 0, 137, 0.14);
+}
+
+/* no dark, dá mais “cara” de input escuro (igual ao padrão) */
+body.dark-mode .filter-item input,
+body.dark-mode .filter-item select {
+    background: rgba(0,0,0,0.18);
+    border-color: rgba(253,225,0,0.12);
 }
 
 .filter-actions {
@@ -181,41 +206,45 @@
     gap: 10px;
 }
 
+/* botões padronizados */
 .btn-primary,
 .btn-secondary {
     padding: 10px 14px;
-    border-radius: 10px;
+    border-radius: 999px;
     text-decoration: none;
     border: none;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 900;
     font-size: 13px;
+    transition: transform 0.1s, filter 0.15s;
 }
 
 .btn-primary {
-    background: #662c92;
+    background: var(--brand-magenta, #ec0089);
     color: #ffffff;
 }
 
 .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 22px rgba(102, 44, 146, 0.22);
+    filter: brightness(1.03);
 }
 
 .btn-secondary {
-    background: #f3f4f6;
-    color: #111827;
+    background: rgba(148,163,184,0.22);
+    color: var(--color-text, #111827);
 }
 
 .btn-secondary:hover {
-    background: #e5e7eb;
+    transform: translateY(-1px);
+    filter: brightness(1.03);
 }
 
 /* ===== Tabela de logs ===== */
-
 .logs-table-wrapper {
     max-height: 420px;
     overflow: auto;
+    border-radius: 14px;
+    border: 1px solid var(--table-border, rgba(148,163,184,0.55));
 }
 
 .logs-table {
@@ -225,7 +254,7 @@
 }
 
 .logs-table thead tr {
-    background: #f3e8ff;
+    background: var(--table-header-bg, #f3e8ff);
 }
 
 .logs-table th,
@@ -235,21 +264,26 @@
 }
 
 .logs-table th {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #6b7280;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+    color: var(--table-header-text, #6b7280);
+    border-bottom: 1px solid var(--table-border, rgba(148,163,184,0.55));
 }
 
 .logs-table tbody tr:nth-child(even) {
-    background: #faf5ff;
+    background: rgba(243, 232, 255, 0.55);
+}
+body.dark-mode .logs-table tbody tr:nth-child(even) {
+    background: rgba(0,0,0,0.10);
 }
 
+/* (REMOVIDO) hover antigo que brigava com o novo
 .logs-table tbody tr:hover {
-    background: #efe7ff;
+    background: var(--table-row-hover-bg, #efe7ff);
 }
+*/
 
 .logs-descricao {
     max-width: 420px;
@@ -260,17 +294,19 @@
 
 .logs-empty {
     text-align: center;
-    color: #9ca3af;
+    color: rgba(156, 163, 175, 0.95);
     padding: 18px 8px;
+}
+body.dark-mode .logs-empty {
+    color: rgba(231,217,242,0.9);
 }
 
 .logs-sistema {
     font-style: italic;
-    color: #6b7280;
+    color: var(--cor-texto-secundario, #6b7280);
 }
 
 /* ===== Linha inferior com 3 cards ===== */
-
 .admin-actions-row {
     margin-top: 8px;
     display: grid;
@@ -279,11 +315,11 @@
 }
 
 .admin-action-card {
-    background: #ffffff;
+    background: var(--card-bg, #ffffff);
     border-radius: 14px;
     padding: 14px 16px;
-    box-shadow: 0 10px 30px rgba(67, 5, 78, 0.08);
-    border: 1px solid rgba(102, 44, 146, 0.08);
+    box-shadow: var(--card-shadow, 0 10px 30px rgba(67, 5, 78, 0.08));
+    border: 1px solid var(--card-border, rgba(102, 44, 146, 0.08));
     text-decoration: none;
     color: inherit;
     display: flex;
@@ -295,7 +331,7 @@
 .admin-action-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 16px 40px rgba(67, 5, 78, 0.16);
-    border-color: rgba(102, 44, 146, 0.3);
+    border-color: rgba(236, 0, 137, 0.45);
 }
 
 .action-icon {
@@ -305,17 +341,23 @@
 
 .action-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-text, #111827);
 }
 
 .action-text {
     font-size: 13px;
-    color: #6b7280;
+    color: var(--cor-texto-secundario, #6b7280);
+}
+
+/* ===== Ajustes de contraste no DARK ===== */
+body.dark-mode .logs-title,
+body.dark-mode .admin-title,
+body.dark-mode .action-title{
+    color: var(--neutral-text-light, #fdf8ff);
 }
 
 /* ===== Responsivo ===== */
-
 @media (max-width: 992px) {
     .admin-page {
         padding: 18px 16px;
@@ -353,4 +395,64 @@
         width: 100%;
         justify-content: center;
     }
+}
+
+/* =========================================================
+   HOVER da tabela de logs no mesmo estilo da tabela de eventos
+   (events_list.css: fundo #fdf3ff e cursor pointer)
+   + dark mode com fundo claro e texto escuro (pra não sumir)
+   ========================================================= */
+
+.logs-table tbody tr:hover {
+    background: #fdf3ff !important;
+    cursor: pointer;
+}
+
+.logs-table tbody tr:hover td,
+.logs-table tbody tr:hover td *{
+    color: var(--color-text, #111827) !important;
+}
+
+body.dark-mode .logs-table tbody tr:hover{
+    background: rgba(255,255,255,0.92) !important;
+}
+body.dark-mode .logs-table tbody tr:hover td,
+body.dark-mode .logs-table tbody tr:hover td *{
+    color: #1b1021 !important;
+}
+
+/* =========================================================
+   LINHA SELECIONADA – ADMIN DASHBOARD
+   (igual à lista de eventos)
+   ========================================================= */
+
+.logs-table tbody tr{
+    position: relative;
+}
+
+.logs-table tbody tr.selected{
+    background: rgba(191, 0, 135, 0.16) !important;
+}
+
+/* barra magenta lateral */
+.logs-table tbody tr.selected::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--brand-magenta, #ec0089);
+    border-radius: 2px;
+}
+
+/* texto sempre legível (claro) */
+.logs-table tbody tr.selected td,
+.logs-table tbody tr.selected td *{
+    color: var(--color-text, #111827) !important;
+}
+
+/* dark mode: destaque sutil sem estourar */
+body.dark-mode .logs-table tbody tr.selected{
+    background: rgba(255,255,255,0.12) !important;
 }

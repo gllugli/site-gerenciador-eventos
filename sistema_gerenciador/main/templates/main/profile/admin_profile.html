@@ -32,13 +32,13 @@
     <div class="shell">
         <main class="main">
 
-            <!-- TOPBAR (mesmo padrão do admin) -->
+            <!-- TOPBAR -->
             <header class="topbar">
                 <div class="topbar-left">
                     <a href="javascript:history.back()" class="btn-back">
                         <span class="back-arrow">&larr;</span>
                     </a>
-                    <h1>Administração de usuários</h1>
+                    <h1>Usuários</h1>
                 </div>
 
                 <div class="topbar-center">
@@ -54,9 +54,7 @@
                 </div>
 
                 <div class="topbar-right">
-                    <div class="circle-icon">
-                        <span class="ci">T</span>
-                    </div>
+                    <button class="circle-icon" id="themeToggle" type="button" aria-label="Alternar tema">🌙</button>
                     <button class="btn-perfil" type="button">
                         Perfil | {{ request.user.email }}
                     </button>
@@ -77,15 +75,15 @@
                         </div>
                     </div>
 
-                    <!-- Botão criar -->
+                    <!-- AÇÕES (ABREM MODAIS) -->
                     <div class="events-actions-top users-actions-top">
                         <button type="button" class="btn-detalhes" id="btn-abrir-criar">
                             + Criar novo usuário
                         </button>
                     </div>
 
-                    <!-- Tabela -->
-                    <div class="table-wrapper">
+                    <!-- TABELA (COM ROLAGEM) -->
+                    <div class="table-wrapper users-table-scroll">
                         <table class="events-table users-table">
                             <thead>
                                 <tr>
@@ -160,7 +158,7 @@
                  MODAL: CRIAR USUÁRIO
                  ========================= -->
             <div id="modal-criar-usuario" class="modal-overlay" aria-hidden="true">
-                <div class="modal-card user-modal-card">
+                <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Criar usuário">
                     <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
 
                     <div class="modal-header">
@@ -168,6 +166,7 @@
                     </div>
 
                     <div class="modal-body">
+                        <!-- POST na view correta -->
                         <form method="post"
                               action="{% url 'usuarios_list' %}"
                               class="event-form user-form"
@@ -179,51 +178,30 @@
                             <div class="event-form-grid user-form-grid">
                                 <div class="form-group form-group-full">
                                     <label>Nome completo<span class="required-asterisk">*</span></label>
-                                    <input type="text"
-                                           name="nome_completo"
-                                           class="input-field"
-                                           maxlength="50"
-                                           required>
+                                    <input type="text" name="nome_completo" class="input-field" maxlength="50" required>
                                     <span class="field-error" id="erro-nome-criar"></span>
                                 </div>
 
                                 <div class="form-group form-group-full">
                                     <label>E-mail (login)<span class="required-asterisk">*</span></label>
-                                    <input type="email"
-                                           name="email"
-                                           id="email-criar"
-                                           class="input-field"
-                                           required>
+                                    <input type="email" name="email" id="email-criar" class="input-field" required>
                                     <span class="field-error" id="erro-email-criar"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Telefone<span class="required-asterisk">*</span></label>
-                                    <input type="text"
-                                           name="telefone"
-                                           id="telefone-criar"
-                                           class="input-field"
-                                           maxlength="15"
-                                           inputmode="numeric"
-                                           required>
+                                    <input type="text" name="telefone" id="telefone-criar" class="input-field" maxlength="15" inputmode="numeric" required>
                                     <span class="field-error" id="erro-telefone-criar"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Instituição</label>
-                                    <input type="text"
-                                           name="instituicao"
-                                           id="instituicao-criar"
-                                           class="input-field"
-                                           maxlength="100">
+                                    <input type="text" name="instituicao" id="instituicao-criar" class="input-field" maxlength="100">
                                 </div>
 
                                 <div class="form-group">
                                     <label>Perfil<span class="required-asterisk">*</span></label>
-                                    <select name="tipo_perfil"
-                                            id="tipo-perfil-criar"
-                                            class="input-field"
-                                            required>
+                                    <select name="tipo_perfil" id="tipo-perfil-criar" class="input-field" required>
                                         <option value="AL">Aluno</option>
                                         <option value="PR">Professor</option>
                                         <option value="ADM">Administrador</option>
@@ -233,32 +211,20 @@
 
                                 <div class="form-group">
                                     <label>Senha<span class="required-asterisk">*</span></label>
-                                    <input type="password"
-                                           name="senha"
-                                           id="senha-criar"
-                                           class="input-field"
-                                           required>
+                                    <input type="password" name="senha" id="senha-criar" class="input-field" required>
                                     <span class="field-error" id="erro-senha-criar"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Confirmar senha<span class="required-asterisk">*</span></label>
-                                    <input type="password"
-                                           name="senha2"
-                                           id="senha2-criar"
-                                           class="input-field"
-                                           required>
+                                    <input type="password" name="senha2" id="senha2-criar" class="input-field" required>
                                     <span class="field-error" id="erro-senha2-criar"></span>
                                 </div>
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn-cancelar-modal" data-close-modal>
-                                    Cancelar
-                                </button>
-                                <button type="submit" class="btn-detalhes" id="btn-submit-criar" disabled>
-                                    Criar usuário
-                                </button>
+                                <button type="button" class="btn-cancelar-modal" data-close-modal>Cancelar</button>
+                                <button type="submit" class="btn-detalhes" id="btn-submit-criar" disabled>Criar usuário</button>
                             </div>
                         </form>
                     </div>
@@ -269,7 +235,7 @@
                  MODAL: EDITAR USUÁRIO
                  ========================= -->
             <div id="modal-editar-usuario" class="modal-overlay" aria-hidden="true">
-                <div class="modal-card user-modal-card">
+                <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Editar usuário">
                     <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
 
                     <div class="modal-header">
@@ -277,6 +243,7 @@
                     </div>
 
                     <div class="modal-body">
+                        <!-- POST na view correta -->
                         <form method="post"
                               action="{% url 'usuarios_list' %}"
                               class="event-form user-form"
@@ -289,51 +256,29 @@
                             <div class="event-form-grid user-form-grid">
                                 <div class="form-group form-group-full">
                                     <label>Nome completo<span class="required-asterisk">*</span></label>
-                                    <input type="text"
-                                           name="nome_completo"
-                                           id="editar-nome"
-                                           class="input-field"
-                                           maxlength="50"
-                                           required>
+                                    <input type="text" name="nome_completo" id="editar-nome" class="input-field" maxlength="50" required>
                                     <span class="field-error" id="erro-nome-editar"></span>
                                 </div>
 
                                 <div class="form-group form-group-full">
                                     <label>E-mail (login)</label>
-                                    <input type="email"
-                                           id="editar-email"
-                                           class="input-field"
-                                           disabled>
-                                    <span class="field-error"></span>
+                                    <input type="email" id="editar-email" class="input-field" disabled>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Telefone<span class="required-asterisk">*</span></label>
-                                    <input type="text"
-                                           name="telefone"
-                                           id="editar-telefone"
-                                           class="input-field"
-                                           maxlength="15"
-                                           inputmode="numeric"
-                                           required>
+                                    <input type="text" name="telefone" id="editar-telefone" class="input-field" maxlength="15" inputmode="numeric" required>
                                     <span class="field-error" id="erro-telefone-editar"></span>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Instituição</label>
-                                    <input type="text"
-                                           name="instituicao"
-                                           id="editar-instituicao"
-                                           class="input-field"
-                                           maxlength="100">
+                                    <input type="text" name="instituicao" id="editar-instituicao" class="input-field" maxlength="100">
                                 </div>
 
                                 <div class="form-group">
                                     <label>Perfil<span class="required-asterisk">*</span></label>
-                                    <select name="tipo_perfil"
-                                            id="editar-tipo-perfil"
-                                            class="input-field"
-                                            required>
+                                    <select name="tipo_perfil" id="editar-tipo-perfil" class="input-field" required>
                                         <option value="AL">Aluno</option>
                                         <option value="PR">Professor</option>
                                         <option value="ADM">Administrador</option>
@@ -343,21 +288,14 @@
 
                                 <div class="form-group form-group-full">
                                     <label>Nova senha (opcional)</label>
-                                    <input type="password"
-                                           name="nova_senha"
-                                           id="editar-nova-senha"
-                                           class="input-field">
+                                    <input type="password" name="nova_senha" id="editar-nova-senha" class="input-field">
                                     <span class="field-error" id="erro-novasenha-editar"></span>
                                 </div>
                             </div>
 
                             <div class="modal-footer">
-                                <button type="button" class="btn-cancelar-modal" data-close-modal>
-                                    Cancelar
-                                </button>
-                                <button type="submit" class="btn-detalhes" id="btn-submit-editar" disabled>
-                                    Salvar alterações
-                                </button>
+                                <button type="button" class="btn-cancelar-modal" data-close-modal>Cancelar</button>
+                                <button type="submit" class="btn-detalhes" id="btn-submit-editar" disabled>Salvar alterações</button>
                             </div>
                         </form>
                     </div>
@@ -369,7 +307,7 @@
                  MODAL: EXCLUIR USUÁRIO
                  ========================= -->
             <div id="modal-excluir-usuario" class="modal-overlay" aria-hidden="true">
-                <div class="modal-card user-modal-card">
+                <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Excluir usuário">
                     <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
 
                     <div class="modal-header">
@@ -381,21 +319,16 @@
                     </div>
 
                     <div class="modal-footer modal-footer-inline">
-                        <button type="button" class="btn-cancelar-modal" data-close-modal>
-                            Cancelar
-                        </button>
+                        <button type="button" class="btn-cancelar-modal" data-close-modal>Cancelar</button>
 
+                        <!-- POST na view correta -->
                         <form method="post"
                               action="{% url 'usuarios_list' %}"
                               id="form-excluir-usuario">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="usuario_id" id="excluir-usuario-id">
-                            <button type="submit"
-                                    class="btn-delete-evento"
-                                    onclick="return confirm('Tem certeza que deseja excluir este usuário?');">
-                                Excluir usuário
-                            </button>
+                            <button type="submit" class="btn-delete-evento">Excluir usuário</button>
                         </form>
                     </div>
                 </div>
@@ -405,7 +338,7 @@
                  MODAL DE ALERTA GLOBAL
                  ========================= -->
             <div id="modal-alerta" class="modal-overlay" aria-hidden="true">
-                <div class="modal-card user-modal-card">
+                <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Alerta">
                     <button type="button" class="modal-close" aria-label="Fechar">&times;</button>
 
                     <div class="modal-header">
@@ -417,9 +350,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-detalhes" data-close-modal>
-                            Entendi
-                        </button>
+                        <button type="button" class="btn-detalhes" data-close-modal>Entendi</button>
                     </div>
                 </div>
             </div>
@@ -430,6 +361,20 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // ===== DARK MODE =====
+    const body = document.body;
+    const toggle = document.getElementById("themeToggle");
+
+    const savedTheme = localStorage.getItem("theme") || "light";
+    if (savedTheme === "dark") body.classList.add("dark-mode");
+
+    if (toggle) {
+        toggle.addEventListener("click", function () {
+            body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
+        });
+    }
+
     // -----------------------------
     // Regex
     // -----------------------------
@@ -458,12 +403,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function abrirModal(modal) {
         if (!modal) return;
         modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
     }
 
     function fecharTodosModais() {
         document.querySelectorAll(".modal-overlay.is-open").forEach(m => {
             m.classList.remove("is-open");
+            m.setAttribute("aria-hidden", "true");
         });
+        document.body.classList.remove("modal-open");
     }
 
     // Fechar modais: X e botões com data-close-modal
@@ -487,23 +436,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // -----------------------------
-    // Modal de alerta (profissional)
+    // Modal de alerta
     // -----------------------------
     function showAlert(titulo, mensagem) {
         document.getElementById("modal-alerta-titulo").textContent = titulo || "Atenção";
         document.getElementById("modal-alerta-mensagem").textContent = mensagem || "";
         abrirModal(modalAlerta);
-    }
-
-    function clearAndFocus(...ids) {
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.value = "";
-                el.classList.add("input-error");
-                el.focus();
-            }
-        });
     }
 
     function removeErrorClassOnInput(el) {
@@ -580,12 +518,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // -----------------------------
-    // Máscara de telefone (BR)
-    // (61) 99999-8888
+    // Máscara de telefone (61) 99999-8888
     // -----------------------------
     function maskTelefone(value) {
         const digits = (value || "").replace(/\D/g, "").slice(0, 11);
-
         if (digits.length === 0) return "";
         if (digits.length < 3) return `(${digits}`;
         if (digits.length < 7) return `(${digits.slice(0,2)}) ${digits.slice(2)}`;
@@ -598,9 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener("input", function () {
             const caretAtEnd = input.selectionStart === input.value.length;
             input.value = maskTelefone(input.value);
-            if (caretAtEnd) {
-                input.selectionStart = input.selectionEnd = input.value.length;
-            }
+            if (caretAtEnd) input.selectionStart = input.selectionEnd = input.value.length;
         });
         input.value = maskTelefone(input.value);
     }
@@ -624,18 +558,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function setError(id, msg) {
         const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = msg || "";
+        if (el) el.textContent = msg || "";
     }
 
     function resetCriarForm() {
         criarForm.reset();
-        setError("erro-nome-criar", "");
-        setError("erro-email-criar", "");
-        setError("erro-telefone-criar", "");
-        setError("erro-tipo-criar", "");
-        setError("erro-senha-criar", "");
-        setError("erro-senha2-criar", "");
+        ["erro-nome-criar","erro-email-criar","erro-telefone-criar","erro-tipo-criar","erro-senha-criar","erro-senha2-criar"]
+            .forEach(id => setError(id, ""));
         btnSubmitCriar.disabled = true;
     }
 
@@ -649,53 +578,26 @@ document.addEventListener("DOMContentLoaded", function () {
         const s1 = criarSenha.value || "";
         const s2 = criarSenha2.value || "";
 
-        if (nome.length < 3) {
-            setError("erro-nome-criar", "Informe o nome completo.");
-            ok = false;
-        } else {
-            setError("erro-nome-criar", "");
-        }
+        if (nome.length < 3) { setError("erro-nome-criar", "Informe o nome completo."); ok = false; }
+        else setError("erro-nome-criar", "");
 
-        if (!EMAIL_REGEX.test(email)) {
-            setError("erro-email-criar", "E-mail inválido. Ex.: usuario@dominio.com");
-            ok = false;
-        } else {
-            setError("erro-email-criar", "");
-        }
+        if (!EMAIL_REGEX.test(email)) { setError("erro-email-criar", "E-mail inválido. Ex.: usuario@dominio.com"); ok = false; }
+        else setError("erro-email-criar", "");
 
-        if (telDigits.length !== 11) {
-            setError("erro-telefone-criar", "Telefone inválido. Ex.: (61) 99999-8888");
-            ok = false;
-        } else {
-            setError("erro-telefone-criar", "");
-        }
+        if (telDigits.length !== 11) { setError("erro-telefone-criar", "Telefone inválido. Ex.: (61) 99999-8888"); ok = false; }
+        else setError("erro-telefone-criar", "");
 
-        if (!tipo) {
-            setError("erro-tipo-criar", "Selecione um perfil.");
-            ok = false;
-        } else {
-            setError("erro-tipo-criar", "");
-        }
+        if (!tipo) { setError("erro-tipo-criar", "Selecione um perfil."); ok = false; }
+        else setError("erro-tipo-criar", "");
 
         if (!SENHA_REGEX.test(s1)) {
-            setError(
-                "erro-senha-criar",
-                "Senha fraca: mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial."
-            );
+            setError("erro-senha-criar","Senha fraca: mínimo 8 caracteres, 1 maiúscula, 1 minúscula, 1 número e 1 especial.");
             ok = false;
-        } else {
-            setError("erro-senha-criar", "");
-        }
+        } else setError("erro-senha-criar", "");
 
-        if (s2.length === 0) {
-            setError("erro-senha2-criar", "Confirme a senha.");
-            ok = false;
-        } else if (s1 !== s2) {
-            setError("erro-senha2-criar", "As senhas não conferem.");
-            ok = false;
-        } else {
-            setError("erro-senha2-criar", "");
-        }
+        if (!s2) { setError("erro-senha2-criar", "Confirme a senha."); ok = false; }
+        else if (s1 !== s2) { setError("erro-senha2-criar", "As senhas não conferem."); ok = false; }
+        else setError("erro-senha2-criar", "");
 
         btnSubmitCriar.disabled = !ok;
         return ok;
@@ -737,26 +639,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const tipo = editarTipo.value;
         const novaSenha = (editarNovaSenha.value || "");
 
-        if (nome.length < 3) {
-            document.getElementById("erro-nome-editar").textContent = "Informe o nome completo.";
-            ok = false;
-        } else {
-            document.getElementById("erro-nome-editar").textContent = "";
-        }
+        if (nome.length < 3) { document.getElementById("erro-nome-editar").textContent = "Informe o nome completo."; ok = false; }
+        else document.getElementById("erro-nome-editar").textContent = "";
 
-        if (telDigits.length !== 11) {
-            document.getElementById("erro-telefone-editar").textContent = "Telefone inválido. Ex.: (61) 99999-8888";
-            ok = false;
-        } else {
-            document.getElementById("erro-telefone-editar").textContent = "";
-        }
+        if (telDigits.length !== 11) { document.getElementById("erro-telefone-editar").textContent = "Telefone inválido. Ex.: (61) 99999-8888"; ok = false; }
+        else document.getElementById("erro-telefone-editar").textContent = "";
 
-        if (!tipo) {
-            document.getElementById("erro-tipo-editar").textContent = "Selecione um perfil.";
-            ok = false;
-        } else {
-            document.getElementById("erro-tipo-editar").textContent = "";
-        }
+        if (!tipo) { document.getElementById("erro-tipo-editar").textContent = "Selecione um perfil."; ok = false; }
+        else document.getElementById("erro-tipo-editar").textContent = "";
 
         if (novaSenha && !SENHA_REGEX.test(novaSenha)) {
             document.getElementById("erro-novasenha-editar").textContent =
@@ -785,8 +675,7 @@ document.addEventListener("DOMContentLoaded", function () {
     resetCriarForm();
 
     // -----------------------------
-    // FEATURE: erro UNIQUE sem tela feia
-    // Lê Django messages (oculto) e mostra popup + limpa campo
+    // Erros do backend (UNIQUE) -> modal alerta
     // -----------------------------
     (function handleBackendErrors() {
         const container = document.getElementById("django-messages");
@@ -795,36 +684,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const msgs = Array.from(container.querySelectorAll("div"));
         if (!msgs.length) return;
 
-        // Abre o alerta com a primeira mensagem (prioridade) e tenta inferir campo
         const raw = msgs.map(m => m.textContent).join(" | ");
         const texto = raw.toLowerCase();
 
-        // Se o backend mandar erro de UNIQUE de telefone
         if (texto.includes("telefone") && (texto.includes("já existe") || texto.includes("unique") || texto.includes("duplic"))) {
-            showAlert(
-                "Telefone já cadastrado",
-                "Este telefone já está vinculado a outro usuário. Informe um telefone diferente."
-            );
-
-            // limpa e foca (criar e editar, se estiverem na tela)
-            clearAndFocus("telefone-criar", "editar-telefone");
+            showAlert("Telefone já cadastrado","Este telefone já está vinculado a outro usuário. Informe um telefone diferente.");
             return;
         }
 
-        // Se o backend mandar erro de e-mail duplicado
         if ((texto.includes("email") || texto.includes("e-mail")) && (texto.includes("já existe") || texto.includes("unique") || texto.includes("duplic"))) {
-            showAlert(
-                "E-mail já cadastrado",
-                "Este e-mail já está em uso. Utilize outro endereço de e-mail."
-            );
-            clearAndFocus("email-criar");
+            showAlert("E-mail já cadastrado","Este e-mail já está em uso. Utilize outro endereço de e-mail.");
             return;
         }
 
-        // Genérico
         showAlert("Erro ao salvar", raw);
     })();
 });
 </script>
+
 </body>
 </html>

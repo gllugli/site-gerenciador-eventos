@@ -1,306 +1,281 @@
-/* -----------------------------------------------------
-   VARIÁVEIS DE TEMA
------------------------------------------------------ */
-:root {
-    /* Cores da marca */
-    --color-brand-primary: #6a1b9a;
-    --color-brand-secondary: #4a148c;
-    --color-brand-accent: #e91e63;
-
-    /* Cores de fundo */
-    --bg-base: #f6f6f6;
-    --bg-card: #ffffff;
-    --bg-input: #f3f4f6;
-    --bg-input-alt: #e6e6e6;
-    --bg-auth: #f5f3ff;
-
-    /* Texto */
-    --text-dark: #374151;
-    --text-medium: #444;
-    --text-light: #ffffff;
-    --text-title: #4a1468;
-
-    /* Estados de erro */
-    --error-red: #d93025;
-    --error-bg: #fff5f5;
-
-    /* Bordas */
-    --border-light: #e5e7eb;
-    --border-input: #ccc;
-
-    /* Sombras */
-    --shadow-card: 0 4px 18px rgba(0,0,0,0.15);
-    --shadow-auth: 0 20px 40px rgba(15, 23, 42, 0.12);
-
-    /* Botões */
-    --btn-primary: #4a148c;
-    --btn-primary-hover: #6a1b9a;
-
-    /* Foco */
-    --focus-color: #7b1fa2;
+/* ============================================================
+   RESET / BASE
+============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", Arial, sans-serif;
 }
 
-/* -----------------------------------------------------
-   BODY
------------------------------------------------------ */
+html, body { height: 100%; }
+
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: var(--bg-base);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-/* -----------------------------------------------------
-   HEADER
------------------------------------------------------ */
-.header {
-    background-color: var(--color-brand-primary);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 60px;
-    color: var(--text-light);
-    font-size: 32px;
-    font-weight: bold;
-    border-bottom: 4px solid var(--color-brand-accent);
+/* ============================================================
+   TOKENS (alinhar com as telas internas)
+============================================================ */
+:root {
+  --brand-roxo-escuro: #43054e;
+  --brand-roxo:        #662c92;
+  --brand-lilas:       #bf0087;
+  --brand-magenta:     #ec0089;
+  --brand-amarelo:     #fde100;
+
+  --color-bg:      #f6f1f8;
+  --color-card:    #ffffff;
+  --color-text:    #1b1021;
+  --color-muted:   rgba(27, 16, 33, 0.65);
+  --color-border:  rgba(43, 19, 54, 0.12);
+
+  --shadow-lg: 0 24px 90px rgba(0,0,0,0.16);
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+
+  --focus: 0 0 0 3px rgba(102, 44, 146, 0.18);
+
+  --error-red: #d93025;
+  --error-bg:  #fff5f5;
 }
 
-.logo {
-    font-size: 38px;
-    font-weight: bold;
+/* ============================================================
+   ESTRUTURA
+============================================================ */
+.page { min-height: 100vh; }
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* -----------------------------------------------------
-   CARD / CONTAINER (genérico)
------------------------------------------------------ */
-.container {
-    display: flex;
-    justify-content: center;
-    margin-top: 190px;
+/* ============================================================
+   TOPBAR
+============================================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 22px 28px;
+  background: linear-gradient(90deg, var(--brand-roxo-escuro), var(--brand-roxo));
+  color: #fff;
+  border-bottom: 4px solid var(--brand-magenta);
 }
 
-.card {
-    width: 650px;
-    background: var(--bg-card);
-    padding: 40px;
-    border-radius: 14px;
-    box-shadow: var(--shadow-card);
-    text-align: center;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-h2 {
-    color: var(--text-title);
-    margin-bottom: 25px;
+.brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--brand-amarelo);
+  box-shadow: 0 0 0 4px rgba(253, 225, 0, 0.14);
 }
 
-/* -----------------------------------------------------
-   INPUTS / GRUPOS (genéricos)
------------------------------------------------------ */
-.row {
-    display: flex;
-    gap: 45px;
-    margin-bottom: 30px;
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
-.input-group {
-    width: 100%;
-    text-align: left;
+.brand-logo {
+  height: 44px;
+  width: auto;
+  display: block;
 }
 
-.input-group label {
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--text-medium);
+/* ============================================================
+   MAIN / AUTH
+============================================================ */
+.main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 26px;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 11px;
-    border-radius: 6px;
-    border: 1px solid var(--border-input);
-    margin-top: 6px;
-    background: var(--bg-input-alt);
-}
-
-/* -----------------------------------------------------
-   BOTÃO PADRÃO (genérico)
------------------------------------------------------ */
-.btn {
-    width: 60%;
-    padding: 13px;
-    background: var(--btn-primary);
-    color: var(--text-light);
-    font-weight: bold;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn:hover {
-    background: var(--btn-primary-hover);
-}
-
-/* -----------------------------------------------------
-   LINKS
------------------------------------------------------ */
-.link {
-    margin-top: 15px;
-    font-size: 14px;
-    color: var(--color-brand-secondary);
-    cursor: pointer;
-}
-
-/* -----------------------------------------------------
-   TELA DE AUTENTICAÇÃO
------------------------------------------------------ */
-.auth-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: var(--bg-auth);
+.auth-wrap {
+  width: 100%;
+  max-width: 980px; /* registro é maior */
+  display: grid;
+  gap: 14px;
 }
 
 .auth-card {
-    background: var(--bg-card);
-    padding: 40px 48px;
-    border-radius: 24px;
-    max-width: 900px;
-    width: 100%;
-    box-shadow: var(--shadow-auth);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 34px;
 }
 
 .auth-title {
-    text-align: center;
-    margin-bottom: 32px;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--color-brand-secondary);
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--brand-roxo-escuro);
+  letter-spacing: 0.2px;
 }
 
-/* -----------------------------------------------------
-   FORMULÁRIO
------------------------------------------------------ */
+.auth-subtitle {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.form { margin-top: 18px; }
+
+/* ============================================================
+   GRID DO FORM
+============================================================ */
 .form-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 48px;
-    row-gap: 18px;
-    margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 14px;
+  margin-bottom: 14px;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--text-dark);
-    position: relative;
-    margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
 }
 
-/* campo que ocupa o card todo */
-.form-group.full-width {
-    grid-column: 1 / -1;
+.form-group.full-width { grid-column: 1 / -1; }
+
+.label {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(27, 16, 33, 0.85);
 }
 
-/* inputs/ selects se você usar .input-field nos widgets */
-.input-field {
-    width: 100%;
-    padding: 12px 16px;
-    margin-top: 2px;
-    margin-bottom: 2px;
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
-    background: var(--bg-input);
-    font-size: 14px;
+/* ============================================================
+   INPUTS (aplica nos widgets do Django)
+   OBS: garanta no forms.py que todos os campos tenham class="input"
+============================================================ */
+.input,
+select.input,
+textarea.input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(43, 19, 54, 0.14);
+  background: #fbf8fd;
+  color: var(--color-text);
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.input-field:focus {
-    outline: none;
-    border-color: var(--focus-color);
-    box-shadow: 0 0 0 1px var(--focus-color);
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(102, 44, 146, 0.55);
+  box-shadow: var(--focus);
 }
 
-/* select com mesmo estilo */
-.form-group select.input-field {
-    appearance: none;
+input::placeholder { color: rgba(27, 16, 33, 0.45); }
+
+/* ============================================================
+   BOTÕES
+============================================================ */
+.btn {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 12px 14px;
+  transition: transform 0.05s ease, filter 0.15s ease;
 }
 
-/* -----------------------------------------------------
-   BOTÃO PRIMÁRIO DO FORM
------------------------------------------------------ */
+.btn:active { transform: translateY(1px); }
+
 .btn-primary {
-    margin-top: 8px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 999px;
-    border: none;
-    background: var(--btn-primary);
-    color: var(--text-light);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
+  background: linear-gradient(90deg, var(--brand-roxo-escuro), var(--brand-lilas));
+  color: #fff;
+  margin-top: 6px;
 }
 
-.btn-primary:hover {
-    background: var(--btn-primary-hover);
-}
+.btn-primary:hover { filter: brightness(1.05); }
 
-/* Botão desativado */
 .btn-primary:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-/* -----------------------------------------------------
-   RODAPÉ DO FORM
------------------------------------------------------ */
+/* ============================================================
+   FOOTER
+============================================================ */
 .auth-footer {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 14px;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--color-muted);
 }
 
-.auth-footer a {
-    color: var(--color-brand-secondary);
-    text-decoration: none;
+.link {
+  color: var(--brand-roxo);
+  text-decoration: none;
+  font-weight: 800;
 }
 
-.auth-footer a:hover {
-    text-decoration: underline;
+.link:hover { text-decoration: underline; }
+
+.auth-footnote {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(27, 16, 33, 0.55);
 }
 
-/* -----------------------------------------------------
-   RESPONSIVO
------------------------------------------------------ */
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-        column-gap: 0;
-    }
-}
-
-/* -----------------------------------------------------
+/* ============================================================
    ERROS / REQUIRED
------------------------------------------------------ */
+============================================================ */
 .required-asterisk {
-    color: var(--error-red);
-    font-weight: 700;
-    margin-left: 2px;
+  color: var(--error-red);
+  font-weight: 800;
+  margin-left: 2px;
 }
 
 .input-error {
-    border: 1px solid var(--error-red) !important;
-    background-color: var(--error-bg);
+  border: 1px solid var(--error-red) !important;
+  background-color: var(--error-bg) !important;
 }
 
 .error-message {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--error-red);
-    line-height: 1.3;
-    font-weight: 400;
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--error-red);
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+/* ============================================================
+   RESPONSIVO
+============================================================ */
+@media (max-width: 820px) {
+  .form-row { grid-template-columns: 1fr; }
+  .auth-card { padding: 26px; }
+}
+
+@media (max-width: 520px) {
+  .topbar { padding: 18px 18px; }
+  .brand-title { font-size: 18px; }
+  .brand-logo { height: 38px; }
 }

@@ -43,49 +43,51 @@
         </aside>
 
         <!-- MAIN -->
-        <div class="main">
+        <main class="main">
 
-            <!-- TOPBAR -->
+            <!-- TOPBAR (IGUAL À TELA DE EVENTOS) -->
             <header class="topbar">
-
                 <div class="topbar-left">
                     <h1>Painel Administrativo</h1>
                 </div>
 
-                <div class="topbar-right">
-                    <div class="circle-icon" id="themeToggle">🌙</div>
-                    <div class="topbar-user" id="topbarUser">
-                        <button type="button" class="btn-perfil" id="btnPerfil">
-                            <span class="btn-perfil-label">
-                                Perfil | {{ request.user.email }}
-                            </span>
-                        </button>
-
-                        <div class="perfil-dropdown" id="perfilDropdown">
-                            <div class="perfil-dropdown-header">
-                                <div class="perfil-avatar">
-                                    {{ request.user.first_name|default:request.user.username|slice:":1" }}
-                                </div>
-                                <div class="perfil-info">
-                                    <span class="perfil-name">
-                                        {{ request.user.get_full_name|default:request.user.username }}
-                                    </span>
-                                    <span class="perfil-email">
-                                        {{ request.user.email }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="perfil-dropdown-footer">
-                                <a href="{% url 'user_profile' %}" class="perfil-link">
-                                    Ver meu perfil
-                                </a>
-                            </div>
-                        </div>
+                <div class="topbar-center">
+                    <div class="search-box" role="search" aria-label="Buscar no painel administrativo">
+                        🔍
+                        <input id="adminTopbarSearch" type="text" placeholder="Buscar por data, usuário, ação ou objeto (opcional)">
                     </div>
-
                 </div>
 
+                <div class="topbar-right">
+                    <div class="circle-icon" id="themeToggle" title="Alternar tema">🌙</div>
+
+                    <button class="btn-perfil" id="btnPerfil" type="button">
+                        Perfil | {{ request.user.first_name|default:request.user.username }}
+                    </button>
+
+                    <!-- DROPDOWN (MESMA ESTRUTURA/CLASSES DO PADRÃO) -->
+                    <div class="user-dropdown" id="userDropdown" aria-hidden="true">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ request.user.get_full_name|default:request.user.username }}
+                                </div>
+                                <div class="user-email">
+                                    {{ request.user.email }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown-footer">
+                            <a href="{% url 'user_profile' %}" class="user-profile-link">
+                                Ver meu perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <!-- CONTEÚDO ADMIN -->
@@ -206,7 +208,7 @@
                         <div class="action-icon">👤</div>
                         <h3 class="action-title">Perfis de usuário</h3>
                         <p class="action-text">
-                            Visualize e gerencie os dados de usuários (ajuste depois para a tela de lista, se quiser).
+                            Visualize e gerencie os dados de usuários.
                         </p>
                     </a>
 
@@ -214,43 +216,66 @@
 
             </section>
 
-        </div>
+        </main>
     </div>
 </div>
 
 <script>
+    // ===== TEMA =====
     const body = document.body;
     const toggle = document.getElementById('themeToggle');
 
     const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
+    if (savedTheme === 'dark') body.classList.add('dark-mode');
+
+    if (toggle) {
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        });
     }
 
-    toggle.addEventListener('click', function () {
-        body.classList.toggle('dark-mode');
-        const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', newTheme);
-    });
+    // ===== DROPDOWN PERFIL (PADRÃO) =====
+    const btnPerfil = document.getElementById('btnPerfil');
+    const dropdown = document.getElementById('userDropdown');
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const btnPerfil = document.getElementById("btnPerfil");
-        const dropdown = document.getElementById("perfilDropdown");
-        const topbarUser = document.getElementById("topbarUser");
+    function setDropdownOpen(open) {
+        if (!dropdown) return;
+        dropdown.style.display = open ? 'block' : 'none';
+        dropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
 
-        if (!btnPerfil || !dropdown || !topbarUser) return;
-
-        btnPerfil.addEventListener("click", function (e) {
+    if (btnPerfil && dropdown) {
+        btnPerfil.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.classList.toggle("is-open");
+            const isOpen = dropdown.style.display === 'block';
+            setDropdownOpen(!isOpen);
         });
 
-        document.addEventListener("click", function (e) {
-            if (!topbarUser.contains(e.target)) {
-                dropdown.classList.remove("is-open");
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && !btnPerfil.contains(e.target)) {
+                setDropdownOpen(false);
             }
         });
-    });
+    }
+
+    // ===== SEARCH TOPBAR (OPCIONAL, APENAS FILTRA CARDS/SEÇÕES COM data-search) =====
+    (function () {
+        const input = document.getElementById("adminTopbarSearch");
+        if (!input) return;
+
+        const items = Array.from(document.querySelectorAll("[data-search]"));
+        if (items.length === 0) return;
+
+        function apply() {
+            const t = (input.value || "").trim().toLowerCase();
+            items.forEach((el) => {
+                const hay = (el.getAttribute("data-search") || "").toLowerCase();
+                el.style.display = (!t || hay.includes(t)) ? "" : "none";
+            });
+        }
+        input.addEventListener("input", apply);
+    })();
 </script>
 
 </body>

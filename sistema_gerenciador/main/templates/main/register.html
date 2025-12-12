@@ -2,304 +2,275 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Portal EnCUCA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portal EnCUCA</title>
 
-    <link rel="stylesheet" href="{% static 'main/style/register.css' %}">
+  <link rel="stylesheet" href="{% static 'main/style/register.css' %}">
 </head>
 
 <body>
+  <div class="page">
+    <div class="shell">
 
-    <div class="header">
-        <div>Central de Eventos</div>
-        <div class="logo">
-            <img src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png" height="50px"/>
+      <!-- TOPBAR (padrão interno) -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span class="brand-title">Central de Eventos</span>
+          </div>
         </div>
-    </div>
 
-    <div class="auth-wrapper">
-        <div class="auth-card">
+        <div class="topbar-right">
+          <img
+            class="brand-logo"
+            src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png"
+            alt="Logo CEUB"
+          />
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="auth-wrap">
+          <div class="auth-card">
             <h1 class="auth-title">Cadastre-se</h1>
+            <p class="auth-subtitle">Preencha os dados abaixo para criar sua conta.</p>
 
-            <form method="post" id="register-form" novalidate>
-                {% csrf_token %}
+            <form method="post" id="register-form" novalidate class="form">
+              {% csrf_token %}
 
-                <!-- Linha 1 -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.nome_completo.id_for_label }}">
-                            Nome Completo<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.nome_completo }}
-                        <span class="error-message" data-error-for="id_nome_completo"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">
-                            E-mail<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.email }}
-                        <span class="error-message" data-error-for="id_email"></span>
-                    </div>
+              <!-- Linha 1 -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="label" for="{{ form.nome_completo.id_for_label }}">
+                    Nome Completo<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.nome_completo }}
+                  <span class="error-message" data-error-for="id_nome_completo"></span>
                 </div>
 
-                <!-- Linha 2 -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.telefone.id_for_label }}">
-                            Telefone<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.telefone }}
-                        <span class="error-message" data-error-for="id_telefone"></span>
-                    </div>
+                <div class="form-group">
+                  <label class="label" for="{{ form.email.id_for_label }}">
+                    E-mail<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.email }}
+                  <span class="error-message" data-error-for="id_email"></span>
+                </div>
+              </div>
 
-                    <div class="form-group">
-                        <label for="{{ form.instituicao.id_for_label }}">
-                            Instituição<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.instituicao }}
-                        <span class="error-message" data-error-for="id_instituicao"></span>
-                    </div>
+              <!-- Linha 2 -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="label" for="{{ form.telefone.id_for_label }}">
+                    Telefone<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.telefone }}
+                  <span class="error-message" data-error-for="id_telefone"></span>
                 </div>
 
-                <!-- Linha 3: select ocupando o card todo -->
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="{{ form.tipo_perfil.id_for_label }}">
-                            Tipo de Perfil<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.tipo_perfil }}
-                        <span class="error-message" data-error-for="id_tipo_perfil"></span>
-                    </div>
+                <div class="form-group">
+                  <label class="label" for="{{ form.instituicao.id_for_label }}">
+                    Instituição<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.instituicao }}
+                  <span class="error-message" data-error-for="id_instituicao"></span>
+                </div>
+              </div>
+
+              <!-- Linha 3 -->
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label class="label" for="{{ form.tipo_perfil.id_for_label }}">
+                    Tipo de Perfil<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.tipo_perfil }}
+                  <span class="error-message" data-error-for="id_tipo_perfil"></span>
+                </div>
+              </div>
+
+              <!-- Linha 4 -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="label" for="{{ form.password1.id_for_label }}">
+                    Senha<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.password1 }}
+                  <span class="error-message" data-error-for="id_password1"></span>
                 </div>
 
-                <!-- Linha 4: senhas lado a lado -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">
-                            Senha<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.password1 }}
-                        <span class="error-message" data-error-for="id_password1"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">
-                            Confirmação de Senha<span class="required-asterisk">*</span>
-                        </label>
-                        {{ form.password2 }}
-                        <span class="error-message" data-error-for="id_password2"></span>
-                    </div>
+                <div class="form-group">
+                  <label class="label" for="{{ form.password2.id_for_label }}">
+                    Confirmação de Senha<span class="required-asterisk">*</span>
+                  </label>
+                  {{ form.password2 }}
+                  <span class="error-message" data-error-for="id_password2"></span>
                 </div>
+              </div>
 
-                <button type="submit" class="btn-primary" id="btn-submit" disabled>
-                    Cadastrar
-                </button>
+              <button type="submit" class="btn btn-primary" id="btn-submit" disabled>
+                Cadastrar
+              </button>
 
-                <p class="auth-footer">
-                    Já tem uma conta? <a href="{% url 'login_page' %}">Faça o login</a>
-                </p>
+              <p class="auth-footer">
+                Já tem uma conta? <a class="link" href="{% url 'login_page' %}">Faça o login</a>
+              </p>
             </form>
-        </div>
+          </div>
+
+          <p class="auth-footnote">
+            Ao criar a conta, você confirma que as informações fornecidas são verdadeiras.
+          </p>
+        </section>
+      </main>
+
     </div>
+  </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const form = document.getElementById("register-form");
-            const submitBtn = document.getElementById("btn-submit");
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("register-form");
+      const submitBtn = document.getElementById("btn-submit");
 
-            const fields = {
-                nome_completo: document.getElementById("id_nome_completo"),
-                email: document.getElementById("id_email"),
-                telefone: document.getElementById("id_telefone"),
-                instituicao: document.getElementById("id_instituicao"),
-                tipo_perfil: document.getElementById("id_tipo_perfil"),
-                password1: document.getElementById("id_password1"),
-                password2: document.getElementById("id_password2"),
-            };
+      const fields = {
+        nome_completo: document.getElementById("id_nome_completo"),
+        email: document.getElementById("id_email"),
+        telefone: document.getElementById("id_telefone"),
+        instituicao: document.getElementById("id_instituicao"),
+        tipo_perfil: document.getElementById("id_tipo_perfil"),
+        password1: document.getElementById("id_password1"),
+        password2: document.getElementById("id_password2"),
+      };
 
-            // controla se o campo já foi "tocado" (blur)
-            const touched = {};
-            Object.keys(fields).forEach((name) => {
-                touched[name] = false;
-            });
+      const touched = {};
+      Object.keys(fields).forEach((name) => (touched[name] = false));
 
-            function getErrorSpan(inputEl) {
-                return document.querySelector(
-                    '.error-message[data-error-for="' + inputEl.id + '"]'
-                );
-            }
+      function getErrorSpan(inputEl) {
+        return document.querySelector('.error-message[data-error-for="' + inputEl.id + '"]');
+      }
 
-            // Máscara de telefone
-            if (fields.telefone) {
-                fields.telefone.addEventListener("input", function (e) {
-                    let v = e.target.value.replace(/\D/g, "");
-                    if (v.length > 11) v = v.slice(0, 11);
-                    if (v.length >= 2) {
-                        v = "(" + v.slice(0, 2) + ") " + v.slice(2);
-                    }
-                    if (v.length >= 10) {
-                        v = v.slice(0, 10) + "-" + v.slice(10);
-                    }
-                    e.target.value = v;
-                });
-            }
-
-            function validateField(fieldName, showMessage) {
-                const el = fields[fieldName];
-                const errorSpan = getErrorSpan(el);
-                const value = (el.value || "").trim();
-                let message = "";
-
-                switch (fieldName) {
-                    case "nome_completo":
-                        if (!value) {
-                            message = "Informe seu nome completo.";
-                        } else if (value.length < 3) {
-                            message = "O nome deve ter ao menos 3 caracteres.";
-                        }
-                        break;
-
-                    case "email":
-                        if (!value) {
-                            message = "Informe um e-mail.";
-                        } else {
-                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                            if (!emailRegex.test(value)) {
-                                message = "Informe um e-mail válido.";
-                            }
-                        }
-                        break;
-
-                    case "telefone":
-                        if (!value) {
-                            message = "Informe um telefone.";
-                        } else {
-                            // AQUI ESTÁ A CORREÇÃO
-                            const digits = value.replace(/\D/g, "");
-                            if (digits.length !== 11) {
-                                message = "O telefone deve ter DDD + 9 dígitos.";
-                            }
-                        }
-                        break;
-
-                    case "instituicao":
-                        if (!value) {
-                            message = "Informe a instituição de ensino.";
-                        }
-                        break;
-
-                    case "tipo_perfil":
-                        if (!value) {
-                            message = "Selecione um tipo de perfil.";
-                        }
-                        break;
-
-                    case "password1":
-                        if (!value) {
-                            message = "Informe uma senha.";
-                        } else {
-                            const hasMinLength = value.length >= 8;
-                            const hasLetter = /[A-Za-z]/.test(value);
-                            const hasNumber = /[0-9]/.test(value);
-                            const hasSpecial = /[^A-Za-z0-9]/.test(value);
-
-                            if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecial) {
-                                message = "A senha deve ter no mínimo 8 caracteres, com letras, números e caractere especial.";
-                            }
-                        }
-
-                        // sempre que a senha 1 muda, revalida a confirmação (se já mexeu nela)
-                        if (fields.password2.value.trim() !== "") {
-                            validateField("password2", touched["password2"]);
-                        }
-                        break;
-
-                    case "password2":
-                        if (!value) {
-                            message = "Confirme a sua senha.";
-                        } else if (value !== fields.password1.value) {
-                            message = "As senhas não coincidem.";
-                        }
-                        break;
-                }
-
-                // Aplica estilo de erro
-                if (message) {
-                    el.classList.add("input-error");
-                } else {
-                    el.classList.remove("input-error");
-                }
-
-                // Controla a exibição da mensagem (só mostra se showMessage = true)
-                if (showMessage && errorSpan) {
-                    errorSpan.textContent = message;
-                } else if (!showMessage && errorSpan && !message) {
-                    // se está tudo certo, limpa eventual mensagem antiga
-                    errorSpan.textContent = "";
-                }
-
-                return !message;
-            }
-
-            function updateSubmitState() {
-                let allFilled = true;
-                let allValid = true;
-
-                for (const name in fields) {
-                    const el = fields[name];
-                    if (!el.value.trim()) {
-                        allFilled = false;
-                    }
-                    if (el.classList.contains("input-error")) {
-                        allValid = false;
-                    }
-                }
-
-                submitBtn.disabled = !(allFilled && allValid);
-            }
-
-            Object.keys(fields).forEach((name) => {
-                const el = fields[name];
-                if (!el) return;
-
-                // Quando o campo perde o foco: valida e exibe mensagem
-                el.addEventListener("blur", function () {
-                    touched[name] = true;
-                    validateField(name, true);  // mostra mensagem
-                    updateSubmitState();
-                });
-
-                // Enquanto digita: só atualiza mensagem se o campo já foi tocado
-                el.addEventListener("input", function () {
-                    if (touched[name]) {
-                        validateField(name, true);
-                    } else {
-                        validateField(name, false);
-                    }
-                    updateSubmitState();
-                });
-            });
-
-            // Validação final no submit (garante mensagens em todos os campos)
-            form.addEventListener("submit", function (e) {
-                let formOk = true;
-                Object.keys(fields).forEach((name) => {
-                    touched[name] = true;
-                    const valid = validateField(name, true);
-                    if (!valid) {
-                        formOk = false;
-                    }
-                });
-                updateSubmitState();
-                if (!formOk) {
-                    e.preventDefault();
-                }
-            });
-
-            updateSubmitState();
+      // Máscara de telefone
+      if (fields.telefone) {
+        fields.telefone.addEventListener("input", function (e) {
+          let v = e.target.value.replace(/\D/g, "");
+          if (v.length > 11) v = v.slice(0, 11);
+          if (v.length >= 2) v = "(" + v.slice(0, 2) + ") " + v.slice(2);
+          if (v.length >= 10) v = v.slice(0, 10) + "-" + v.slice(10);
+          e.target.value = v;
         });
-    </script>
+      }
 
+      function validateField(fieldName, showMessage) {
+        const el = fields[fieldName];
+        const errorSpan = getErrorSpan(el);
+        const value = (el.value || "").trim();
+        let message = "";
+
+        switch (fieldName) {
+          case "nome_completo":
+            if (!value) message = "Informe seu nome completo.";
+            else if (value.length < 3) message = "O nome deve ter ao menos 3 caracteres.";
+            break;
+
+          case "email":
+            if (!value) message = "Informe um e-mail.";
+            else {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(value)) message = "Informe um e-mail válido.";
+            }
+            break;
+
+          case "telefone":
+            if (!value) message = "Informe um telefone.";
+            else {
+              const digits = value.replace(/\D/g, "");
+              if (digits.length !== 11) message = "O telefone deve ter DDD + 9 dígitos.";
+            }
+            break;
+
+          case "instituicao":
+            if (!value) message = "Informe a instituição de ensino.";
+            break;
+
+          case "tipo_perfil":
+            if (!value) message = "Selecione um tipo de perfil.";
+            break;
+
+          case "password1":
+            if (!value) message = "Informe uma senha.";
+            else {
+              const hasMinLength = value.length >= 8;
+              const hasLetter = /[A-Za-z]/.test(value);
+              const hasNumber = /[0-9]/.test(value);
+              const hasSpecial = /[^A-Za-z0-9]/.test(value);
+
+              if (!hasMinLength || !hasLetter || !hasNumber || !hasSpecial) {
+                message = "A senha deve ter no mínimo 8 caracteres, com letras, números e caractere especial.";
+              }
+            }
+            if (fields.password2.value.trim() !== "") {
+              validateField("password2", touched["password2"]);
+            }
+            break;
+
+          case "password2":
+            if (!value) message = "Confirme a sua senha.";
+            else if (value !== fields.password1.value) message = "As senhas não coincidem.";
+            break;
+        }
+
+        if (message) el.classList.add("input-error");
+        else el.classList.remove("input-error");
+
+        if (showMessage && errorSpan) errorSpan.textContent = message;
+        else if (!showMessage && errorSpan && !message) errorSpan.textContent = "";
+
+        return !message;
+      }
+
+      function updateSubmitState() {
+        let allFilled = true;
+        let allValid = true;
+
+        for (const name in fields) {
+          const el = fields[name];
+          if (!el.value.trim()) allFilled = false;
+          if (el.classList.contains("input-error")) allValid = false;
+        }
+
+        submitBtn.disabled = !(allFilled && allValid);
+      }
+
+      Object.keys(fields).forEach((name) => {
+        const el = fields[name];
+        if (!el) return;
+
+        el.addEventListener("blur", function () {
+          touched[name] = true;
+          validateField(name, true);
+          updateSubmitState();
+        });
+
+        el.addEventListener("input", function () {
+          if (touched[name]) validateField(name, true);
+          else validateField(name, false);
+          updateSubmitState();
+        });
+      });
+
+      form.addEventListener("submit", function (e) {
+        let formOk = true;
+        Object.keys(fields).forEach((name) => {
+          touched[name] = true;
+          const valid = validateField(name, true);
+          if (!valid) formOk = false;
+        });
+        updateSubmitState();
+        if (!formOk) e.preventDefault();
+      });
+
+      updateSubmitState();
+    });
+  </script>
 </body>
 </html>

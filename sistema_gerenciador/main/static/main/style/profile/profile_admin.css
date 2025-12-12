@@ -77,26 +77,93 @@
 }
 
 /* Ações abaixo da tabela (editar / excluir) */
-
 .users-actions {
     gap: 10px;
 }
 
 /* ============================
-   MODAIS (criar / editar / excluir)
+   TABELA COM ROLAGEM (igual sensação da tela de logs)
    ============================ */
+.users-table-scroll{
+    max-height: 420px;          /* ajuste se quiser mais/menos */
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 14px;
+}
+
+/* mantém header visível ao rolar (se o events_list.css não fizer) */
+.users-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--card-bg, #fff);
+}
+
+/* no dark mode, garante contraste do sticky header */
+body.dark-mode .users-table thead th{
+    background: var(--card-bg, #2b1336);
+}
+
+/* ============================
+   MODAIS (overlay + card)
+   ============================ */
+
+.modal-overlay{
+    position: fixed !important;
+    inset: 0 !important;
+
+    /* backdrop aqui (não depende de ::before) */
+    background: rgba(17, 24, 39, 0.75) !important;
+
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 24px !important;          /* respira em telas menores */
+    overflow: auto !important;
+
+    z-index: 2147483647 !important;
+}
+
+.modal-overlay.is-open{
+    display: flex !important;
+}
+
+/* trava scroll do fundo */
+body.modal-open{
+    overflow: hidden !important;
+}
+
+/* card do modal (garante que não “some”) */
+.modal-card{
+    position: relative !important;
+
+    width: 100%;
+    max-width: 720px;
+
+    background: var(--card-bg, #ffffff) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 18px !important;
+
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45) !important;
+
+    color: var(--color-text, #111827) !important;
+}
+
+/* No dark mode, garante contraste do card */
+body.dark-mode .modal-card{
+    background: var(--card-bg, #2b1336) !important;
+    color: var(--neutral-text-light, #fdf8ff) !important;
+    border-color: rgba(253,225,0,0.12) !important;
+}
 
 /* Tamanho do card de modal de usuário */
 .user-modal-card {
-    max-width: 720px;
     max-height: 88vh;
+    overflow: auto;
 }
 
-/* Garante que o botão X fique no canto superior direito */
-.modal-card {
-    position: relative;
-}
-
+/* Botão X */
 .modal-close {
     position: absolute;
     top: 16px;
@@ -116,7 +183,6 @@
 }
 
 /* Grid do formulário no modal */
-
 .user-form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -132,12 +198,15 @@
     color: #4b5563;
 }
 
+body.dark-mode .user-form label{
+    color: rgba(253,248,255,0.78);
+}
+
 .user-form .input-field {
     width: 100%;
 }
 
 /* Campos desabilitados (ex.: E-mail login) */
-
 .user-form .input-field[disabled],
 .user-form select[disabled],
 .user-form textarea[disabled] {
@@ -147,10 +216,23 @@
     cursor: not-allowed;
 }
 
+/* Erros inline */
+.field-error{
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #b91c1c;
+    min-height: 16px;
+}
+
+.input-error{
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+}
+
 /* ============================
    Detalhes (se vier a usar)
    ============================ */
-
 .details-list {
     margin: 0;
     padding: 0;
@@ -178,6 +260,10 @@
     margin: 0;
     font-size: 14px;
     color: #111827;
+}
+
+body.dark-mode .details-row dd{
+    color: var(--neutral-text-light, #fdf8ff);
 }
 
 /* Responsivo: detalhes em uma coluna */
@@ -267,4 +353,123 @@
     border-color: #d1d5db;
     transform: translateY(-1px);
     box-shadow: 0 8px 18px rgba(148, 163, 184, 0.35);
+}
+
+/* ============================================================
+   FIX 1: seta do botão voltar visível dentro do círculo
+   ============================================================ */
+.btn-back{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:36px;
+    height:36px;
+    border-radius:999px;
+    background: var(--circle-icon-bg, #ffffff);
+    border: 1px solid rgba(102,44,146,0.18);
+}
+
+.btn-back .back-arrow{
+    color: var(--neutral-text-dark, #1b1021) !important;
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* No dark mode, mantém contraste do círculo e seta */
+body.dark-mode .btn-back{
+    background: var(--circle-icon-bg, #2b1336);
+    border-color: rgba(253,225,0,0.18);
+}
+body.dark-mode .btn-back .back-arrow{
+    color: var(--neutral-text-light, #fdf8ff) !important;
+}
+
+/* ============================================================
+   FIX 2: texto selecionado (highlight) legível no modo escuro
+============================================================ */
+body.dark-mode ::selection{
+    background: rgba(253,225,0,0.85);
+    color: #1b1021;
+}
+body.dark-mode input::selection,
+body.dark-mode textarea::selection{
+    background: rgba(253,225,0,0.85);
+    color: #1b1021;
+}
+
+/* ============================================================
+   FIX 3: linha selecionada na tabela legível no dark
+============================================================ */
+.users-table .user-row.selected,
+.users-table .user-row.selected td,
+.users-table .user-row.selected .user-name,
+.users-table .user-row.selected .user-email{
+    color: #1b1021 !important;
+}
+
+.users-table .user-row.selected .user-email{
+    opacity: .85;
+}
+
+body.dark-mode .users-table .user-row.selected{
+    background: rgba(255,255,255,0.92) !important;
+}
+
+/* =========================================
+   CORREÇÃO DEFINITIVA:
+   DESLIGA O BACKDROP GLOBAL (events_list.css)
+   QUANDO UM MODAL ESTIVER ABERTO
+   (alta especificidade para vencer seletores)
+   ========================================= */
+html body.modal-open::before{
+    display: none !important;
+}
+html body.dark-mode.modal-open::before{
+    display: none !important;
+}
+
+/* =========================================================
+   FIX: botão "Excluir usuário" sem estilo no modal
+   (força o submit dentro do form do modal a herdar o pill danger)
+   ========================================================= */
+#modal-excluir-usuario #form-excluir-usuario button[type="submit"]{
+    all: unset !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 8px 20px !important;
+    border-radius: 999px !important;
+
+    border: 1px solid #fecaca !important;
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease !important;
+}
+
+#modal-excluir-usuario #form-excluir-usuario button[type="submit"]:hover{
+    background: #fecaca !important;
+    border-color: #fca5a5 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 10px 22px rgba(185, 28, 28, 0.25) !important;
+}
+
+#modal-excluir-usuario #form-excluir-usuario button[type="submit"]:disabled{
+    background: #e5e7eb !important;
+    border-color: #e5e7eb !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    transform: none !important;
 }

@@ -1,69 +1,105 @@
 {% load static %}
 <!DOCTYPE html>
-
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Portal EnCUCA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portal EnCUCA</title>
 
-    <link rel="stylesheet" href="{% static 'main/style/login.css' %}">
+  <link rel="stylesheet" href="{% static 'main/style/login.css' %}">
 </head>
 
 <body>
+  <div class="page">
+    <div class="shell">
 
-    <!-- HEADER -->
-    <div class="header">
-        <div>Central de Eventos</div>
-        <div class="logo">
-            <img src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png" height="50px"/>
+      <!-- TOPBAR (mesmo conceito das telas internas) -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span class="brand-title">Central de Eventos</span>
+          </div>
         </div>
-    </div>
 
-    <!-- CARD LOGIN -->
-    <div class="container">
-        <div class="card">
+        <div class="topbar-right">
+          <img
+            class="brand-logo"
+            src="https://institucional.uniceub.br/hubfs/BrandCenter/img/logo-ceub-negativa-colorida.png"
+            alt="Logo CEUB"
+          />
+        </div>
+      </header>
 
-            <h2>Acessar conta</h2>
+      <!-- CONTEÚDO -->
+      <main class="main">
+        <section class="auth-wrap">
+          <div class="auth-card" role="region" aria-label="Acessar conta">
+            <h1 class="auth-title">Acessar conta</h1>
+            <p class="auth-subtitle">Entre com seu e-mail e senha para continuar.</p>
 
+            <!-- MENSAGENS (Django messages) -->
             {% if messages %}
-                {% for msg in messages %}
-                    {# mostra só erros ou avisos; ignora success/info #}
-                    {% if 'error' in msg.tags or 'warning' in msg.tags %}
-                        <p class="messages">{{ msg }}</p>
-                    {% endif %}
-                {% endfor %}
+              {% for msg in messages %}
+                {% if 'error' in msg.tags or 'warning' in msg.tags %}
+                  <div class="alert alert-danger" role="alert">
+                    {{ msg }}
+                  </div>
+                {% endif %}
+              {% endfor %}
             {% endif %}
-
 
             {% if erro %}
-                <p class="messages">{{ erro }}</p>
+              <div class="alert alert-danger" role="alert">
+                {{ erro }}
+              </div>
             {% endif %}
 
-            <form method="post" action="{% url 'login_page' %}">
-                {% csrf_token %}
-            
-                <div class="input-group">
-                    <label>E-mail</label>
-                    <input type="text" name="email" placeholder="Digite seu e-mail" required>
-                </div>
+            <form method="post" action="{% url 'login_page' %}" class="form">
+              {% csrf_token %}
 
-                <div class="input-group">
-                    <label>Senha</label>
-                    <input type="password" name="password" placeholder="Digite sua senha" required>
-                </div>
+              <div class="field">
+                <label class="label" for="id_email">E-mail</label>
+                <input
+                  id="id_email"
+                  class="input"
+                  type="text"
+                  name="email"
+                  placeholder="Digite seu e-mail"
+                  autocomplete="username"
+                  required
+                />
+              </div>
 
-                <button class="btn" type="submit">Entrar</button>
+              <div class="field">
+                <label class="label" for="id_password">Senha</label>
+                <input
+                  id="id_password"
+                  class="input"
+                  type="password"
+                  name="password"
+                  placeholder="Digite sua senha"
+                  autocomplete="current-password"
+                  required
+                />
+              </div>
 
+              <button class="btn btn-primary" type="submit">Entrar</button>
+
+              <div class="meta-links">
+                <a class="link" href="{% url 'register_page' %}">Não tem conta? Cadastre-se</a>
+              </div>
             </form>
+          </div>
 
-            <div class="link">Esqueceu a senha?</div>
-            <br>
-            <div class="link">
-                <a href="{% url 'register_page' %}"> Não tem conta? Cadastre-se </a>
-            </div>
+          <!-- “rodapé” discreto como nas telas internas -->
+          <p class="auth-footnote">
+            Ao acessar, você concorda com as regras e políticas institucionais aplicáveis.
+          </p>
+        </section>
+      </main>
 
-        </div>
     </div>
-
+  </div>
 </body>
 </html>

@@ -5,73 +5,74 @@
     <meta charset="UTF-8">
     <title>Admin – Eventos – Portal EnCUCA</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{% static 'main/style/eventos/events_list.css' %}">
 </head>
+
 <body>
+
 <div class="page">
     <div class="shell">
+
         <main class="main">
 
             <!-- TOPBAR -->
             <header class="topbar">
                 <div class="topbar-left">
-                    <a href="{% url 'admin_dashboard' %}"
-                       class="btn-back"
-                       aria-label="Voltar para o painel admin">
+                    <a href="{% url 'admin_dashboard' %}" class="btn-back" aria-label="Voltar para o painel admin">
                         <span class="back-arrow">&larr;</span>
                     </a>
-
-                    <h1>Administração de eventos</h1>
+                    <h1>Eventos</h1>
                 </div>
 
                 <div class="topbar-center">
-                    <div class="search-box">
+                    <form method="get" class="search-box" autocomplete="off">
                         <span class="search-icon"></span>
-                        <input type="text"
-                               id="searchEventos"
-                               placeholder="Buscar por título, professor ou local">
-                    </div>
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Buscar por título..."
+                            value="{{ request.GET.q }}"
+                        >
+                    </form>
                 </div>
 
                 <div class="topbar-right">
-                    <div class="circle-icon" id="themeToggle" title="Alternar tema">
-                        <span class="ci ci-theme"></span>
-                    </div>
-
-                    <button class="btn-perfil" id="btnPerfil">
-                        Perfil | {{ user.first_name|default:user.username }}
+                    <button class="circle-icon" id="themeToggle" type="button" aria-label="Alternar tema">🌙</button>
+                    <button class="btn-perfil" type="button">
+                        Perfil | {{ request.user.email }}
                     </button>
-
-                    <div class="user-dropdown" id="userDropdown">
-                        ...
-                    </div>
                 </div>
             </header>
 
-            <!-- LISTA DE EVENTOS ADMIN -->
+            <!-- CONTEÚDO -->
             <section class="content-events-list">
                 <div class="events-table-card">
+
                     <div class="events-table-header">
                         <div>
                             <h2>Lista de eventos cadastrados</h2>
                             <p>Selecione um evento para visualizar os detalhes e gerenciar as ações administrativas.</p>
                         </div>
-                        <div class="events-summary">
-                            {{ eventos|length }} evento(s) encontrado(s)
+
+                        <div class="events-table-header-right">
+                            <div class="events-summary">
+                                {{ eventos|length }} evento(s) encontrado(s)
+                            </div>
+
+                            <!-- BOTÃO CRIAR (posicionado corretamente) -->
+                            <button type="button" class="btn-detalhes" id="btnOpenCreateModal">
+                                + Criar novo evento
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Botão de criação abre modal -->
-                    <div class="events-actions events-actions-top">
-                        <button type="button"
-                                class="btn-detalhes btn-criar-evento"
-                                id="btnOpenCreateModal">
-                            + Criar novo evento
-                        </button>
-                    </div>
-
+                    <!-- TABELA -->
                     <div class="table-wrapper">
-                        <table class="events-table" id="eventsTable">
+                        <table class="events-table">
                             <thead>
                                 <tr>
                                     <th>Título</th>
@@ -81,370 +82,415 @@
                                     <th>Professor responsável</th>
                                 </tr>
                             </thead>
+
                             <tbody>
-                                {% if eventos %}
-                                    {% for evento in eventos %}
-                                        <tr class="event-row"
-                                            data-detail-url="{% url 'admin_event_detail' evento.id %}">
-                                            <td class="col-titulo">{{ evento.titulo }}</td>
-                                            <td>{{ evento.data_inicio|date:"d/m/Y" }}</td>
-                                            <td>{{ evento.data_fim|date:"d/m/Y" }}</td>
-                                            <td>{{ evento.quantidade_vagas }}</td>
-                                            <td>{{ evento.organizador.nome_completo }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
-                                    <tr>
-                                        <td colspan="5" class="events-table-empty">
-                                            Ainda não há eventos cadastrados.
-                                        </td>
-                                    </tr>
-                                {% endif %}
+                                {% for evento in eventos %}
+                                <tr class="event-row"
+                                    data-id="{{ evento.id }}"
+                                    data-titulo="{{ evento.titulo|escape }}"
+                                    data-status="{{ evento.status }}"
+                                    data-status-label="{{ evento.get_status_display|default:evento.status|escape }}"
+
+                                    data-data-inicio-iso="{{ evento.data_inicio|date:'Y-m-d' }}"
+                                    data-data-inicio-label="{{ evento.data_inicio|date:'d/m/Y' }}"
+                                    data-data-fim-iso="{% if evento.data_fim %}{{ evento.data_fim|date:'Y-m-d' }}{% else %}{% endif %}"
+                                    data-data-fim-label="{% if evento.data_fim %}{{ evento.data_fim|date:'d/m/Y' }}{% else %}—{% endif %}"
+
+                                    data-horario-inicio-iso="{% if evento.horario_inicio %}{{ evento.horario_inicio|time:'H:i' }}{% else %}{% endif %}"
+                                    data-horario-fim-iso="{% if evento.horario_fim %}{{ evento.horario_fim|time:'H:i' }}{% else %}{% endif %}"
+                                    data-horario-label="{% if evento.horario_inicio or evento.horario_fim %}{% if evento.horario_inicio %}{{ evento.horario_inicio }}{% endif %}{% if evento.horario_fim %} – {{ evento.horario_fim }}{% endif %}{% else %}—{% endif %}"
+
+                                    data-vagas="{{ evento.quantidade_vagas }}"
+                                    data-localizacao="{{ evento.localizacao|default:'—'|escape }}"
+                                    data-descricao="{{ evento.descricao|default:'—'|striptags|escape }}"
+
+                                    data-professor="{% if evento.organizador %}{{ evento.organizador.nome_completo|escape }}{% else %}—{% endif %}"
+
+                                    data-update-url="{% url 'event_update' evento.id %}"
+                                >
+                                    <td class="col-titulo">{{ evento.titulo }}</td>
+                                    <td>{{ evento.data_inicio|date:"d/m/Y" }}</td>
+                                    <td>{% if evento.data_fim %}{{ evento.data_fim|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+                                    <td>{{ evento.quantidade_vagas }}</td>
+                                    <td>
+                                        {% if evento.organizador %}
+                                            {{ evento.organizador.nome_completo }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="events-table-empty">Nenhum evento encontrado.</td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="events-actions" id="actionsContainer" style="display: none;">
-                        <button id="btnVerDetalhes" class="btn-detalhes">
+                    <!-- AÇÕES (só habilitam quando seleciona) -->
+                    <div class="events-actions">
+                        <button type="button" class="btn-detalhes" id="btnOpenDetails" disabled>
                             Ver detalhes do evento selecionado
                         </button>
+
+                        <button type="button" class="btn-detalhes" id="btnOpenEdit" disabled>
+                            Editar evento
+                        </button>
                     </div>
+
                 </div>
             </section>
+
         </main>
     </div>
 </div>
 
-<!-- MODAL DE CRIAÇÃO DE EVENTO (cópia do card de edição, mas com form vazio) -->
-<div class="modal-overlay" id="createEventModal">
-    <div class="modal-card">
+<!-- ============================================================
+     MODAL 1: DETALHES DO EVENTO  (SEM "Abrir página completa")
+     ============================================================ -->
+<div class="modal-overlay" id="modal-evento-detalhes" aria-hidden="true">
+    <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Detalhes do evento">
+        <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
+
         <div class="modal-header">
-            <h2>Criar novo evento</h2>
-            <button type="button"
-                    class="modal-close"
-                    id="btnCloseCreateModal"
-                    aria-label="Fechar criação">
-                &times;
-            </button>
+            <h2 id="det-titulo">Detalhes do evento</h2>
+        </div>
+
+        <div class="modal-body">
+            <div class="event-details-grid">
+                <div class="detail-box">
+                    <div class="detail-label">Data inicial</div>
+                    <div class="detail-value" id="det-data-inicio">—</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-label">Data final</div>
+                    <div class="detail-value" id="det-data-fim">—</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-label">Horário</div>
+                    <div class="detail-value" id="det-horario">—</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-label">Vagas</div>
+                    <div class="detail-value" id="det-vagas">—</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-label">Professor responsável</div>
+                    <div class="detail-value" id="det-professor">—</div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" id="det-status">—</div>
+                </div>
+
+                <div class="detail-box detail-full">
+                    <div class="detail-label">Localização</div>
+                    <div class="detail-value" id="det-localizacao">—</div>
+                </div>
+
+                <div class="detail-box detail-full">
+                    <div class="detail-label">Descrição</div>
+                    <div class="detail-value" id="det-descricao">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-detalhes" data-close-modal>Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL 2: EDITAR EVENTO (MESMO PADRÃO DO MODAL)
+     ============================================================ -->
+<div class="modal-overlay" id="modal-evento-editar" aria-hidden="true">
+    <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Editar evento">
+        <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
+
+        <div class="modal-header">
+            <h2>Editar evento</h2>
         </div>
 
         <form method="post"
-              action="{% url 'event_create' %}"
+              id="form-editar-evento"
+              action=""
               enctype="multipart/form-data"
               class="event-form"
-              id="formCreateEvento">
+              novalidate>
             {% csrf_token %}
 
             <div class="modal-body event-form-grid">
                 <div class="form-group form-group-full">
-                    <label for="{{ form_create.titulo.id_for_label }}">
-                        Título<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.titulo }}
-                    {% if form_create.titulo.errors %}
-                        <span class="field-error">{{ form_create.titulo.errors.0 }}</span>
-                    {% endif %}
-                </div>
-
-
-                <div class="form-group">
-                    <label for="{{ form_create.status.id_for_label }}">
-                        Status<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.status }}
-                    {% if form_create.status.errors %}
-                        <span class="field-error">{{ form_create.status.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-titulo">Título</label>
+                    <input type="text" id="edit-titulo" name="titulo" class="input-field" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form_create.quantidade_vagas.id_for_label }}">
-                        Quantidade de vagas<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.quantidade_vagas }}
-                    {% if form_create.quantidade_vagas.errors %}
-                        <span class="field-error">{{ form_create.quantidade_vagas.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-status">Status</label>
+                    <select id="edit-status" name="status" class="input-field" required>
+                        <option value="ATIVO">Ativo</option>
+                        <option value="INATIVO">Inativo</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-vagas">Quantidade de vagas</label>
+                    <input type="number" id="edit-vagas" name="quantidade_vagas" class="input-field" min="0" required>
                 </div>
 
                 <div class="form-group form-group-full">
-                    <label for="{{ form_create.localizacao.id_for_label }}">
-                        Localização<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.localizacao }}
-                    {% if form_create.localizacao.errors %}
-                        <span class="field-error">{{ form_create.localizacao.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-localizacao">Localização</label>
+                    <input type="text" id="edit-localizacao" name="localizacao" class="input-field">
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form_create.data_inicio.id_for_label }}">
-                        Data de início<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.data_inicio }}
-                    {% if form_create.data_inicio.errors %}
-                        <span class="field-error">{{ form_create.data_inicio.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-data-inicio">Data de início</label>
+                    <input type="date" id="edit-data-inicio" name="data_inicio" class="input-field" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form_create.data_fim.id_for_label }}">
-                        Data de término<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.data_fim }}
-                    {% if form_create.data_fim.errors %}
-                        <span class="field-error">{{ form_create.data_fim.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-data-fim">Data de término</label>
+                    <input type="date" id="edit-data-fim" name="data_fim" class="input-field">
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form_create.horario_inicio.id_for_label }}">
-                        Horário de início<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.horario_inicio }}
-                    {% if form_create.horario_inicio.errors %}
-                        <span class="field-error">{{ form_create.horario_inicio.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-hora-inicio">Horário de início</label>
+                    <input type="time" id="edit-hora-inicio" name="horario_inicio" class="input-field">
                 </div>
 
                 <div class="form-group">
-                    <label for="{{ form_create.horario_fim.id_for_label }}">
-                        Horário de término<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.horario_fim }}
-                    {% if form_create.horario_fim.errors %}
-                        <span class="field-error">{{ form_create.horario_fim.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-hora-fim">Horário de término</label>
+                    <input type="time" id="edit-hora-fim" name="horario_fim" class="input-field">
                 </div>
 
                 <div class="form-group form-group-full">
-                    <label for="{{ form_create.descricao.id_for_label }}">
-                        Descrição<span class="required-asterisk">*</span>
-                    </label>
-                    {{ form_create.descricao }}
-                    {% if form_create.descricao.errors %}
-                        <span class="field-error">{{ form_create.descricao.errors.0 }}</span>
-                    {% endif %}
+                    <label for="edit-descricao">Descrição</label>
+                    <textarea id="edit-descricao" name="descricao" class="input-field" rows="4"></textarea>
                 </div>
 
                 <div class="form-group form-group-full">
-                    <label for="{{ form_create.banner.id_for_label }}">
-                        Banner (opcional)
-                    </label>
-                    {{ form_create.banner }}
+                    <label for="edit-banner">Banner (opcional)</label>
+                    <input type="file" id="edit-banner" name="banner" class="input-field" accept="image/*">
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button"
-                        class="btn-detalhes btn-cancelar-modal"
-                        id="btnCloseCreateModal2">
-                    Cancelar
-                </button>
-                <button type="submit"
-                        class="btn-detalhes btn-submit-disabled"
-                        id="btnCreateSubmit"
-                        disabled>
-                    Salvar evento
-                </button>
+                <button type="button" class="btn-cancelar-modal" data-close-modal>Cancelar</button>
+                <button type="submit" class="btn-detalhes">Salvar alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL 3: CRIAR EVENTO (CÓPIA DO EDITAR)
+     ============================================================ -->
+<div class="modal-overlay" id="modal-evento-criar" aria-hidden="true">
+    <div class="modal-card user-modal-card" role="dialog" aria-modal="true" aria-label="Criar evento">
+        <button type="button" class="modal-close" data-close-modal aria-label="Fechar">&times;</button>
+
+        <div class="modal-header">
+            <h2>Criar evento</h2>
+        </div>
+
+        <form method="post"
+              id="form-criar-evento"
+              action="{% url 'event_create' %}"
+              enctype="multipart/form-data"
+              class="event-form"
+              novalidate>
+            {% csrf_token %}
+
+            <div class="modal-body event-form-grid">
+                <div class="form-group form-group-full">
+                    <label for="create-titulo">Título</label>
+                    <input type="text" id="create-titulo" name="titulo" class="input-field" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="create-status">Status</label>
+                    <select id="create-status" name="status" class="input-field" required>
+                        <option value="ATIVO" selected>Ativo</option>
+                        <option value="INATIVO">Inativo</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="create-vagas">Quantidade de vagas</label>
+                    <input type="number" id="create-vagas" name="quantidade_vagas" class="input-field" min="0" required>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="create-localizacao">Localização</label>
+                    <input type="text" id="create-localizacao" name="localizacao" class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="create-data-inicio">Data de início</label>
+                    <input type="date" id="create-data-inicio" name="data_inicio" class="input-field" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="create-data-fim">Data de término</label>
+                    <input type="date" id="create-data-fim" name="data_fim" class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="create-hora-inicio">Horário de início</label>
+                    <input type="time" id="create-hora-inicio" name="horario_inicio" class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="create-hora-fim">Horário de término</label>
+                    <input type="time" id="create-hora-fim" name="horario_fim" class="input-field">
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="create-descricao">Descrição</label>
+                    <textarea id="create-descricao" name="descricao" class="input-field" rows="4"></textarea>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="create-banner">Banner (opcional)</label>
+                    <input type="file" id="create-banner" name="banner" class="input-field" accept="image/*">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar-modal" data-close-modal>Cancelar</button>
+                <button type="submit" class="btn-detalhes">Criar evento</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Tema
+document.addEventListener("DOMContentLoaded", function () {
+    // ===== THEME =====
     const body = document.body;
-    const toggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('theme') || 'light';
-
-    if (savedTheme === 'dark') {
-        body.classList.add('dark-mode');
-    }
+    const toggle = document.getElementById("themeToggle");
+    const savedTheme = localStorage.getItem("theme") || "light";
+    if (savedTheme === "dark") body.classList.add("dark-mode");
     if (toggle) {
-        toggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            const newTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-            localStorage.setItem('theme', newTheme);
+        toggle.addEventListener("click", function () {
+            body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
         });
     }
 
-    // Dropdown perfil
-    const btnPerfil = document.getElementById('btnPerfil');
-    const dropdown = document.getElementById('userDropdown');
-
-    if (btnPerfil && dropdown) {
-        btnPerfil.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    // ===== MODAIS util =====
+    function openModal(modal){
+        if (!modal) return;
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+    }
+    function closeAllModals(){
+        document.querySelectorAll(".modal-overlay.is-open").forEach(m => {
+            m.classList.remove("is-open");
+            m.setAttribute("aria-hidden", "true");
         });
-
-        document.addEventListener('click', (e) => {
-            if (dropdown.style.display === 'block' &&
-                !dropdown.contains(e.target) &&
-                !btnPerfil.contains(e.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
+        document.body.classList.remove("modal-open");
     }
 
-    // Seleção de linha + botão "Ver detalhes"
-    const rows = document.querySelectorAll('.event-row');
-    const actionsContainer = document.getElementById('actionsContainer');
-    const btnDetalhes = document.getElementById('btnVerDetalhes');
-    let selectedRow = null;
-
-    rows.forEach(row => {
-        row.addEventListener('click', () => {
-            if (selectedRow) {
-                selectedRow.classList.remove('selected');
-            }
-            selectedRow = row;
-            row.classList.add('selected');
-            actionsContainer.style.display = 'flex';
+    document.querySelectorAll("[data-close-modal]").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeAllModals();
         });
     });
 
-    if (btnDetalhes) {
-        btnDetalhes.addEventListener('click', () => {
-            if (!selectedRow) return;
-            const url = selectedRow.dataset.detailUrl;
-            if (url) {
-                window.location.href = url;
-            }
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeAllModals();
+        });
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAllModals();
+    });
+
+    // ===== seleção de evento =====
+    const rows = document.querySelectorAll(".events-table .event-row");
+    const btnDetails = document.getElementById("btnOpenDetails");
+    const btnEdit = document.getElementById("btnOpenEdit");
+    const btnCreate = document.getElementById("btnOpenCreateModal");
+
+    const modalDetails = document.getElementById("modal-evento-detalhes");
+    const modalEdit = document.getElementById("modal-evento-editar");
+    const modalCreate = document.getElementById("modal-evento-criar");
+
+    let selectedRow = null;
+
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            if (selectedRow) selectedRow.classList.remove("selected");
+            selectedRow = row;
+            row.classList.add("selected");
+            btnDetails.disabled = false;
+            btnEdit.disabled = false;
+        });
+    });
+
+    // ===== abrir CRIAR =====
+    if (btnCreate) {
+        btnCreate.addEventListener("click", () => {
+            // reset simples
+            const form = document.getElementById("form-criar-evento");
+            if (form) form.reset();
+            openModal(modalCreate);
         });
     }
 
-    // Filtro de busca
-    const searchInput = document.getElementById('searchEventos');
-    if (searchInput && rows.length) {
-        searchInput.addEventListener('input', () => {
-            const termo = searchInput.value.toLowerCase();
-            rows.forEach(row => {
-                const titulo = row.querySelector('.col-titulo')?.textContent.toLowerCase() || '';
-                const professor = row.cells[4]?.textContent.toLowerCase() || '';
-                if (titulo.includes(termo) || professor.includes(termo)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    }
+    // ===== abrir DETALHES =====
+    btnDetails.addEventListener("click", () => {
+        if (!selectedRow) return;
 
-    // Modal de criação de evento
-    const createModal = document.getElementById('createEventModal');
-    const btnOpenCreate = document.getElementById('btnOpenCreateModal');
-    const btnCloseCreate = document.getElementById('btnCloseCreateModal');
-    const btnCloseCreate2 = document.getElementById('btnCloseCreateModal2');
-    const createForm = document.getElementById('formCreateEvento');
-    const createSubmit = document.getElementById('btnCreateSubmit');
+        document.getElementById("det-titulo").textContent = selectedRow.dataset.titulo || "Detalhes do evento";
+        document.getElementById("det-data-inicio").textContent = selectedRow.dataset.dataInicioLabel || "—";
+        document.getElementById("det-data-fim").textContent = selectedRow.dataset.dataFimLabel || "—";
+        document.getElementById("det-horario").textContent = selectedRow.dataset.horarioLabel || "—";
+        document.getElementById("det-vagas").textContent = selectedRow.dataset.vagas || "—";
+        document.getElementById("det-professor").textContent = selectedRow.dataset.professor || "—";
+        document.getElementById("det-status").textContent = selectedRow.dataset.statusLabel || selectedRow.dataset.status || "—";
+        document.getElementById("det-localizacao").textContent = selectedRow.dataset.localizacao || "—";
+        document.getElementById("det-descricao").textContent = selectedRow.dataset.descricao || "—";
 
-    if (btnOpenCreate && createModal) {
-        btnOpenCreate.addEventListener('click', () => {
-            createModal.classList.add('is-open');
-        });
-    }
+        openModal(modalDetails);
+    });
 
-    function fecharCreateModal() {
-        createModal.classList.remove('is-open');
-    }
+    // ===== abrir EDITAR =====
+    btnEdit.addEventListener("click", () => {
+        if (!selectedRow) return;
 
-    if (btnCloseCreate) {
-        btnCloseCreate.addEventListener('click', fecharCreateModal);
-    }
-    if (btnCloseCreate2) {
-        btnCloseCreate2.addEventListener('click', fecharCreateModal);
-    }
+        const formEdit = document.getElementById("form-editar-evento");
+        formEdit.action = selectedRow.dataset.updateUrl || "";
 
-    if (createModal) {
-        createModal.addEventListener('click', (e) => {
-            if (e.target === createModal) {
-                fecharCreateModal();
-            }
-        });
-    }
+        document.getElementById("edit-titulo").value = selectedRow.dataset.titulo || "";
+        document.getElementById("edit-status").value = selectedRow.dataset.status || "ATIVO";
+        document.getElementById("edit-vagas").value = selectedRow.dataset.vagas || "0";
+        document.getElementById("edit-localizacao").value = selectedRow.dataset.localizacao === "—" ? "" : (selectedRow.dataset.localizacao || "");
+        document.getElementById("edit-data-inicio").value = selectedRow.dataset.dataInicioIso || "";
+        document.getElementById("edit-data-fim").value = selectedRow.dataset.dataFimIso || "";
+        document.getElementById("edit-hora-inicio").value = selectedRow.dataset.horarioInicioIso || "";
+        document.getElementById("edit-hora-fim").value = selectedRow.dataset.horarioFimIso || "";
+        document.getElementById("edit-descricao").value = selectedRow.dataset.descricao === "—" ? "" : (selectedRow.dataset.descricao || "");
+        document.getElementById("edit-banner").value = "";
 
-    // Habilita/desabilita o botão de salvar conforme a validade do formulário
-    function updateCreateButtonState() {
-        if (!createForm || !createSubmit) return;
-
-        if (createForm.checkValidity()) {
-            createSubmit.disabled = false;
-            createSubmit.classList.remove('btn-submit-disabled');
-        } else {
-            createSubmit.disabled = true;
-            createSubmit.classList.add('btn-submit-disabled');
-        }
-    }
-
-    if (createForm) {
-        // escuta mudanças em todos os campos do form
-        const inputs = createForm.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('input', updateCreateButtonState);
-            input.addEventListener('change', updateCreateButtonState);
-        });
-        // estado inicial
-        updateCreateButtonState();
-    }
-
-        // =======================
-    // Máscaras de data e hora
-    // =======================
-
-    function applyDateMask(input) {
-        input.addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, ''); // só dígitos
-            if (v.length > 8) v = v.slice(0, 8);
-
-            let out = '';
-            if (v.length >= 1) out = v.slice(0, 2);
-            if (v.length >= 3) out = v.slice(0, 2) + '/' + v.slice(2, 4);
-            if (v.length >= 5) out = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4, 8);
-
-            e.target.value = out;
-        });
-    }
-
-    function applyTimeMask(input) {
-        input.addEventListener('input', function (e) {
-            let v = e.target.value.replace(/\D/g, ''); // só dígitos
-            if (v.length > 4) v = v.slice(0, 4);
-
-            let out = '';
-            if (v.length >= 1) out = v.slice(0, 2);
-            if (v.length >= 3) out = v.slice(0, 2) + ':' + v.slice(2, 4);
-
-            e.target.value = out;
-        });
-    }
-
-    function setupDateTimeMasks() {
-        // seleciona os campos de data
-        const dateInputs = document.querySelectorAll(
-            'input[name="data_inicio"], input[name="data_fim"]'
-        );
-        dateInputs.forEach((inp) => {
-            if (inp.type === 'text') {  // evita conflitar se for <input type="date">
-                applyDateMask(inp);
-            }
-        });
-
-        // seleciona os campos de horário
-        const timeInputs = document.querySelectorAll(
-            'input[name="horario_inicio"], input[name="horario_fim"]'
-        );
-        timeInputs.forEach((inp) => {
-            if (inp.type === 'text') { // evita conflitar se for <input type="time">
-                applyTimeMask(inp);
-            }
-        });
-    }
-
-    // chama assim que o script carregar (já está no final do body)
-    setupDateTimeMasks();
-
+        openModal(modalEdit);
+    });
+});
 </script>
+
 </body>
 </html>
