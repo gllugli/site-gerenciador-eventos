@@ -1,176 +1,115 @@
-# SGEA – Sistema de Gestão de Eventos Acadêmicos
+# Portal EnCUCA  
+## Sistema de Gestão de Eventos Acadêmicos (SGEA)
 
-O **SGEA** é um sistema desenvolvido em **Django** para gerenciar eventos acadêmicos, permitindo que estudantes, professores e organizadores realizem inscrições, controlem presença, emitam certificados e consultem auditorias. O sistema também oferece uma **API REST** para integração com o frontend.
-
----
-
-## 🎓 Sobre o Projeto
-
-Este projeto está sendo desenvolvido para o **Centro Universitário de Brasília – UniCEUB**, como **trabalho final da disciplina “Programação para Web”**.  
-O objetivo é aplicar conceitos de desenvolvimento backend com Django, integrações REST, autenticação, controle de acesso, validações avançadas e boas práticas de engenharia de software.
+**Projeto acadêmico – Programação para Web (Fase 2)**  
+Data da documentação: 12/12/2025
 
 ---
 
-## 📌 Funcionalidades Principais
+## 1. Apresentação
 
-### Usuários
-- Cadastro e autenticação de usuários (Aluno, Professor, Organizador)
-- Perfis com permissões distintas
-- Confirmação de e-mail após cadastro
-- Login via sessão (web) e via token (API)
+O **Portal EnCUCA – Sistema de Gestão de Eventos Acadêmicos (SGEA)** é uma aplicação web desenvolvida para apoiar a organização, divulgação e gestão de eventos acadêmicos, como palestras, seminários, minicursos e semanas acadêmicas.
 
-### Eventos
-- Cadastro, edição e exclusão de eventos (somente organizador)
-- Definição de professor responsável
+O sistema foi projetado com foco em **boas práticas de desenvolvimento backend**, segurança, organização do código e aderência aos requisitos propostos no Projeto 2 da disciplina, contemplando autenticação, regras de negócio, auditoria e integração via API REST.
+
+---
+
+## 2. Tecnologias Utilizadas
+
+- **Python 3**
+- **Django**
+- **Django REST Framework (DRF)**
+- **SQLite** (ambiente de desenvolvimento)
+- HTML/CSS (camada de apresentação)
+- SMTP (envio de e-mails)
+
+---
+
+## 3. Arquitetura do Sistema
+
+O projeto segue o padrão **MVC/MVT** do Django, com separação clara de responsabilidades:
+
+- **Models**: regras de negócio e persistência
+- **Views**: controle das requisições web e API
+- **Templates**: renderização das páginas
+- **Serializers (DRF)**: transformação de dados para JSON
+- **Permissions / Decorators**: controle de acesso
+- **Logs**: auditoria das ações relevantes
+
+A API REST permite integração com o frontend e futuras aplicações externas.
+
+---
+
+## 4. Funcionalidades Implementadas
+
+### 4.1 Usuários
+- Cadastro de usuários (Aluno, Professor, Organizador)
+- Autenticação por login e senha
+- Confirmação de e-mail obrigatória
+- Atualização de dados cadastrais
+
+### 4.2 Eventos
+- Cadastro, edição e cancelamento de eventos
+- Definição de vagas, datas, horários e responsável
+- Upload e exibição de banner do evento
+- Listagem e visualização de detalhes
+
+### 4.3 Inscrições
+- Inscrição em eventos via sistema e API
 - Controle de vagas
-- Validação de datas e horários
-- Upload de banner do evento
+- Bloqueio de inscrições duplicadas
+- Cancelamento conforme regras
 
-### Inscrições
-- Inscrição e cancelamento (alunos e professores)
-- Impedimento de inscrições duplicadas ou acima do limite
-- Marcação de presença pelo organizador
+### 4.4 API REST
+- Login com token
+- Listagem de eventos
+- Detalhe de evento
+- Inscrição em evento
+- Rate limit (throttling)
 
-### Certificados
-- Emissão automática após o encerramento do evento
-- Disponibilização para download pelo participante
-- Associação aos eventos e usuários
-
-### API REST
-- Autenticação via token
-- Consulta de eventos
-- Inscrição via API
-- Configuração de limites de requisição (throttling)
-- Registro de auditoria das ações via API
-
-### Auditoria
-- Registro completo de ações do sistema, incluindo:
-  - Criação/alteração de eventos
+### 4.5 Auditoria
+- Registro de ações críticas:
+  - Eventos
   - Inscrições
-  - Geração/consulta de certificados
-  - Consultas à API
-- Tela exclusiva para organizadores visualizarem logs filtrados por usuário e período
+  - Consultas via API
+- Tela administrativa para consulta de logs
+
+### 4.6 Certificados
+- Estrutura de emissão criada
+- Model, view e template configurados
+- Automação de emissão prevista (em andamento)
 
 ---
 
-## 🗂️ Tecnologias Utilizadas
-- Python 3.x
-- Django
-- Django REST Framework (DRF)
-- SQLite ou PostgreSQL
-- Bootstrap / HTML / CSS (se usar templates Django)
-- Docker (opcional)
+## 5. Status do Projeto
+
+✔ Funcionalidades principais implementadas  
+✔ API REST funcional  
+✔ Validações e regras de negócio aplicadas  
+✔ Identidade visual implementada  
+
+⏳ Emissão automática de certificados (em evolução)
 
 ---
 
-## 📁 Estrutura Inicial do Projeto
+## 6. Como Executar o Projeto
 
-```
-/sgea
-    /accounts
-    /eventos
-    /certificados
-    /api
-    /static
-    /media
-README.md
-requirements.txt
-manage.py
-```
+Consulte o arquivo **Guia_Instalacao.md**.
 
 ---
 
-## ⚙️ Instalação e Configuração
+## 7. Documentação Complementar
 
-### 1. Clonar o repositório
-```bash
-git clone https://github.com/usuario/sgea.git
-cd sgea
-```
-
-### 2. Criar e ativar um ambiente virtual
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate   # Windows
-```
-
-### 3. Instalar dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configurar o arquivo `.env`
-Crie um arquivo `.env` na raiz do projeto com, por exemplo:
-
-```env
-SECRET_KEY=suachavesecreta
-DEBUG=True
-DATABASE_URL=sqlite:///db.sqlite3
-EMAIL_HOST=smtp.seuservidor.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=seuemail
-EMAIL_HOST_PASSWORD=suasenha
-EMAIL_USE_TLS=True
-```
-
-### 5. Rodar migrações
-```bash
-python manage.py migrate
-```
-
-### 6. Criar superusuário
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Rodar servidor
-```bash
-python manage.py runserver
-```
+- Guia de Instalação
+- Guia de Testes
+- Casos de Uso
+- Requisitos Funcionais
+- Requisitos Não Funcionais
+- Documentação da API
+- Arquitetura do Backend
 
 ---
 
-## 🔧 Carga Inicial de Dados (Opcional)
+## 8. Considerações Finais
 
-O sistema pode carregar usuários e eventos iniciais com:
-
-```bash
-python manage.py loaddata initial_data.json
-```
-
----
-
-## 📌 Endpoints da API (Resumo)
-
-### Autenticação
-- `POST /api/auth/login/` – retorna token de acesso
-
-### Eventos
-- `GET /api/eventos/` – lista de eventos
-- `GET /api/eventos/<id>/` – detalhes
-- `POST /api/eventos/<id>/inscrever/` – inscrição
-
-### Certificados
-- `GET /api/certificados/` – lista certificados do usuário autenticado
-
----
-
-## 🧪 Guia de Testes Essenciais
-
-- Criar usuário → confirmar e-mail → login
-- Criar evento com professor responsável
-- Tentar criar evento com data retroativa (deve falhar)
-- Inscrever aluno até esgotar vagas
-- Tentar inscrição duplicada (deve falhar)
-- Marcar presença
-- Gerar certificados
-- Fazer requisições via API com throttling
-- Consultar auditoria
-
----
-
-## 📄 Licença
-
-Este projeto é distribuído para fins acadêmicos.
-Caso utilize como base para outros projetos, cite a fonte.
+O Portal EnCUCA atende aos objetivos propostos para o Projeto 2, demonstrando domínio dos conceitos de backend com Django, API REST, segurança, organização de código e regras de negócio.
